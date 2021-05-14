@@ -1,0 +1,5 @@
+export REST_API_IP="9.110.70.96"
+export USERNAME="fsdriver"
+export PASSWORD="fsdriver"
+export WATCH_NAMESPACE="ibm-storage-odf"
+export FLASHSYSTEM_CLUSTERNAME="flashsystemcluster-sample"

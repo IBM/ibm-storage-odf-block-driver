@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibm-block-storage-driver
+  namespace: ibm-storage-odf
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ibm-block-storage-driver
+  template:
+    metadata:
+      labels:
+        app: ibm-block-storage-driver
+    spec:
+      #hostNetwork: true
+      containers:
+        - name: flash-driver
+          image: 9.110.70.75/sandbox/ibm-storage-odf-block-driver:v0.0.1
+#          imagePullPolicy: "Always"
+          imagePullPolicy: "IfNotPresent"
+          resources:
+            limits:
+              cpu: "1"
+              memory: "500Mi"
+            requests:
+              cpu: "0.5"
+              memory: "200Mi"
+          envFrom:
+            - configMapRef:
+                name: block-driver-config
+            - secretRef:
+                name: block-driver-secret
+          ports:
+            - containerPort: 36111
+              protocol: TCP
+            - containerPort: 9100
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ibm-block-storage-driver-service
+  namespace: ibm-storage-odf
+  labels:
+    app: ibm-block-storage-driver-service
+spec:
+  selector:
+    app: ibm-block-storage-driver
+  ports:
+    - name: metricport
+      port: 9100
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ibm-block-storage-driver-monitor
+  namespace: ibm-storage-odf
+  labels:
+    #    team: machinecity
+    app: ibm-block-storage-driver-monitor
+    release: my-release
+spec:
+  namespaceSelector:
+    matchNames:
+      - storage
+  selector:
+    matchLabels:
+      app: ibm-block-storage-driver-service
+  endpoints:
+    - port: metricport
+      interval: 60s
+      scrapeTimeout: 60s

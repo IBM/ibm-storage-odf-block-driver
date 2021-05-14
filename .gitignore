@@ -1,0 +1,11 @@
+*.swp
+main
+_output
+*.out
+*.debug
+*.test
+*.bk
+
+
+# cscope
+cscope.files
