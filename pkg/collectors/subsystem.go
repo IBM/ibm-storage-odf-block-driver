@@ -16,12 +16,11 @@ limitations under the License.
 package collectors
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	log "k8s.io/klog"
 
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
@@ -152,17 +151,13 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		f.up.Set(1)
 	}
 
-	// Parse sysInfoResults for code_level and product_name
-	codelevel := sysInfoResults[VersionKey]
-	productname := sysInfoResults[ModelKey]
-
 	// code level example: 8.3.1.2 (build 150.24.2008101830000)
-	version := fmt.Sprintf("%v", codelevel)
+	version := sysInfoResults[VersionKey].(string)
 	versions := strings.Split(version, " ")
 	systemInfo.Version = versions[0]
 
 	// product_name: IBM FlashSystem 9200
-	productStr := fmt.Sprintf("%v", productname)
+	productStr := sysInfoResults[ModelKey].(string)
 	names := strings.Split(productStr, " ")
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
@@ -192,14 +187,14 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 		metricName, ok := m["stat_name"]
 		if !ok {
-			log.Warnf("no stat_name in metric response: %v", m)
+			log.Warningf("no stat_name in metric response: %v", m)
 			continue
 		}
 
 		// Get metric descriptor name from rawMetricsMap
 		metricDescName, ok := rawMetricsMap[metricName]
 		if !ok {
-			log.Debugf("Not interested metric for %s", metricName)
+			log.Warningf("Not interested metric for %s", metricName)
 			continue
 		}
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
+	log "k8s.io/klog"
 )
 
 const (
@@ -22,8 +22,7 @@ func (c *FSRestClient) CheckVersion() (bool, error) {
 		return false, fmt.Errorf("rest client error")
 	}
 
-	codelevel := systeminfo[VersionKey]
-	version := fmt.Sprintf("%v", codelevel)
+	version := systeminfo[VersionKey].(string)
 	versions := strings.Split(version, " ")
 	// Compare
 	validversion := normalizeVersion(ValidVersion, 2, 4)
@@ -43,7 +42,7 @@ func (c *FSRestClient) CheckUserRole(name string) (bool, error) {
 	}
 
 	for _, user := range userinfo {
-		username := fmt.Sprintf("%v", user[UserNameKey])
+		username := user[UserNameKey].(string)
 		if username == name {
 			log.Infof("user name: %s, role: %v", username, user[UserRoleKey])
 			return true, nil

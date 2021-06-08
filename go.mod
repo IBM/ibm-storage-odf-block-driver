@@ -6,7 +6,6 @@ require (
 	github.com/IBM/ibm-storage-odf-operator v0.0.2
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.8.0
-	github.com/sirupsen/logrus v1.7.0
 	k8s.io/api v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2

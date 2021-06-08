@@ -17,7 +17,7 @@ package collectors
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	log "k8s.io/klog"
 
 	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"

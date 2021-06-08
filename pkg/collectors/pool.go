@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
+	log "k8s.io/klog"
 
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
 )
@@ -338,14 +338,12 @@ func newPoolCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 }
 
 func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, info *PoolInfo) {
-	strPoolId := fmt.Sprintf("%d", info.PoolId)
-
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,
 		value,
 		info.SystemName,
-		strPoolId,
+		fmt.Sprintf("%d", info.PoolId),
 		info.PoolName,
 		info.StorageClass,
 	)
