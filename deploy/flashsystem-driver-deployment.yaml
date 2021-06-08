@@ -13,12 +13,10 @@ spec:
       labels:
         app: ibm-block-storage-driver
     spec:
-      #hostNetwork: true
       containers:
         - name: flash-driver
-          image: 9.110.70.75/sandbox/ibm-storage-odf-block-driver:v0.0.1
-#          imagePullPolicy: "Always"
-          imagePullPolicy: "IfNotPresent"
+          image: "${IMAGE_REGISTRY}/${REGISTRY_NAMESPACE}/ibm-storage-odf-block-driver:latest"
+          imagePullPolicy: "Always"          
           resources:
             limits:
               cpu: "1"
@@ -58,7 +56,6 @@ metadata:
   name: ibm-block-storage-driver-monitor
   namespace: ibm-storage-odf
   labels:
-    #    team: machinecity
     app: ibm-block-storage-driver-monitor
     release: my-release
 spec:

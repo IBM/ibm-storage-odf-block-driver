@@ -5,7 +5,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	log "github.com/sirupsen/logrus"
+	log "k8s.io/klog"
 
 	collector "github.com/IBM/ibm-storage-odf-block-driver/pkg/collectors"
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
@@ -15,7 +15,7 @@ func RunExporter(restClient *rest.FSRestClient, subsystemName string, namespace 
 
 	c, err := collector.NewPerfCollector(restClient, subsystemName, namespace)
 	if err != nil {
-		log.Warnf("NewFSPerfCollector fails, err:%s", err)
+		log.Warningf("NewFSPerfCollector fails, err:%s", err)
 	}
 
 	prometheus.MustRegister(c)

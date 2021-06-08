@@ -4,7 +4,7 @@ metadata:
   name: block-driver-config
   namespace: ibm-storage-odf
 data:
-  REST_API_IP: "9.110.70.96"
+  REST_API_IP: "fs_api_ip_address"
   REST_TRUSTED_CA: "" # TODO: further CA SSL support for fs rest server
   INSECURE: "true"
   FLASHSYSTEM_CLUSTERNAME: "flashsystemcluster-sample"

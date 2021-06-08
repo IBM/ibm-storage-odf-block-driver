@@ -149,12 +149,9 @@ error_out:
 	go func() {
 		sig := <-sigs
 		klog.Infof("Received signal: %+v, clean up...", sig)
-		//s.Cleanup()
 		done <- true
 	}()
 
-	// start server
-	//s.Start()
 	// exiting
 	<-done
 	klog.Info("Exiting")

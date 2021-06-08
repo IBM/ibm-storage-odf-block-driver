@@ -13,9 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	log "github.com/sirupsen/logrus"
-
-	"k8s.io/klog"
+	log "k8s.io/klog"
 )
 
 type Config struct {
@@ -165,7 +163,7 @@ func (c *FSRestClient) retryDo(url string, jsonStr string) ([]byte, error) {
 
 func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 	if req == nil {
-		return nil, 0, fmt.Errorf("invalid parameter, abort")
+		return nil, 0, errors.New("invalid parameter, abort")
 	}
 
 	if c.token == nil {
@@ -198,7 +196,7 @@ func (c *FSRestClient) Lssystem() (StorageSystem, error) {
 
 	var storagesystem StorageSystem
 	if err = json.Unmarshal(body, &storagesystem); err != nil {
-		klog.Errorf("Lssystem err %v, body %s", err, body)
+		log.Errorf("Lssystem err %v, body %s", err, body)
 		return nil, err
 	}
 
@@ -215,7 +213,7 @@ func (c *FSRestClient) Lsnode() (Nodes, error) {
 
 	var nodes Nodes
 	if err = json.Unmarshal(body, &nodes); err != nil {
-		klog.Errorf("Lsnode err %v, body %s", err, body)
+		log.Errorf("Lsnode err %v, body %s", err, body)
 		return nil, err
 	}
 
@@ -232,7 +230,7 @@ func (c *FSRestClient) Lssystemstats() (SystemStats, error) {
 
 	var stats SystemStats
 	if err = json.Unmarshal(body, &stats); err != nil {
-		klog.Errorf("lssystemstats err %v, body %s", err, body)
+		log.Errorf("lssystemstats err %v, body %s", err, body)
 		return nil, err
 	}
 
@@ -249,7 +247,7 @@ func (c *FSRestClient) Lsuser() (Users, error) {
 
 	var users Users
 	if err = json.Unmarshal(body, &users); err != nil {
-		klog.Errorf("Lsuser err %v, body %s", err, body)
+		log.Errorf("Lsuser err %v, body %s", err, body)
 		return nil, err
 	}
 
@@ -268,7 +266,7 @@ func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
 
 	var stats PoolList
 	if err = json.Unmarshal(body, &stats); err != nil {
-		klog.Errorf("lsmdiskgrp err %v, body %s", err, body)
+		log.Errorf("lsmdiskgrp err %v, body %s", err, body)
 		return nil, err
 	}
 
