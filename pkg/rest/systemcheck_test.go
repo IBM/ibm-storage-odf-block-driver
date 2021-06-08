@@ -35,7 +35,23 @@ func TestNormalizeVersion(t *testing.T) {
 
 func TestUserRole(t *testing.T) {
 
-	t.Run("Check User true", func(t *testing.T) {
+	t.Run("Check User Administrator", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"Administrator"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
+		if !valid {
+			t.Errorf("Check user role should return true for u1.")
+		}
+	})
+
+	t.Run("Check User SecurityAdmin", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"SecurityAdmin"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
+		if !valid {
+			t.Errorf("Check user role should return true for u1.")
+		}
+	})
+
+	t.Run("Check User RestrictedAdmin", func(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"RestrictedAdmin"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if !valid {
@@ -43,7 +59,7 @@ func TestUserRole(t *testing.T) {
 		}
 	})
 
-	t.Run("Check User false", func(t *testing.T) {
+	t.Run("Check User Monitor", func(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"Monitor"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if valid {
