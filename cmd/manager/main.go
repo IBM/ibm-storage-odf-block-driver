@@ -102,7 +102,7 @@ func main() {
 	}
 
 	// Print the user role in log.
-	valid, err = restClient.CheckUserRole(restConfig.Username)
+	valid, err = restClient.CheckUserRole()
 	if err != nil {
 		klog.Errorf("Flash system user role check hit errors: %s", err)
 		// Update condition

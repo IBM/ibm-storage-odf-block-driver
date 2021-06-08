@@ -34,17 +34,18 @@ func TestNormalizeVersion(t *testing.T) {
 }
 
 func TestUserRole(t *testing.T) {
-	body = `[{"name":"u1"},{"name":"u2"},{"name":"u3"}]`
 
 	t.Run("Check User true", func(t *testing.T) {
-		valid, _ := c.CheckUserRole("u1")
+		body = `[{"name":"u1"},{"role":"RestrictedAdmin"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
 		if !valid {
 			t.Errorf("Check user role should return true for u1.")
 		}
 	})
 
 	t.Run("Check User false", func(t *testing.T) {
-		valid, _ := c.CheckUserRole("ux")
+		body = `[{"name":"u1"},{"role":"Monitor"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
 		if valid {
 			t.Errorf("Check user role should return false for ux.")
 		}

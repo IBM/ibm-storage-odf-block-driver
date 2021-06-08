@@ -240,7 +240,7 @@ func (c *FSRestClient) Lssystemstats() (SystemStats, error) {
 type Users []map[string]interface{}
 
 func (c *FSRestClient) Lsuser() (Users, error) {
-	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsuser"), "")
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lscurrentuser"), "")
 	if err != nil {
 		return nil, err
 	}
