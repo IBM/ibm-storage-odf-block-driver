@@ -20,56 +20,55 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/prometheus/client_golang/prometheus"
+	log "github.com/sirupsen/logrus"
 
-	"github.ibm.com/PuDong/ibm-storage-odf-block-driver/pkg/rest"
+	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
 const (
 	// Column name for performance metrics
-	VdiskReadBW       	= "vdisk_r_mb"
-	VdiskWriteBW      	= "vdisk_w_mb"
-	VdiskReadIOPS     	= "vdisk_r_io"
-	VdiskWriteIOPS    	= "vdisk_w_io"
-	VdiskReadLatency  	= "vdisk_r_ms"
-	VdiskWriteLatency 	= "vdisk_w_ms"
+	VdiskReadBW       = "vdisk_r_mb"
+	VdiskWriteBW      = "vdisk_w_mb"
+	VdiskReadIOPS     = "vdisk_r_io"
+	VdiskWriteIOPS    = "vdisk_w_io"
+	VdiskReadLatency  = "vdisk_r_ms"
+	VdiskWriteLatency = "vdisk_w_ms"
 
-	VersionKey			= "code_level"
-	ModelKey			= "product_name"
+	VersionKey = "code_level"
+	ModelKey   = "product_name"
 
 	// Metric name shown outside
-	SystemReadIOPS		= "subsystem_rd_iops"
-	SystemWriteIOPS		= "subsystem_wr_iops"
-	SystemReadBytes		= "subsystem_rd_bytes"
-	SystemWriteBytes	= "subsystem_wr_bytes"
-	SystemReadLatency	= "subsystem_rd_latency"
-	SystemWriteLatency	= "subsystem_wr_latency"
+	SystemReadIOPS     = "subsystem_rd_iops"
+	SystemWriteIOPS    = "subsystem_wr_iops"
+	SystemReadBytes    = "subsystem_rd_bytes"
+	SystemWriteBytes   = "subsystem_wr_bytes"
+	SystemReadLatency  = "subsystem_rd_latency"
+	SystemWriteLatency = "subsystem_wr_latency"
 
-	SystemMetadata		= "subsystem_metadata"
-	SystemHealth		= "subsystem_health"
-
+	SystemMetadata = "subsystem_metadata"
+	SystemHealth   = "subsystem_health"
 )
 
 var (
 	// Metadata label
-	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version"}
+	subsystemMetadataLabel = []string{"flashsystem_subsystem_name", "vendor", "model", "version"}
 
 	// Other label
-	subsystemCommonLabel = []string{"subsystem_name"}
+	subsystemCommonLabel = []string{"flashsystem_subsystem_name"}
 
 	systemMetricsMap = map[string]MetricLabel{
-		SystemMetadata:		{ "System information", subsystemMetadataLabel },
-		SystemHealth:		{ "System health", subsystemCommonLabel },
+		SystemMetadata: {"System information", subsystemMetadataLabel},
+		SystemHealth:   {"System health", subsystemCommonLabel},
 	}
 
 	perfMetricsMap = map[string]MetricLabel{
-		SystemReadIOPS:		{ "overall performance - read IOPS", subsystemCommonLabel },
-		SystemWriteIOPS:	{ "overall performance - write IOPS", subsystemCommonLabel },
-		SystemReadBytes:	{ "overall performance - read throughput MB/s", subsystemCommonLabel },
-		SystemWriteBytes:	{ "overall performance - write throughput MB/s", subsystemCommonLabel },
-		SystemReadLatency:  { "overall performance - read latency ms", subsystemCommonLabel },
-		SystemWriteLatency: { "overall performance - write latency ms", subsystemCommonLabel },
+		SystemReadIOPS:     {"overall performance - read IOPS", subsystemCommonLabel},
+		SystemWriteIOPS:    {"overall performance - write IOPS", subsystemCommonLabel},
+		SystemReadBytes:    {"overall performance - read throughput MB/s", subsystemCommonLabel},
+		SystemWriteBytes:   {"overall performance - write throughput MB/s", subsystemCommonLabel},
+		SystemReadLatency:  {"overall performance - read latency ms", subsystemCommonLabel},
+		SystemWriteLatency: {"overall performance - write latency ms", subsystemCommonLabel},
 	}
 
 	// Raw metrics names to system metrics name map
@@ -91,18 +90,17 @@ var (
 		VdiskReadLatency:  0.001,
 		VdiskWriteLatency: 0.001,
 	}
-
 )
 
 type SystemInfo struct {
-	Name	string
-	Vendor	string
-	Model	string
-	Version	string
+	Name    string
+	Vendor  string
+	Model   string
+	Version string
 }
 
 type SystemName struct {
-	Name	string
+	Name string
 }
 
 func (f *PerfCollector) initSubsystemDescs() {
@@ -136,34 +134,16 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	var sysInfoResults rest.StorageSystem
 	var systemInfo SystemInfo
 	var systemName SystemName
-	var err error = nil
+	var err error
 
 	// Subsystem name is from CR
 	systemName.Name = f.systemName
 
 	// Get flash system results
-	for i := 0; i < 2; i++ {
-		// Use retry as workaround for rest commands
-		// http rest response may have different json structure at first query to fail the unmarshal
-		statsResults, err = f.client.Lssystemstats()
-		if err != nil {
-			f.client.Reconnect()
-			log.Errorf("fails to do Lssystemstats, err:%s", err)
-			continue
-		}
-
+	statsResults, err = f.client.Lssystemstats()
+	if err == nil {
 		sysInfoResults, err = f.client.Lssystem()
-		if err != nil {
-			f.client.Reconnect()
-			log.Errorf("fails to do Lssystem, err:%s", err)
-			continue
-		}
-
-		if err == nil {
-			break
-		}
 	}
-
 	if err != nil {
 		f.up.Set(0)
 		log.Errorf("fail metrics pulling in round %d", f.sequenceNumber)
@@ -187,6 +167,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
+	systemInfo.Name = f.systemName
 
 	log.Infof(
 		"subsystem: %s, vendor: %s, model: %s, version: %s",
@@ -194,11 +175,16 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		systemInfo.Vendor,
 		systemInfo.Model,
 		systemInfo.Version,
-		)
+	)
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
-	// TODO - determine the health 0 = OK, 1 = warning, 2 = error
-	newPerfMetrics(ch, f.sysInfoDescriptors[SystemHealth], 0, &systemName)
+	// Determine the health 0 = OK, 1 = warning, 2 = error
+	bReady, err := f.client.CheckFlashsystemClusterState()
+	status := 0.0
+	if err != nil || !bReady {
+		status = 1
+	}
+	newPerfMetrics(ch, f.sysInfoDescriptors[SystemHealth], status, &systemName)
 
 	// Parse statsResults
 	updated := 0
@@ -247,21 +233,21 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, info *SystemInfo) {
 	ch <- prometheus.MustNewConstMetric(
-			desc,
-			prometheus.GaugeValue,
-			value,
-			info.Name,
-			info.Vendor,
-			info.Model,
-			info.Version,
-		)
+		desc,
+		prometheus.GaugeValue,
+		value,
+		info.Name,
+		info.Vendor,
+		info.Model,
+		info.Version,
+	)
 }
 
 func newPerfMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, systemName *SystemName) {
 	ch <- prometheus.MustNewConstMetric(
-			desc,
-			prometheus.GaugeValue,
-			value,
-			systemName.Name,
-		)
+		desc,
+		prometheus.GaugeValue,
+		value,
+		systemName.Name,
+	)
 }

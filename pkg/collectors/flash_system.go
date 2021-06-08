@@ -19,49 +19,49 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 
-	"github.ibm.com/PuDong/ibm-storage-odf-block-driver/pkg/rest"
-	drivermanager "github.ibm.com/PuDong/ibm-storage-odf-block-driver/pkg/driver"
-	operutil "github.ibm.com/PuDong/ibm-storage-odf-operator/controllers/util"
+	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
+	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
+	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )
 
 type PerfCollector struct {
-	systemName			 string
-	namespace			 string
-	client 				*rest.FSRestClient
+	systemName string
+	namespace  string
+	client     *rest.FSRestClient
 
-	sysInfoDescriptors 	 map[string]*prometheus.Desc
-	sysPerfDescriptors	 map[string]*prometheus.Desc
-	poolDescriptors		 map[string]*prometheus.Desc
-	volumeDescriptors	 map[string]*prometheus.Desc
+	sysInfoDescriptors map[string]*prometheus.Desc
+	sysPerfDescriptors map[string]*prometheus.Desc
+	poolDescriptors    map[string]*prometheus.Desc
+	volumeDescriptors  map[string]*prometheus.Desc
 
-	up             		 prometheus.Gauge
-	totalScrapes   		 prometheus.Counter
-	failedScrapes  		 prometheus.Counter
-	scrapeDuration 		 prometheus.Summary
+	up             prometheus.Gauge
+	totalScrapes   prometheus.Counter
+	failedScrapes  prometheus.Counter
+	scrapeDuration prometheus.Summary
 
-	sequenceNumber 		 uint64
+	sequenceNumber uint64
 }
 
 func NewPerfCollector(restClient *rest.FSRestClient, name string, namespace string) (*PerfCollector, error) {
 
 	f := &PerfCollector{
 		systemName: name,
-		namespace: namespace,
-		client: restClient,
+		namespace:  namespace,
+		client:     restClient,
 
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
-			Name:      "up",
-			Help:      "Was the last scrape successful.",
+			Name: "up",
+			Help: "Was the last scrape successful.",
 		}),
 
 		totalScrapes: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "exporter_total_scrapes",
-			Help:      "Number of total scrapes",
+			Name: "exporter_total_scrapes",
+			Help: "Number of total scrapes",
 		}),
 
 		failedScrapes: prometheus.NewCounter(prometheus.CounterOpts{
-			Name:      "exporter_failed_scrapes",
-			Help:      "Number of failed scrapes",
+			Name: "exporter_failed_scrapes",
+			Help: "Number of failed scrapes",
 		}),
 
 		scrapeDuration: prometheus.NewSummary(prometheus.SummaryOpts{
@@ -72,7 +72,6 @@ func NewPerfCollector(restClient *rest.FSRestClient, name string, namespace stri
 	}
 
 	f.initSubsystemDescs()
-	f.initVolumeDescs()
 	f.initPoolDescs()
 
 	return f, nil
@@ -103,10 +102,15 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 
 }
 
+// Remove dependency for unit test
+var getPoolMap = func() (operutil.ScPoolMap, error) {
+	return operutil.GetPoolConfigmapContent()
+}
+
 func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 
 	// Refresh pool from manager
-	scPoolMap, mistake := operutil.GetPoolConfigmapContent()
+	scPoolMap, mistake := getPoolMap()
 	if mistake != nil {
 		log.Fatalf("Read ConfigMap failed, error: %s", mistake)
 	} else {
@@ -118,11 +122,15 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 		log.Fatalf("Get mamager failed, error: %s", err)
 	}
 
-	mgr.UpdatePoolMap(&scPoolMap.ScPool)
+	mgr.UpdatePoolMap(scPoolMap.ScPool)
 
 	f.collectSystemMetrics(ch)
-	f.collectVolumeMetrics(ch)
-	f.collectPoolMetrics(ch)
+
+	valid, _ := f.client.CheckVersion()
+	if valid {
+		// Skip unsupported version when generate pool metrics
+		f.collectPoolMetrics(ch)
+	}
 
 	ch <- f.up
 	ch <- f.scrapeDuration

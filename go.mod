@@ -1,13 +1,12 @@
-module github.ibm.com/PuDong/ibm-storage-odf-block-driver
+module github.com/IBM/ibm-storage-odf-block-driver
 
-go 1.14
+go 1.15
 
 require (
-	github.com/golang/protobuf v1.4.3
+	github.com/IBM/ibm-storage-odf-operator v0.0.2
+	github.com/google/uuid v1.1.2 // indirect
 	github.com/prometheus/client_golang v1.8.0
 	github.com/sirupsen/logrus v1.7.0
-	github.ibm.com/PuDong/ibm-storage-odf-operator v0.0.0-20210420100406-f2b7415db947
-	google.golang.org/grpc v1.33.1
 	k8s.io/api v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2
