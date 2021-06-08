@@ -1,21 +1,10 @@
-# Copyright 2018 The Kubernetes Authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
+LINT_VERSION="1.40.0"
 
 DRIVER_NAME=ibm-storage-odf-block-driver
 
 IMAGE_REPO=9.110.70.75/sandbox
-DRIVER_IMAGE_VERSION=v0.0.10
+DRIVER_IMAGE_VERSION=v0.0.22
 
 DRIVER_IMAGE=$(IMAGE_REPO)/$(DRIVER_NAME)
 
@@ -25,10 +14,32 @@ all: $(DRIVER_IMAGE)
 
 $(DRIVER_IMAGE):
 	if [ ! -d ./vendor ]; then dep ensure -v; fi
-	CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-extldflags "-static"' -o  ./build/_output/bin/${DRIVER_NAME} ./cmd/manager/main.go
+	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -ldflags '-extldflags "-static"' -o  ./build/_output/bin/${DRIVER_NAME} ./cmd/manager/main.go
 
+.PHONY: deps
+deps:
+	@if ! which golangci-lint >/dev/null || [[ "$$(golangci-lint --version)" != *${LINT_VERSION}* ]]; then \
+		curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v${LINT_VERSION}; \
+	fi
+
+.PHONY: lint
+lint: deps
+	golangci-lint run # Run `make lint-fix` may help to fix lint issues.
+
+.PHONY: lint-fix
+lint-fix: deps	
+	golangci-lint run --fix
+
+.PHONY: build
+build:
+	go build ./cmd/manager/main.go
+
+.PHONY: test
+test:
+	go test -race -covermode=atomic -coverprofile=cover.out ./pkg/...
+	
 build-image: 
-	docker build --network=host -t $(DRIVER_IMAGE):$(DRIVER_IMAGE_VERSION) -f ./Dockerfile .	
+	docker build -t $(DRIVER_IMAGE):$(DRIVER_IMAGE_VERSION) -f ./Dockerfile .	
 
 push-image: build-image
 	docker push $(DRIVER_IMAGE):$(DRIVER_IMAGE_VERSION)

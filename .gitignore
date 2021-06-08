@@ -5,7 +5,7 @@ _output
 *.debug
 *.test
 *.bk
-
+cover.out
 
 # cscope
 cscope.files

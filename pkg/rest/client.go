@@ -1,29 +1,19 @@
-/*
-Copyright 2021.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package rest
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"reflect"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"k8s.io/klog"
 )
@@ -39,6 +29,19 @@ type FSRestClient struct {
 	RestConfig Config
 	BaseURL    string
 	token      *string // use nil as invalid token
+
+	PostRequester *Requester
+}
+
+// For easy mock the request response
+type Poster func(req *http.Request, c *FSRestClient) ([]byte, int, error)
+
+type Requester struct {
+	poster Poster
+}
+
+func NewRequester(p Poster) *Requester {
+	return &Requester{poster: p}
 }
 
 func NewFSRestClient(config *Config) (*FSRestClient, error) {
@@ -57,10 +60,11 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 	}
 
 	c := &FSRestClient{
-		Client:     client,
-		BaseURL:    fmt.Sprintf("https://%s:7443/rest", config.Host),
-		RestConfig: *config,
-		token:      nil,
+		Client:        client,
+		BaseURL:       fmt.Sprintf("https://%s:7443/rest", config.Host),
+		RestConfig:    *config,
+		token:         nil,
+		PostRequester: NewRequester(doRequest),
 	}
 
 	if err := c.authenticate(); err != nil {
@@ -89,9 +93,17 @@ func (c *FSRestClient) authenticate() error {
 		return err
 	}
 
+	if resp.StatusCode != 200 {
+		errMsg := fmt.Sprintf("Authentication failed with response code: %d", resp.StatusCode)
+		return errors.New(errMsg)
+	}
+
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
 
 	var out authenResult
 	if err = json.Unmarshal(body, &out); err != nil {
@@ -114,19 +126,52 @@ func (c *FSRestClient) authenticate() error {
 	return nil
 }
 
-func (c *FSRestClient) Reconnect() error {
-	return c.authenticate()
+func (c *FSRestClient) retryDo(url string, jsonStr string) ([]byte, error) {
+	var reqBody io.Reader = nil
+	if len(jsonStr) > 0 {
+		reqBody = bytes.NewBufferString(jsonStr)
+	}
+	req, err := http.NewRequest("POST", url, reqBody)
+	if reqBody != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if err != nil {
+		log.Errorf("Create request error for url: %s", url)
+		return nil, err
+	}
+	body, statusCode, err := c.PostRequester.poster(req, c)
+
+	retryCnt := 2
+	for i := 0; i < retryCnt-1; i++ {
+		if statusCode >= http.StatusOK && statusCode < http.StatusBadRequest {
+			return body, err
+		}
+
+		// Sometimes got the 'Invalid toke error'.
+		// Set the token to nil to do reauthentication
+		c.token = nil
+		body, statusCode, err = c.PostRequester.poster(req, c)
+	}
+
+	if statusCode >= http.StatusBadRequest {
+		log.Errorf("Http request path %s response code is: %d after retry %d times", req.URL.Path, statusCode, retryCnt)
+		if err == nil {
+			err = errors.New("POST Request " + req.URL.Path + " error.")
+		}
+	}
+
+	return body, err
 }
 
-func (c *FSRestClient) Do(req *http.Request) ([]byte, error) {
-
+func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 	if req == nil {
-		return nil, fmt.Errorf("invalid parameter, abort")
+		return nil, 0, fmt.Errorf("invalid parameter, abort")
 	}
 
 	if c.token == nil {
 		if err := c.authenticate(); err != nil {
-			return nil, err
+			log.Errorf("fails to authenticate rest server, err:%v", err)
+			return nil, 0, err
 		}
 	}
 
@@ -134,29 +179,20 @@ func (c *FSRestClient) Do(req *http.Request) ([]byte, error) {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	return body, err
+	return body, resp.StatusCode, err
 }
 
 type StorageSystem map[string]interface{}
 
 func (c *FSRestClient) Lssystem() (StorageSystem, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), nil)
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), "")
 	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-
-	if err != nil {
-		klog.Errorf("body %s", body)
-		klog.Errorf("Lssystem err %v", err)
 		return nil, err
 	}
 
@@ -172,17 +208,8 @@ func (c *FSRestClient) Lssystem() (StorageSystem, error) {
 type Nodes []map[string]string
 
 func (c *FSRestClient) Lsnode() (Nodes, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lsnode"), nil)
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsnode"), "")
 	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-
-	if err != nil {
-		klog.Errorf("body %s", body)
-		klog.Errorf("Lsnode err %v", err)
 		return nil, err
 	}
 
@@ -198,22 +225,14 @@ func (c *FSRestClient) Lsnode() (Nodes, error) {
 type SystemStats []map[string]string
 
 func (c *FSRestClient) Lssystemstats() (SystemStats, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lssystemstats"), nil)
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystemstats"), "")
 	if err != nil {
 		return nil, err
 	}
-
-	body, err := c.Do(req)
-	if err != nil {
-		klog.Errorf("body %s", body)
-		return nil, err
-	}
-
-	//fmt.Print(req, body)
 
 	var stats SystemStats
 	if err = json.Unmarshal(body, &stats); err != nil {
+		klog.Errorf("lssystemstats err %v, body %s", err, body)
 		return nil, err
 	}
 
@@ -223,17 +242,8 @@ func (c *FSRestClient) Lssystemstats() (SystemStats, error) {
 type Users []map[string]interface{}
 
 func (c *FSRestClient) Lsuser() (Users, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lsuser"), nil)
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsuser"), "")
 	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-
-	if err != nil {
-		klog.Errorf("body %s", body)
-		klog.Errorf("Lsuser err %v", err)
 		return nil, err
 	}
 
@@ -246,99 +256,21 @@ func (c *FSRestClient) Lsuser() (Users, error) {
 	return users, nil
 }
 
-// List of vdisk, result of lsvdisk
-type VdiskList []map[string]interface{}
-
-func (c *FSRestClient) Lsvdisk() (VdiskList, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lsvdisk"), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-	if err != nil {
-		klog.Errorf("body %s", body)
-		return nil, err
-	}
-
-	var stats VdiskList
-	if err = json.Unmarshal(body, &stats); err != nil {
-		return nil, err
-	}
-
-	return stats, nil
-}
-
-// vdisk detail info, result of lsvdisk <vdisk id>
-type VdiskInfo []map[string]interface{}
-
-func (c *FSRestClient) LsvdiskInfo(vdiskId string) (VdiskInfo, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/%s", c.BaseURL, "lsvdisk", vdiskId), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-	if err != nil {
-		klog.Errorf("body %s", body)
-		return nil, err
-	}
-
-	var stats VdiskInfo
-	if err = json.Unmarshal(body, &stats); err != nil {
-		return nil, err
-	}
-
-	return stats, nil
-}
-
-// Pool list, result of lsmdisk
+// Pool list, result of lsmdiskgrp
 type PoolList []map[string]interface{}
 
-func (c *FSRestClient) Lsmdisk() (PoolList, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "lsmdisk"), nil)
+func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsmdiskgrp"), jsonStr)
 	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-	if err != nil {
-		klog.Errorf("body %s", body)
 		return nil, err
 	}
 
 	var stats PoolList
 	if err = json.Unmarshal(body, &stats); err != nil {
+		klog.Errorf("lsmdiskgrp err %v, body %s", err, body)
 		return nil, err
 	}
 
 	return stats, nil
 }
-
-// Pool info, result of lsmdiskgrp <pool id>
-type PoolInfo map[string]interface{}
-
-func (c *FSRestClient) LsmdiskInfo(mdiskId int) (PoolInfo, error) {
-
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s/%d", c.BaseURL, "lsmdiskgrp", mdiskId), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	body, err := c.Do(req)
-	if err != nil {
-		klog.Errorf("body %s", body)
-		return nil, err
-	}
-
-	var stats PoolInfo
-	if err = json.Unmarshal(body, &stats); err != nil {
-		return nil, err
-	}
-
-	return stats, nil
-}
-
