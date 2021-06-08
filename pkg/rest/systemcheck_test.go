@@ -39,7 +39,7 @@ func TestUserRole(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"Administrator"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if !valid {
-			t.Errorf("Check user role should return true for u1.")
+			t.Errorf("Check user role should return true for role Administrator.")
 		}
 	})
 
@@ -47,7 +47,7 @@ func TestUserRole(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"SecurityAdmin"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if !valid {
-			t.Errorf("Check user role should return true for u1.")
+			t.Errorf("Check user role should return true role  SecurityAdmin.")
 		}
 	})
 
@@ -55,7 +55,7 @@ func TestUserRole(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"RestrictedAdmin"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if !valid {
-			t.Errorf("Check user role should return true for u1.")
+			t.Errorf("Check user role should return true for role RestrictedAdmin.")
 		}
 	})
 
@@ -63,7 +63,7 @@ func TestUserRole(t *testing.T) {
 		body = `[{"name":"u1"},{"role":"Monitor"},{"owner_id":""}]`
 		valid, _ := c.CheckUserRole()
 		if valid {
-			t.Errorf("Check user role should return false for ux.")
+			t.Errorf("Check user role should return false for role Monitor.")
 		}
 	})
 }
