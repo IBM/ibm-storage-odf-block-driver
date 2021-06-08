@@ -45,7 +45,11 @@ func (c *FSRestClient) CheckUserRole(name string) (bool, error) {
 		username := user[UserNameKey].(string)
 		if username == name {
 			log.Infof("user name: %s, role: %v", username, user[UserRoleKey])
-			return true, nil
+			switch user[UserRoleKey] {
+			case "Administrator", "SecurityAdmin", "RestrictedAdmin":
+				return true, nil
+			}
+			return false, nil
 		}
 	}
 
