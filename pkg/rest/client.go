@@ -88,7 +88,7 @@ func (c *FSRestClient) authenticate() error {
 	if c.retryCount > FailedEventTheshold && !c.bNotified {
 		mgr, _ := drivermanager.GetManager()
 		if mgr != nil {
-			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err != nil {
+			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err == nil {
 				c.bNotified = true
 			}
 		}
@@ -150,7 +150,7 @@ func (c *FSRestClient) authenticate() error {
 	if c.bNotified {
 		mgr, _ := drivermanager.GetManager()
 		if mgr != nil {
-			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err != nil {
+			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err == nil {
 				c.bNotified = false
 			}
 		}
