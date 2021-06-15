@@ -34,7 +34,7 @@ func (c *FSRestClient) CheckVersion() (bool, error) {
 }
 
 func (c *FSRestClient) CheckUserRole() (bool, error) {
-	userinfo, err := c.Lsuser()
+	userinfo, err := c.Lscurrentuser()
 	if err != nil {
 		return false, fmt.Errorf("get user error due rest client error")
 	}
