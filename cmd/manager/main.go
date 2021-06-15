@@ -102,18 +102,18 @@ func main() {
 	}
 
 	// Print the user role in log.
-	_, _ = restClient.CheckUserRole(restConfig.Username)
-	// if err != nil {
-	// 	klog.Errorf("Flash system user role check hit errors: %s", err)
-	// 	// Update condition
-	// 	var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RestFailure, drivermanager.RestErrorMessage)
-	// 	goto error_out
-	// } else if !valid {
-	// 	klog.Error("Flash system user role invalid")
-	// 	// Update condition
-	// 	var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RoleCheckFailed, drivermanager.RoleCheckErrMessage)
-	// 	goto error_out
-	// }
+	valid, err = restClient.CheckUserRole()
+	if err != nil {
+		klog.Errorf("Flash system user role check hit errors: %s", err)
+		// Update condition
+		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RestFailure, drivermanager.RestErrorMessage)
+		goto error_out
+	} else if !valid {
+		klog.Error("Flash system user role invalid")
+		// Update condition
+		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RoleCheckFailed, drivermanager.RoleCheckErrMessage)
+		goto error_out
+	}
 
 	// ready, err = restClient.CheckFlashsystemClusterState()
 	// if err != nil {

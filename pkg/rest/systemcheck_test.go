@@ -34,19 +34,36 @@ func TestNormalizeVersion(t *testing.T) {
 }
 
 func TestUserRole(t *testing.T) {
-	body = `[{"name":"u1"},{"name":"u2"},{"name":"u3"}]`
 
-	t.Run("Check User true", func(t *testing.T) {
-		valid, _ := c.CheckUserRole("u1")
+	t.Run("Check User Administrator", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"Administrator"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
 		if !valid {
-			t.Errorf("Check user role should return true for u1.")
+			t.Errorf("Check user role should return true for role Administrator.")
 		}
 	})
 
-	t.Run("Check User false", func(t *testing.T) {
-		valid, _ := c.CheckUserRole("ux")
+	t.Run("Check User SecurityAdmin", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"SecurityAdmin"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
+		if !valid {
+			t.Errorf("Check user role should return true role  SecurityAdmin.")
+		}
+	})
+
+	t.Run("Check User RestrictedAdmin", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"RestrictedAdmin"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
+		if !valid {
+			t.Errorf("Check user role should return true for role RestrictedAdmin.")
+		}
+	})
+
+	t.Run("Check User Monitor", func(t *testing.T) {
+		body = `[{"name":"u1"},{"role":"Monitor"},{"owner_id":""}]`
+		valid, _ := c.CheckUserRole()
 		if valid {
-			t.Errorf("Check user role should return false for ux.")
+			t.Errorf("Check user role should return false for role Monitor.")
 		}
 	})
 }

@@ -9,10 +9,8 @@ import (
 
 const (
 	VersionKey   = "code_level"
-	UserRoleKey  = "usergrp_name"
-	UserNameKey  = "name"
+	UserRoleKey  = "role"
 	ValidVersion = "8.3.1"
-	ValidRole    = "Monitor"
 )
 
 func (c *FSRestClient) CheckVersion() (bool, error) {
@@ -35,17 +33,20 @@ func (c *FSRestClient) CheckVersion() (bool, error) {
 	return bValid, nil
 }
 
-func (c *FSRestClient) CheckUserRole(name string) (bool, error) {
+func (c *FSRestClient) CheckUserRole() (bool, error) {
 	userinfo, err := c.Lsuser()
 	if err != nil {
 		return false, fmt.Errorf("get user error due rest client error")
 	}
 
-	for _, user := range userinfo {
-		username := user[UserNameKey].(string)
-		if username == name {
-			log.Infof("user name: %s, role: %v", username, user[UserRoleKey])
-			return true, nil
+	log.Infof("current user information : %v", userinfo)
+	for _, info := range userinfo {
+		role, bHas := info[UserRoleKey]
+		if bHas {
+			switch role {
+			case "Administrator", "SecurityAdmin", "RestrictedAdmin":
+				return true, nil
+			}
 		}
 	}
 
