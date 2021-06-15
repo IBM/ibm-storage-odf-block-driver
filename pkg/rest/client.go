@@ -148,7 +148,6 @@ func (c *FSRestClient) authenticate() error {
 	c.token = &tokenStr
 
 	if c.bNotified {
-
 		mgr, _ := drivermanager.GetManager()
 		if mgr != nil {
 			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err != nil {
