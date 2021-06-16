@@ -290,6 +290,15 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_metadata{pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
 	flashsystem_pool_metadata{pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
 	flashsystem_pool_metadata{pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_health System health
+	# TYPE flashsystem_subsystem_health gauge
+	flashsystem_subsystem_health{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_metadata System information
+	# TYPE flashsystem_subsystem_metadata gauge
+	flashsystem_subsystem_metadata{model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
+	# HELP flashsystem_subsystem_rd_bytes overall performance - read throughput MB/s
+	# TYPE flashsystem_subsystem_rd_bytes gauge
+	flashsystem_subsystem_rd_bytes{subsystem_name="FS-system-name"} 0
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
