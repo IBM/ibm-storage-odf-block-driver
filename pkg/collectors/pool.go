@@ -370,11 +370,11 @@ func (f *PerfCollector) newPoolWarningThreshold(ch chan<- prometheus.Metric, inf
 
 func (f *PerfCollector) newPoolHealthMetrics(ch chan<- prometheus.Metric, info *PoolInfo) {
 	desc := f.poolDescriptors[PoolHealth]
-	val := 2.0
+	val := 1.0
 	if "online" == info.State {
 		val = 0.0
 	} else if "offline" == info.State {
-		val = 1.0
+		val = 2.0
 	}
 	log.Infof("pool: %d state: %s", info.PoolId, info.State)
 	ch <- prometheus.MustNewConstMetric(

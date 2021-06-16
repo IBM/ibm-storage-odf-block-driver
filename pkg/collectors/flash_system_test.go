@@ -283,7 +283,7 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_pool_health Pool health status
 	# TYPE flashsystem_pool_health gauge
 	flashsystem_pool_health{pool_name="Pool0",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_health{pool_name="Pool1",subsystem_name="FS-system-name"} 1
+	flashsystem_pool_health{pool_name="Pool1",subsystem_name="FS-system-name"} 2
 	flashsystem_pool_health{pool_name="Pool2",subsystem_name="FS-system-name"} 0
 	# HELP flashsystem_pool_metadata Pool metadata
 	# TYPE flashsystem_pool_metadata gauge
