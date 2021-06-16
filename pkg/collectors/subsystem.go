@@ -38,23 +38,23 @@ const (
 	ModelKey   = "product_name"
 
 	// Metric name shown outside
-	SystemReadIOPS     = "subsystem_rd_iops"
-	SystemWriteIOPS    = "subsystem_wr_iops"
-	SystemReadBytes    = "subsystem_rd_bytes"
-	SystemWriteBytes   = "subsystem_wr_bytes"
-	SystemReadLatency  = "subsystem_rd_latency"
-	SystemWriteLatency = "subsystem_wr_latency"
+	SystemReadIOPS     = "flashsystem_subsystem_rd_iops"
+	SystemWriteIOPS    = "flashsystem_subsystem_wr_iops"
+	SystemReadBytes    = "flashsystem_subsystem_rd_bytes"
+	SystemWriteBytes   = "flashsystem_subsystem_wr_bytes"
+	SystemReadLatency  = "flashsystem_subsystem_rd_latency"
+	SystemWriteLatency = "flashsystem_subsystem_wr_latency"
 
-	SystemMetadata = "subsystem_metadata"
-	SystemHealth   = "subsystem_health"
+	SystemMetadata = "flashsystem_subsystem_metadata"
+	SystemHealth   = "flashsystem_subsystem_health"
 )
 
 var (
 	// Metadata label
-	subsystemMetadataLabel = []string{"flashsystem_subsystem_name", "vendor", "model", "version"}
+	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version"}
 
 	// Other label
-	subsystemCommonLabel = []string{"flashsystem_subsystem_name"}
+	subsystemCommonLabel = []string{"subsystem_name"}
 
 	systemMetricsMap = map[string]MetricLabel{
 		SystemMetadata: {"System information", subsystemMetadataLabel},
