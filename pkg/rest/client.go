@@ -13,6 +13,9 @@ import (
 	"reflect"
 	"time"
 
+	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
+
+	corev1 "k8s.io/api/core/v1"
 	log "k8s.io/klog"
 )
 
@@ -22,6 +25,10 @@ type Config struct {
 	Password string
 }
 
+const (
+	FailedEventTheshold = 10
+)
+
 type FSRestClient struct {
 	Client     *http.Client
 	RestConfig Config
@@ -29,6 +36,9 @@ type FSRestClient struct {
 	token      *string // use nil as invalid token
 
 	PostRequester *Requester
+
+	retryCount int
+	bNotified  bool
 }
 
 // For easy mock the request response
@@ -75,9 +85,19 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 type authenResult map[string]interface{}
 
 func (c *FSRestClient) authenticate() error {
+	if c.retryCount > FailedEventTheshold && !c.bNotified {
+		mgr, _ := drivermanager.GetManager()
+		if mgr != nil {
+			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err == nil {
+				c.bNotified = true
+			}
+		}
+	}
+
 	c.token = nil
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "auth"), nil)
 	if err != nil {
+		c.retryCount++
 		return err
 	}
 
@@ -88,10 +108,12 @@ func (c *FSRestClient) authenticate() error {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
+		c.retryCount++
 		return err
 	}
 
 	if resp.StatusCode != 200 {
+		c.retryCount++
 		errMsg := fmt.Sprintf("Authentication failed with response code: %d", resp.StatusCode)
 		return errors.New(errMsg)
 	}
@@ -100,26 +122,40 @@ func (c *FSRestClient) authenticate() error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		c.retryCount++
 		return err
 	}
 
 	var out authenResult
 	if err = json.Unmarshal(body, &out); err != nil {
+		c.retryCount++
 		return err
 	}
 
 	token, ok := out["token"]
 	if !ok {
+		c.retryCount++
 		return fmt.Errorf("token isn't included, %v", out)
 	}
 
 	tokenType := reflect.TypeOf(token).Kind()
 	if reflect.String != tokenType {
+		c.retryCount++
 		return fmt.Errorf("token type isn't string, %v, %s", token, tokenType)
 	}
 
 	tokenStr := token.(string)
 	c.token = &tokenStr
+
+	if c.bNotified {
+		mgr, _ := drivermanager.GetManager()
+		if mgr != nil {
+			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err == nil {
+				c.bNotified = false
+			}
+		}
+	}
+	c.retryCount = 0
 
 	return nil
 }
@@ -239,7 +275,7 @@ func (c *FSRestClient) Lssystemstats() (SystemStats, error) {
 
 type Users []map[string]interface{}
 
-func (c *FSRestClient) Lsuser() (Users, error) {
+func (c *FSRestClient) Lscurrentuser() (Users, error) {
 	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lscurrentuser"), "")
 	if err != nil {
 		return nil, err
@@ -247,7 +283,7 @@ func (c *FSRestClient) Lsuser() (Users, error) {
 
 	var users Users
 	if err = json.Unmarshal(body, &users); err != nil {
-		log.Errorf("Lsuser err %v, body %s", err, body)
+		log.Errorf("Lscurrentuser err %v, body %s", err, body)
 		return nil, err
 	}
 

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	log "k8s.io/klog"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -26,6 +28,7 @@ const (
 // Reason
 const (
 	AuthFailure        = "AuthFailure"
+	AuthSuccess        = "AuthSuccess"
 	VersionCheckFailed = "VersionCheckFailed"
 	RoleCheckFailed    = "RoleCheckFailed"
 	RestFailure        = "RestFailure"
@@ -35,10 +38,12 @@ const (
 // Message
 const (
 	AuthFailureMessage     = "Authentication to flash system rest server failed"
+	AuthSuccessMessage     = "Authentication to flash system rest server succeed"
 	VersionCheckErrMessage = "Flash system code level too low, need >= 8.3.1"
 	RoleCheckErrMessage    = "User role need to be Monitor"
 	RestErrorMessage       = "Rest server hit unexpected error"
 	ClusterErrMessage      = "Flash system cluster not online"
+	ExporterReadyMessage   = "Flash system exporter is ready"
 )
 
 const INIT_POOL_ID = -1
@@ -159,6 +164,9 @@ func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType,
 			Reason:  reason,
 			Message: message,
 		})
+		if operatorapi.ExporterReady == conditionType {
+			_ = d.SendK8sEvent(corev1.EventTypeNormal, fmt.Sprintf("%v", conditionType), ExporterReadyMessage)
+		}
 	} else {
 		log.Infof("Set error condition, reason: %s, message: %s", reason, message)
 		conditionutil.SetStatusCondition(&fscluster.Status.Conditions, operatorapi.Condition{
@@ -167,6 +175,8 @@ func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType,
 			Reason:  reason,
 			Message: message,
 		})
+
+		_ = d.SendK8sEvent(corev1.EventTypeWarning, reason, message)
 	}
 
 	err = k8sclient.Status().Update(context.TODO(), fscluster)
@@ -176,6 +186,43 @@ func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType,
 	}
 
 	return nil
+}
+
+func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
+	fscluster, err := getFlashSystemClusterCR(d.Client, d.systemName, d.namespace)
+	if err != nil {
+		log.Errorf("Get flash system CR failed: %v", err)
+		return err
+	}
+
+	t := metav1.Time{Time: time.Now()}
+	evt := &corev1.Event{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%v.%x", d.systemName, t.UnixNano()),
+			Namespace: fscluster.Namespace,
+			Labels:    conditionutil.GetLabels(d.systemName),
+		},
+		InvolvedObject: corev1.ObjectReference{
+			Kind:            fscluster.Kind,
+			Namespace:       fscluster.Namespace,
+			Name:            fscluster.Name,
+			UID:             fscluster.UID,
+			ResourceVersion: fscluster.ResourceVersion,
+			APIVersion:      fscluster.APIVersion,
+		},
+		Reason:         reason,
+		Message:        message,
+		FirstTimestamp: t,
+		LastTimestamp:  t,
+		Count:          1,
+		Type:           eventtype,
+	}
+
+	err = d.Client.Create(context.TODO(), evt)
+	if err != nil {
+		log.Errorf("failed to SendK8sEvent reason: %s, message: %s, error: \n %v\n", reason, message, err)
+	}
+	return err
 }
 
 func getFlashSystemClusterCR(k8sclient client.Client, name string, namespace string) (*operatorapi.FlashSystemCluster, error) {
