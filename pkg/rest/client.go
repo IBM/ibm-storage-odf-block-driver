@@ -97,7 +97,7 @@ func (c *FSRestClient) authenticate() error {
 	c.token = nil
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "auth"), nil)
 	if err != nil {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return err
@@ -110,14 +110,14 @@ func (c *FSRestClient) authenticate() error {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return err
 	}
 
 	if resp.StatusCode != 200 {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		errMsg := fmt.Sprintf("Authentication failed with response code: %d", resp.StatusCode)
@@ -128,7 +128,7 @@ func (c *FSRestClient) authenticate() error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return err
@@ -136,7 +136,7 @@ func (c *FSRestClient) authenticate() error {
 
 	var out authenResult
 	if err = json.Unmarshal(body, &out); err != nil {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return err
@@ -144,7 +144,7 @@ func (c *FSRestClient) authenticate() error {
 
 	token, ok := out["token"]
 	if !ok {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return fmt.Errorf("token isn't included, %v", out)
@@ -152,7 +152,7 @@ func (c *FSRestClient) authenticate() error {
 
 	tokenType := reflect.TypeOf(token).Kind()
 	if reflect.String != tokenType {
-		if !c.failedTime.Equal(time.Time{}) {
+		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
 		}
 		return fmt.Errorf("token type isn't string, %v, %s", token, tokenType)
