@@ -26,7 +26,7 @@ type Config struct {
 }
 
 const (
-	FailedEventTheshold = 10
+	FailedEventTheshold = time.Minute * 2 // 2 minutes
 )
 
 type FSRestClient struct {
@@ -37,7 +37,7 @@ type FSRestClient struct {
 
 	PostRequester *Requester
 
-	retryCount int
+	failedTime time.Time
 	bNotified  bool
 }
 
@@ -85,7 +85,7 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 type authenResult map[string]interface{}
 
 func (c *FSRestClient) authenticate() error {
-	if c.retryCount > FailedEventTheshold && !c.bNotified {
+	if !c.bNotified && !c.failedTime.Equal(time.Time{}) && time.Since(c.failedTime) > FailedEventTheshold {
 		mgr, _ := drivermanager.GetManager()
 		if mgr != nil {
 			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err == nil {
@@ -97,7 +97,9 @@ func (c *FSRestClient) authenticate() error {
 	c.token = nil
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/%s", c.BaseURL, "auth"), nil)
 	if err != nil {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return err
 	}
 
@@ -108,12 +110,16 @@ func (c *FSRestClient) authenticate() error {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return err
 	}
 
 	if resp.StatusCode != 200 {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		errMsg := fmt.Sprintf("Authentication failed with response code: %d", resp.StatusCode)
 		return errors.New(errMsg)
 	}
@@ -122,25 +128,33 @@ func (c *FSRestClient) authenticate() error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return err
 	}
 
 	var out authenResult
 	if err = json.Unmarshal(body, &out); err != nil {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return err
 	}
 
 	token, ok := out["token"]
 	if !ok {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return fmt.Errorf("token isn't included, %v", out)
 	}
 
 	tokenType := reflect.TypeOf(token).Kind()
 	if reflect.String != tokenType {
-		c.retryCount++
+		if !c.failedTime.Equal(time.Time{}) {
+			c.failedTime = time.Now()
+		}
 		return fmt.Errorf("token type isn't string, %v, %s", token, tokenType)
 	}
 
@@ -155,7 +169,7 @@ func (c *FSRestClient) authenticate() error {
 			}
 		}
 	}
-	c.retryCount = 0
+	c.failedTime = time.Time{}
 
 	return nil
 }
@@ -199,13 +213,13 @@ func (c *FSRestClient) retryDo(url string, jsonStr string) ([]byte, error) {
 
 func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 	if req == nil {
-		return nil, 0, errors.New("invalid parameter, abort")
+		return nil, http.StatusBadRequest, errors.New("invalid parameter, abort")
 	}
 
 	if c.token == nil {
 		if err := c.authenticate(); err != nil {
 			log.Errorf("fails to authenticate rest server, err:%v", err)
-			return nil, 0, err
+			return nil, http.StatusUnauthorized, err
 		}
 	}
 
@@ -213,7 +227,7 @@ func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 
 	resp, err := c.Client.Do(req)
 	if err != nil {
-		return nil, 0, err
+		return nil, http.StatusUnauthorized, err
 	}
 
 	defer resp.Body.Close()
