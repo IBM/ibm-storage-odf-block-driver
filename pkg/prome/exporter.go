@@ -18,8 +18,14 @@ func RunExporter(restClient *rest.FSRestClient, subsystemName string, namespace 
 		log.Warningf("NewFSPerfCollector fails, err:%s", err)
 	}
 
-	prometheus.MustRegister(c)
-	http.Handle("/metrics", promhttp.Handler())
+	// Use custom registry to remove default go metrics
+	r := prometheus.NewRegistry()
+	r.MustRegister(c)
+	handler := promhttp.HandlerFor(r, promhttp.HandlerOpts{})
+	http.Handle("/metrics", handler)
+
+	// prometheus.MustRegister(c)
+	// http.Handle("/metrics", promhttp.Handler())
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var _, _ = w.Write([]byte(`<html>
