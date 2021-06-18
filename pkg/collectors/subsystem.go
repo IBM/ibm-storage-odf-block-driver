@@ -42,8 +42,8 @@ const (
 	SystemWriteIOPS    = "flashsystem_subsystem_wr_iops"
 	SystemReadBytes    = "flashsystem_subsystem_rd_bytes"
 	SystemWriteBytes   = "flashsystem_subsystem_wr_bytes"
-	SystemReadLatency  = "flashsystem_subsystem_rd_latency"
-	SystemWriteLatency = "flashsystem_subsystem_wr_latency"
+	SystemReadLatency  = "flashsystem_subsystem_rd_latency_ms"
+	SystemWriteLatency = "flashsystem_subsystem_wr_latency_ms"
 
 	SystemMetadata = "flashsystem_subsystem_metadata"
 	SystemHealth   = "flashsystem_subsystem_health"

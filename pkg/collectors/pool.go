@@ -33,12 +33,12 @@ const (
 	PoolMetadata                     = "flashsystem_pool_metadata"
 	PoolHealth                       = "flashsystem_pool_health"
 	PoolWarningThreshold             = "flashsystem_pool_capacity_warning_threshold"
-	PoolCapacityUsable               = "flashsystem_pool_capacity_usable"
-	PoolCapacityUsed                 = "flashsystem_pool_capacity_used"
-	PoolEfficiencySavings            = "flashsystem_pool_efficiency_savings"
-	PoolEfficiencySavingsThin        = "flashsystem_pool_efficiency_savings_thin"
-	PoolEfficiencySavingsDedup       = "flashsystem_pool_efficiency_savings_dedup"
-	PoolEfficiencySavingsCompression = "flashsystem_pool_efficiency_savings_compression"
+	PoolCapacityUsable               = "flashsystem_pool_capacity_usable_bytes"
+	PoolCapacityUsed                 = "flashsystem_pool_capacity_used_bytes"
+	PoolEfficiencySavings            = "flashsystem_pool_savings_bytes"
+	PoolEfficiencySavingsThin        = "flashsystem_pool_savings_thin_bytes"
+	PoolEfficiencySavingsDedup       = "flashsystem_pool_savings_dedup_bytes"
+	PoolEfficiencySavingsCompression = "flashsystem_pool_savings_compression_bytes"
 
 	// Pool state
 	StateOnline   = "online"
