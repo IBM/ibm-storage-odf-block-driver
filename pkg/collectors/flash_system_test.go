@@ -245,41 +245,21 @@ func TestMetrics(t *testing.T) {
 	driver.CacheManager.Ready()
 
 	expected := `
-	# HELP flashsystem_pool_capacity_usable Pool usable capacity (Byte)
-	# TYPE flashsystem_pool_capacity_usable gauge
-	flashsystem_pool_capacity_usable{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0798621523968e+13
-	flashsystem_pool_capacity_usable{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0798621523968e+13
-	flashsystem_pool_capacity_usable{pool_name="Pool2",subsystem_name="FS-system-name"} 1.0798621523968e+13
-	# HELP flashsystem_pool_capacity_used Pool used capacity (byte)
-	# TYPE flashsystem_pool_capacity_used gauge
-	flashsystem_pool_capacity_used{pool_name="Pool0",subsystem_name="FS-system-name"} 1.073741824e+09
-	flashsystem_pool_capacity_used{pool_name="Pool1",subsystem_name="FS-system-name"} 1.073741824e+09
-	flashsystem_pool_capacity_used{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
+	# HELP flashsystem_pool_capacity_usable_bytes Pool usable capacity (Byte)
+	# TYPE flashsystem_pool_capacity_usable_bytes gauge
+	flashsystem_pool_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0798621523968e+13
+	flashsystem_pool_capacity_usable_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0798621523968e+13
+	flashsystem_pool_capacity_usable_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.0798621523968e+13
+	# HELP flashsystem_pool_capacity_used_bytes Pool used capacity (byte)
+	# TYPE flashsystem_pool_capacity_used_bytes gauge
+	flashsystem_pool_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.073741824e+09
+	flashsystem_pool_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.073741824e+09
+	flashsystem_pool_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
 	# HELP flashsystem_pool_capacity_warning_threshold Pool capacatity warning threshold
 	# TYPE flashsystem_pool_capacity_warning_threshold gauge
 	flashsystem_pool_capacity_warning_threshold{pool_name="Pool0",subsystem_name="FS-system-name"} 80
 	flashsystem_pool_capacity_warning_threshold{pool_name="Pool1",subsystem_name="FS-system-name"} 80
 	flashsystem_pool_capacity_warning_threshold{pool_name="Pool2",subsystem_name="FS-system-name"} 60
-	# HELP flashsystem_pool_efficiency_savings dedupe, thin provisioning, and compression savings
-	# TYPE flashsystem_pool_efficiency_savings gauge
-	flashsystem_pool_efficiency_savings{pool_name="Pool0",subsystem_name="FS-system-name"} 2.064998802432e+12
-	flashsystem_pool_efficiency_savings{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0505892864e+10
-	flashsystem_pool_efficiency_savings{pool_name="Pool2",subsystem_name="FS-system-name"} 0
-	# HELP flashsystem_pool_efficiency_savings_compression compression savings
-	# TYPE flashsystem_pool_efficiency_savings_compression gauge
-	flashsystem_pool_efficiency_savings_compression{pool_name="Pool0",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_efficiency_savings_compression{pool_name="Pool1",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_efficiency_savings_compression{pool_name="Pool2",subsystem_name="FS-system-name"} 0
-	# HELP flashsystem_pool_efficiency_savings_dedup dedeup savings
-	# TYPE flashsystem_pool_efficiency_savings_dedup gauge
-	flashsystem_pool_efficiency_savings_dedup{pool_name="Pool0",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_efficiency_savings_dedup{pool_name="Pool1",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_efficiency_savings_dedup{pool_name="Pool2",subsystem_name="FS-system-name"} 0
-	# HELP flashsystem_pool_efficiency_savings_thin thin provisioning savings
-	# TYPE flashsystem_pool_efficiency_savings_thin gauge
-	flashsystem_pool_efficiency_savings_thin{pool_name="Pool0",subsystem_name="FS-system-name"} 2.064998802432e+12
-	flashsystem_pool_efficiency_savings_thin{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0505892864e+10
-	flashsystem_pool_efficiency_savings_thin{pool_name="Pool2",subsystem_name="FS-system-name"} 0
 	# HELP flashsystem_pool_health Pool health status
 	# TYPE flashsystem_pool_health gauge
 	flashsystem_pool_health{pool_name="Pool0",subsystem_name="FS-system-name"} 0
@@ -290,6 +270,26 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_metadata{pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
 	flashsystem_pool_metadata{pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
 	flashsystem_pool_metadata{pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_pool_savings_bytes dedupe, thin provisioning, and compression savings
+	# TYPE flashsystem_pool_savings_bytes gauge
+	flashsystem_pool_savings_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 2.064998802432e+12
+	flashsystem_pool_savings_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0505892864e+10
+	flashsystem_pool_savings_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_pool_savings_compression_bytes compression savings
+	# TYPE flashsystem_pool_savings_compression_bytes gauge
+	flashsystem_pool_savings_compression_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_savings_compression_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_savings_compression_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_pool_savings_dedup_bytes dedeup savings
+	# TYPE flashsystem_pool_savings_dedup_bytes gauge
+	flashsystem_pool_savings_dedup_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_savings_dedup_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_savings_dedup_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_pool_savings_thin_bytes thin provisioning savings
+	# TYPE flashsystem_pool_savings_thin_bytes gauge
+	flashsystem_pool_savings_thin_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 2.064998802432e+12
+	flashsystem_pool_savings_thin_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0505892864e+10
+	flashsystem_pool_savings_thin_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
 	# HELP flashsystem_subsystem_health System health
 	# TYPE flashsystem_subsystem_health gauge
 	flashsystem_subsystem_health{subsystem_name="FS-system-name"} 0
@@ -299,12 +299,27 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_subsystem_rd_bytes overall performance - read throughput MB/s
 	# TYPE flashsystem_subsystem_rd_bytes gauge
 	flashsystem_subsystem_rd_bytes{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_rd_iops overall performance - read IOPS
+	# TYPE flashsystem_subsystem_rd_iops gauge
+	flashsystem_subsystem_rd_iops{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_rd_latency_ms overall performance - read latency ms
+	# TYPE flashsystem_subsystem_rd_latency_ms gauge
+	flashsystem_subsystem_rd_latency_ms{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_wr_bytes overall performance - write throughput MB/s
+	# TYPE flashsystem_subsystem_wr_bytes gauge
+	flashsystem_subsystem_wr_bytes{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_wr_iops overall performance - write IOPS
+	# TYPE flashsystem_subsystem_wr_iops gauge
+	flashsystem_subsystem_wr_iops{subsystem_name="FS-system-name"} 11
+	# HELP flashsystem_subsystem_wr_latency_ms overall performance - write latency ms
+	# TYPE flashsystem_subsystem_wr_latency_ms gauge
+	flashsystem_subsystem_wr_latency_ms{subsystem_name="FS-system-name"} 0.001
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
-		"flashsystem_pool_capacity_usable", "flashsystem_pool_capacity_used", "flashsystem_pool_capacity_warning_threshold", "flashsystem_pool_efficiency_savings",
-		"flashsystem_pool_efficiency_savings_compression", "flashsystem_pool_efficiency_savings_dedup", "flashsystem_pool_efficiency_savings_thin", "flashsystem_pool_metadata",
-		"flashsystem_subsystem_health", "flashsystem_subsystem_metadata", "flashsystem_subsystem_rd_bytes", "flashsystem_pool_health")
+		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemReadLatency, SystemWriteLatency, SystemMetadata, SystemHealth,
+		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings, PoolEfficiencySavingsThin,
+		PoolEfficiencySavingsDedup, PoolEfficiencySavingsCompression)
 
 	if err != nil {
 		t.Errorf("unexpected metrics:\n %s", err)
