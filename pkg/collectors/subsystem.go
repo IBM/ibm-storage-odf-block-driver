@@ -64,8 +64,8 @@ var (
 	perfMetricsMap = map[string]MetricLabel{
 		SystemReadIOPS:     {"overall performance - read IOPS", subsystemCommonLabel},
 		SystemWriteIOPS:    {"overall performance - write IOPS", subsystemCommonLabel},
-		SystemReadBytes:    {"overall performance - read throughput MB/s", subsystemCommonLabel},
-		SystemWriteBytes:   {"overall performance - write throughput MB/s", subsystemCommonLabel},
+		SystemReadBytes:    {"overall performance - read throughput bytes/s", subsystemCommonLabel},
+		SystemWriteBytes:   {"overall performance - write throughput bytes/s", subsystemCommonLabel},
 		SystemReadLatency:  {"overall performance - read latency ms", subsystemCommonLabel},
 		SystemWriteLatency: {"overall performance - write latency ms", subsystemCommonLabel},
 	}
@@ -86,8 +86,8 @@ var (
 		VdiskWriteBW:      1024 * 1024,
 		VdiskReadIOPS:     1,
 		VdiskWriteIOPS:    1,
-		VdiskReadLatency:  0.001,
-		VdiskWriteLatency: 0.001,
+		VdiskReadLatency:  1,
+		VdiskWriteLatency: 1,
 	}
 )
 
