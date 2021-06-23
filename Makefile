@@ -49,3 +49,10 @@ clean: bin-clean
 
 bin-clean:
 	rm -rf ./build/_output/bin/*
+
+add-copyright:
+	hack/add-copyright.sh
+
+check-copyright:
+	hack/check-copyright.sh
+	
