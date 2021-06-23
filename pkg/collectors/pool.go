@@ -268,7 +268,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		thinSavings := math.Max(0, tempValue)
 
 		log.Infof("pool: %d, thin saving: %f", poolInfo.PoolId, thinSavings)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsThin], totalSaving, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsThin], thinSavings, &poolInfo)
 
 		// pool_efficiency_savings_dedup
 		// [lsmdiskgrp]:deduplication_capacity_saving

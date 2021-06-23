@@ -1,8 +1,8 @@
 
 LINT_VERSION="1.40.0"
 
-IMAGE_REPO="quay.io"
-NAME_SPACE="odf"
+IMAGE_REPO="docker.io"
+NAME_SPACE="ibmcom"
 DRIVER_IMAGE_VERSION=latest
 
 DRIVER_NAME=ibm-storage-odf-block-driver
