@@ -296,24 +296,24 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_subsystem_metadata System information
 	# TYPE flashsystem_subsystem_metadata gauge
 	flashsystem_subsystem_metadata{model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
-	# HELP flashsystem_subsystem_rd_bytes overall performance - read throughput MB/s
+	# HELP flashsystem_subsystem_rd_bytes overall performance - read throughput bytes/s
 	# TYPE flashsystem_subsystem_rd_bytes gauge
 	flashsystem_subsystem_rd_bytes{subsystem_name="FS-system-name"} 0
 	# HELP flashsystem_subsystem_rd_iops overall performance - read IOPS
 	# TYPE flashsystem_subsystem_rd_iops gauge
 	flashsystem_subsystem_rd_iops{subsystem_name="FS-system-name"} 0
-	# HELP flashsystem_subsystem_rd_latency_ms overall performance - read latency ms
-	# TYPE flashsystem_subsystem_rd_latency_ms gauge
-	flashsystem_subsystem_rd_latency_ms{subsystem_name="FS-system-name"} 0
-	# HELP flashsystem_subsystem_wr_bytes overall performance - write throughput MB/s
+	# HELP flashsystem_subsystem_rd_latency_s overall performance - read latency second
+	# TYPE flashsystem_subsystem_rd_latency_s gauge
+	flashsystem_subsystem_rd_latency_s{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_wr_bytes overall performance - write throughput bytes/s
 	# TYPE flashsystem_subsystem_wr_bytes gauge
 	flashsystem_subsystem_wr_bytes{subsystem_name="FS-system-name"} 0
 	# HELP flashsystem_subsystem_wr_iops overall performance - write IOPS
 	# TYPE flashsystem_subsystem_wr_iops gauge
 	flashsystem_subsystem_wr_iops{subsystem_name="FS-system-name"} 11
-	# HELP flashsystem_subsystem_wr_latency_ms overall performance - write latency ms
-	# TYPE flashsystem_subsystem_wr_latency_ms gauge
-	flashsystem_subsystem_wr_latency_ms{subsystem_name="FS-system-name"} 0.001
+	# HELP flashsystem_subsystem_wr_latency_s overall performance - write latency second
+	# TYPE flashsystem_subsystem_wr_latency_s gauge
+	flashsystem_subsystem_wr_latency_s{subsystem_name="FS-system-name"} 0.001
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
