@@ -42,8 +42,8 @@ const (
 	SystemWriteIOPS    = "flashsystem_subsystem_wr_iops"
 	SystemReadBytes    = "flashsystem_subsystem_rd_bytes"
 	SystemWriteBytes   = "flashsystem_subsystem_wr_bytes"
-	SystemReadLatency  = "flashsystem_subsystem_rd_latency_ms"
-	SystemWriteLatency = "flashsystem_subsystem_wr_latency_ms"
+	SystemReadLatency  = "flashsystem_subsystem_rd_latency_s"
+	SystemWriteLatency = "flashsystem_subsystem_wr_latency_s"
 
 	SystemMetadata = "flashsystem_subsystem_metadata"
 	SystemHealth   = "flashsystem_subsystem_health"
@@ -64,10 +64,10 @@ var (
 	perfMetricsMap = map[string]MetricLabel{
 		SystemReadIOPS:     {"overall performance - read IOPS", subsystemCommonLabel},
 		SystemWriteIOPS:    {"overall performance - write IOPS", subsystemCommonLabel},
-		SystemReadBytes:    {"overall performance - read throughput MB/s", subsystemCommonLabel},
-		SystemWriteBytes:   {"overall performance - write throughput MB/s", subsystemCommonLabel},
-		SystemReadLatency:  {"overall performance - read latency ms", subsystemCommonLabel},
-		SystemWriteLatency: {"overall performance - write latency ms", subsystemCommonLabel},
+		SystemReadBytes:    {"overall performance - read throughput bytes/s", subsystemCommonLabel},
+		SystemWriteBytes:   {"overall performance - write throughput bytes/s", subsystemCommonLabel},
+		SystemReadLatency:  {"overall performance - read latency second", subsystemCommonLabel},
+		SystemWriteLatency: {"overall performance - write latency second", subsystemCommonLabel},
 	}
 
 	// Raw metrics names to system metrics name map
