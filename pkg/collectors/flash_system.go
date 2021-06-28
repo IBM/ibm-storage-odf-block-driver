@@ -34,10 +34,10 @@ type PerfCollector struct {
 	poolDescriptors    map[string]*prometheus.Desc
 	volumeDescriptors  map[string]*prometheus.Desc
 
-	up             prometheus.Gauge
-	totalScrapes   prometheus.Counter
-	failedScrapes  prometheus.Counter
-	scrapeDuration prometheus.Summary
+	up prometheus.Gauge
+	// totalScrapes   prometheus.Counter
+	// failedScrapes  prometheus.Counter
+	// scrapeDuration prometheus.Summary
 
 	sequenceNumber uint64
 }
@@ -54,21 +54,21 @@ func NewPerfCollector(restClient *rest.FSRestClient, name string, namespace stri
 			Help: "Was the last scrape successful.",
 		}),
 
-		totalScrapes: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "exporter_total_scrapes",
-			Help: "Number of total scrapes",
-		}),
+		// totalScrapes: prometheus.NewCounter(prometheus.CounterOpts{
+		// 	Name: "exporter_total_scrapes",
+		// 	Help: "Number of total scrapes",
+		// }),
 
-		failedScrapes: prometheus.NewCounter(prometheus.CounterOpts{
-			Name: "exporter_failed_scrapes",
-			Help: "Number of failed scrapes",
-		}),
+		// failedScrapes: prometheus.NewCounter(prometheus.CounterOpts{
+		// 	Name: "exporter_failed_scrapes",
+		// 	Help: "Number of failed scrapes",
+		// }),
 
-		scrapeDuration: prometheus.NewSummary(prometheus.SummaryOpts{
-			Name:       "exporter_scrape_duration_seconds",
-			Help:       "Histogram of scrape time",
-			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
-		}),
+		// scrapeDuration: prometheus.NewSummary(prometheus.SummaryOpts{
+		// 	Name:       "exporter_scrape_duration_seconds",
+		// 	Help:       "Histogram of scrape time",
+		// 	Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		// }),
 	}
 
 	f.initSubsystemDescs()
@@ -96,9 +96,9 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 
 	ch <- f.up.Desc()
-	ch <- f.totalScrapes.Desc()
-	ch <- f.failedScrapes.Desc()
-	ch <- f.scrapeDuration.Desc()
+	// ch <- f.totalScrapes.Desc()
+	// ch <- f.failedScrapes.Desc()
+	// ch <- f.scrapeDuration.Desc()
 
 }
 
@@ -133,7 +133,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 
 	ch <- f.up
-	ch <- f.scrapeDuration
-	ch <- f.totalScrapes
-	ch <- f.failedScrapes
+	// ch <- f.scrapeDuration
+	// ch <- f.totalScrapes
+	// ch <- f.failedScrapes
 }

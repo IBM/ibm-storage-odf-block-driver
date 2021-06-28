@@ -42,8 +42,8 @@ const (
 	SystemWriteIOPS    = "flashsystem_subsystem_wr_iops"
 	SystemReadBytes    = "flashsystem_subsystem_rd_bytes"
 	SystemWriteBytes   = "flashsystem_subsystem_wr_bytes"
-	SystemReadLatency  = "flashsystem_subsystem_rd_latency_s"
-	SystemWriteLatency = "flashsystem_subsystem_wr_latency_s"
+	SystemReadLatency  = "flashsystem_subsystem_rd_latency_seconds"
+	SystemWriteLatency = "flashsystem_subsystem_wr_latency_seconds"
 
 	SystemMetadata = "flashsystem_subsystem_metadata"
 	SystemHealth   = "flashsystem_subsystem_health"
@@ -66,8 +66,8 @@ var (
 		SystemWriteIOPS:    {"overall performance - write IOPS", subsystemCommonLabel},
 		SystemReadBytes:    {"overall performance - read throughput bytes/s", subsystemCommonLabel},
 		SystemWriteBytes:   {"overall performance - write throughput bytes/s", subsystemCommonLabel},
-		SystemReadLatency:  {"overall performance - read latency second", subsystemCommonLabel},
-		SystemWriteLatency: {"overall performance - write latency second", subsystemCommonLabel},
+		SystemReadLatency:  {"overall performance - read latency seconds", subsystemCommonLabel},
+		SystemWriteLatency: {"overall performance - write latency seconds", subsystemCommonLabel},
 	}
 
 	// Raw metrics names to system metrics name map
@@ -123,10 +123,10 @@ func (f *PerfCollector) initSubsystemDescs() {
 
 func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
-	timer := prometheus.NewTimer(f.scrapeDuration)
-	defer timer.ObserveDuration()
+	// timer := prometheus.NewTimer(f.scrapeDuration)
+	// defer timer.ObserveDuration()
 
-	f.totalScrapes.Inc()
+	// f.totalScrapes.Inc()
 	f.sequenceNumber++
 
 	var statsResults rest.SystemStats
