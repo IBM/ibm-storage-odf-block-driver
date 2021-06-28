@@ -30,15 +30,15 @@ import (
 
 const (
 	// Metric name defines
-	PoolMetadata                     = "flashsystem_pool_metadata"
-	PoolHealth                       = "flashsystem_pool_health"
-	PoolWarningThreshold             = "flashsystem_pool_capacity_warning_threshold"
-	PoolCapacityUsable               = "flashsystem_pool_capacity_usable_bytes"
-	PoolCapacityUsed                 = "flashsystem_pool_capacity_used_bytes"
-	PoolEfficiencySavings            = "flashsystem_pool_savings_bytes"
-	PoolEfficiencySavingsThin        = "flashsystem_pool_savings_thin_bytes"
-	PoolEfficiencySavingsDedup       = "flashsystem_pool_savings_dedup_bytes"
-	PoolEfficiencySavingsCompression = "flashsystem_pool_savings_compression_bytes"
+	PoolMetadata          = "flashsystem_pool_metadata"
+	PoolHealth            = "flashsystem_pool_health"
+	PoolWarningThreshold  = "flashsystem_pool_capacity_warning_threshold"
+	PoolCapacityUsable    = "flashsystem_pool_capacity_usable_bytes"
+	PoolCapacityUsed      = "flashsystem_pool_capacity_used_bytes"
+	PoolEfficiencySavings = "flashsystem_pool_savings_bytes"
+	// PoolEfficiencySavingsThin        = "flashsystem_pool_savings_thin_bytes"
+	// PoolEfficiencySavingsDedup       = "flashsystem_pool_savings_dedup_bytes"
+	// PoolEfficiencySavingsCompression = "flashsystem_pool_savings_compression_bytes"
 
 	// Pool state
 	StateOnline   = "online"
@@ -85,15 +85,15 @@ var (
 
 	// Metric define mapping
 	poolMetricsMap = map[string]MetricLabel{
-		PoolMetadata:                     {"Pool metadata", poolMetadataLabel},
-		PoolHealth:                       {"Pool health status", poolLabelCommon},
-		PoolWarningThreshold:             {"Pool capacatity warning threshold", poolLabelCommon},
-		PoolCapacityUsable:               {"Pool usable capacity (Byte)", poolLabelCommon},
-		PoolCapacityUsed:                 {"Pool used capacity (byte)", poolLabelCommon},
-		PoolEfficiencySavings:            {"dedupe, thin provisioning, and compression savings", poolLabelCommon},
-		PoolEfficiencySavingsThin:        {"thin provisioning savings", poolLabelCommon},
-		PoolEfficiencySavingsDedup:       {"dedeup savings", poolLabelCommon},
-		PoolEfficiencySavingsCompression: {"compression savings", poolLabelCommon},
+		PoolMetadata:          {"Pool metadata", poolMetadataLabel},
+		PoolHealth:            {"Pool health status", poolLabelCommon},
+		PoolWarningThreshold:  {"Pool capacatity warning threshold", poolLabelCommon},
+		PoolCapacityUsable:    {"Pool usable capacity (Byte)", poolLabelCommon},
+		PoolCapacityUsed:      {"Pool used capacity (byte)", poolLabelCommon},
+		PoolEfficiencySavings: {"dedupe, thin provisioning, and compression savings", poolLabelCommon},
+		// PoolEfficiencySavingsThin:        {"thin provisioning savings", poolLabelCommon},
+		// PoolEfficiencySavingsDedup:       {"dedeup savings", poolLabelCommon},
+		// PoolEfficiencySavingsCompression: {"compression savings", poolLabelCommon},
 	}
 )
 
@@ -233,51 +233,51 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		// drpCompressionSavings (for DRP) = drpSavings
 		// For non-DRP, drpCompressionSavings = 0
 		// Thin Provisioning Savings = Math.max(0, [lsmdiskgrp]:virtual_capacity – realCap – drpCompressionSavings – Math.max([lsmdiskgrp]:compression_uncompressed_capacity - [lsmdiskgrp]:compression_compressed_capacity, 0))
-		var drpCompressionSavings float64
-		usedBefore, err := strconv.ParseFloat(pool[UsedBeforeDedupKey].(string), 64)
-		if err != nil {
-			log.Errorf("get used_capacity_before_reduction failed: %s", err)
-		}
-		usedAfter, err := strconv.ParseFloat(pool[UsedAfterDedupKey].(string), 64)
-		if err != nil {
-			log.Errorf("get used_capacity_before_reduction failed: %s", err)
-		}
-		dedupSaving, err := strconv.ParseFloat(pool[DedupSavingsKey].(string), 64)
-		if err != nil {
-			log.Errorf("get deduplication_capacity_saving failed: %s", err)
-		}
-		tempValue := usedBefore - usedAfter + reclaimable - dedupSaving
-		drpSavings := math.Max(0, tempValue)
+		// var drpCompressionSavings float64
+		// usedBefore, err := strconv.ParseFloat(pool[UsedBeforeDedupKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get used_capacity_before_reduction failed: %s", err)
+		// }
+		// usedAfter, err := strconv.ParseFloat(pool[UsedAfterDedupKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get used_capacity_before_reduction failed: %s", err)
+		// }
+		// dedupSaving, err := strconv.ParseFloat(pool[DedupSavingsKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get deduplication_capacity_saving failed: %s", err)
+		// }
+		// tempValue := usedBefore - usedAfter + reclaimable - dedupSaving
+		// drpSavings := math.Max(0, tempValue)
 
-		if drpool {
-			drpCompressionSavings = drpSavings
-		} else {
-			drpCompressionSavings = 0
-		}
+		// if drpool {
+		// 	drpCompressionSavings = drpSavings
+		// } else {
+		// 	drpCompressionSavings = 0
+		// }
 
-		uncompressed, err := strconv.ParseFloat(pool[UncompressedKey].(string), 64)
-		if err != nil {
-			log.Errorf("get compression_uncompressed_capacity failed: %s", err)
-		}
-		compressed, err := strconv.ParseFloat(pool[CompressedKey].(string), 64)
-		if err != nil {
-			log.Errorf("get compression_compressed_capacity failed: %s", err)
-		}
-		comressDiff := uncompressed - compressed
-		tempValue = virtual - realCapacity - drpCompressionSavings - math.Max(0, comressDiff)
-		thinSavings := math.Max(0, tempValue)
+		// uncompressed, err := strconv.ParseFloat(pool[UncompressedKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get compression_uncompressed_capacity failed: %s", err)
+		// }
+		// compressed, err := strconv.ParseFloat(pool[CompressedKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get compression_compressed_capacity failed: %s", err)
+		// }
+		// comressDiff := uncompressed - compressed
+		// tempValue = virtual - realCapacity - drpCompressionSavings - math.Max(0, comressDiff)
+		// thinSavings := math.Max(0, tempValue)
 
-		log.Infof("pool: %d, thin saving: %f", poolInfo.PoolId, thinSavings)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsThin], thinSavings, &poolInfo)
+		// log.Infof("pool: %d, thin saving: %f", poolInfo.PoolId, thinSavings)
+		// newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsThin], thinSavings, &poolInfo)
 
 		// pool_efficiency_savings_dedup
 		// [lsmdiskgrp]:deduplication_capacity_saving
-		dedupSavings, err := strconv.ParseFloat(pool[DedupSavingsKey].(string), 64)
-		if err != nil {
-			log.Errorf("get deduplication_capacity_saving failed: %s", err)
-		}
-		log.Infof("pool: %d, dedup saving: %f", poolInfo.PoolId, dedupSavings)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsDedup], dedupSavings, &poolInfo)
+		// dedupSavings, err := strconv.ParseFloat(pool[DedupSavingsKey].(string), 64)
+		// if err != nil {
+		// 	log.Errorf("get deduplication_capacity_saving failed: %s", err)
+		// }
+		// log.Infof("pool: %d, dedup saving: %f", poolInfo.PoolId, dedupSavings)
+		// newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsDedup], dedupSavings, &poolInfo)
 
 		// pool_efficiency_savings_compression
 		// If pool is not compressed, Compression Savings = 0
@@ -286,16 +286,16 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		//					   = drpSavings
 		// For old compression (non-drp pool),
 		// Compression Savings = Math.max(0, ([lsmdiskgrp]:compression_uncompressed_capacity – [lsmdiskgrp]:compression_compressed_capacity)
-		compressSavings := 0.0
-		if "yes" == pool[CompressionActiveKey].(string) {
-			if drpool {
-				compressSavings = drpSavings
-			} else {
-				compressSavings = math.Max(0, comressDiff)
-			}
-		}
-		log.Infof("pool: %d, compression saving: %f", poolInfo.PoolId, compressSavings)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsCompression], compressSavings, &poolInfo)
+		// compressSavings := 0.0
+		// if "yes" == pool[CompressionActiveKey].(string) {
+		// 	if drpool {
+		// 		compressSavings = drpSavings
+		// 	} else {
+		// 		compressSavings = math.Max(0, comressDiff)
+		// 	}
+		// }
+		// log.Infof("pool: %d, compression saving: %f", poolInfo.PoolId, compressSavings)
+		// newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavingsCompression], compressSavings, &poolInfo)
 	}
 
 	// Not found pool metrics
