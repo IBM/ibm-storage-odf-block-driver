@@ -207,7 +207,7 @@ func (c *FSRestClient) retryDo(url string, jsonStr string) ([]byte, error) {
 
 	retryCnt := 2
 	for i := 0; i < retryCnt-1; i++ {
-		if statusCode >= http.StatusOK && statusCode < http.StatusBadRequest {
+		if len(body) > 0 && statusCode >= http.StatusOK && statusCode < http.StatusBadRequest {
 			return body, err
 		}
 
