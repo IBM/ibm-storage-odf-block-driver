@@ -1,5 +1,0 @@
-export REST_API_IP="fs_ip"
-export USERNAME="name"
-export PASSWORD="password"
-export WATCH_NAMESPACE="ibm-storage-odf"
-export FLASHSYSTEM_CLUSTERNAME="flashsystemcluster-sample"
