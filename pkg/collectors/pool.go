@@ -126,7 +126,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		return false
 	}
 	poolNames := manager.GetPoolNames()
-	log.Infof("pool count: %d, pools: %v", len(poolNames), poolNames)
+	// log.Infof("pool count: %d, pools: %v", len(poolNames), poolNames)
 
 	pools, err := f.client.Lsmdiskgrp()
 	if err != nil {
@@ -162,7 +162,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		}
 		// metadata metrics
 		poolMetaMetricDesc := f.poolDescriptors[PoolMetadata]
-		log.Infof("subsystem: %s, pool id: %d, pool name: %s, state: %s, sc: %s, warning: %s",
+		log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s",
 			poolInfo.SystemName,
 			poolInfo.PoolId,
 			poolInfo.PoolName,
@@ -174,8 +174,11 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		f.newPoolWarningThreshold(ch, &poolInfo)
 		f.newPoolHealthMetrics(ch, &poolInfo)
 
+		log.Infof("pool id: %d, physical_free_capacity: %v, reclaimable_capacity: %v, data_reduction: %v, physical_capacity: %v, virtual_capacity: %v, real_capacity: %v",
+			poolInfo.PoolId, pool[PhysicalFreeKey], pool[ReclaimableKey], pool[DataReductionKey], pool[PhysicalCapacityKey], pool[VirtualCapacityKey], pool[RealCapacityKey])
+
 		// Get pool 'data_reduction' as true/false
-		drpool := "yes" == pool[DataReductionKey].(string)
+		drpool := pool[DataReductionKey].(string) == "yes"
 
 		// pool_capacity_usable
 		// [lsmdiskgrp]:physical_free_capacity + [lsmdiskgrp]:reclaimable_capacity
@@ -189,7 +192,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		}
 		usable := physicalFree + reclaimable
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
-		log.Infof("pool: %d capacity usable: %f", poolInfo.PoolId, usable)
+		// log.Infof("pool: %d capacity usable: %f", poolInfo.PoolId, usable)
 
 		// pool_capacity_used
 		// [lsmdiskgrp]:physical_capacity - pool_capacity_usable
@@ -199,7 +202,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		}
 		used := physical - usable
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
-		log.Infof("pool: %d, capacity used: %f", poolInfo.PoolId, used)
+		// log.Infof("pool: %d, capacity used: %f", poolInfo.PoolId, used)
 
 		// pool_efficiency_savings
 		// virtualCap = [lsmdiskgrp]:virtual_capacity
@@ -216,17 +219,13 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		if err != nil {
 			log.Errorf("get real capacity failed: %s", err)
 		}
-		phyFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
-		if err != nil {
-			log.Errorf("get physical free capacity failed: %s", err)
-		}
 		if drpool {
-			realCapacity = physical - phyFree
+			realCapacity = physical - physicalFree
 		} else {
 			realCapacity = realCap
 		}
 		totalSaving = math.Max(0, virtual-realCapacity)
-		log.Infof("pool: %d, total saving: %f", poolInfo.PoolId, totalSaving)
+		// log.Infof("pool: %d, total saving: %f", poolInfo.PoolId, totalSaving)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolEfficiencySavings], totalSaving, &poolInfo)
 
 		// pool_efficiency_savings_thin
@@ -301,7 +300,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 
 	// Not found pool metrics
 	for poolName, poolId := range poolNames {
-		if poolId == driver.INIT_POOL_ID {
+		if driver.INIT_POOL_ID == poolId {
 			scnames := manager.GetSCNameByPoolName(poolName)
 			poolInfo := PoolInfo{
 				SystemName:               f.systemName,
@@ -312,7 +311,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 				StorageClass:             strings.Join(scnames, ","),
 			}
 
-			log.Infof("subsystem: %s, pool id: %d, pool name: %s, state: %s, sc: %s, warning: %s",
+			log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s",
 				poolInfo.SystemName,
 				poolInfo.PoolId,
 				poolInfo.PoolName,
@@ -377,7 +376,9 @@ func (f *PerfCollector) newPoolHealthMetrics(ch chan<- prometheus.Metric, info *
 	} else if "offline" == info.State {
 		val = 2.0
 	}
-	log.Infof("pool: %d state: %s", info.PoolId, info.State)
+	if "online" != info.State {
+		log.Infof("pool: %d state: %s", info.PoolId, info.State)
+	}
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,

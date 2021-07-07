@@ -109,13 +109,10 @@ var getPoolMap = func() (operutil.ScPoolMap, error) {
 }
 
 func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
-
 	// Refresh pool from manager
-	scPoolMap, mistake := getPoolMap()
-	if mistake != nil {
-		log.Fatalf("Read ConfigMap failed, error: %s", mistake)
-	} else {
-		log.Info("Pool read OK", scPoolMap)
+	scPoolMap, err := getPoolMap()
+	if err != nil {
+		log.Fatalf("Read ConfigMap failed, error: %s", err)
 	}
 
 	mgr, err := drivermanager.GetManager()

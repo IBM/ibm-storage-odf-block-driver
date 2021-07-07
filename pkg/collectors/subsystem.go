@@ -165,14 +165,6 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.Name = f.systemName
 
-	log.Infof(
-		"subsystem: %s, vendor: %s, model: %s, version: %s",
-		systemName.Name,
-		systemInfo.Vendor,
-		systemInfo.Model,
-		systemInfo.Version,
-	)
-
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := f.client.CheckFlashsystemClusterState()
@@ -183,9 +175,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newPerfMetrics(ch, f.sysInfoDescriptors[SystemHealth], status, &systemName)
 
 	// Parse statsResults
-	updated := 0
 	for _, m := range statsResults {
-
 		metricName, ok := m["stat_name"]
 		if !ok {
 			log.Warningf("no stat_name in metric response: %v", m)
@@ -195,7 +185,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		// Get metric descriptor name from rawMetricsMap
 		metricDescName, ok := rawMetricsMap[metricName]
 		if !ok {
-			log.Warningf("Not interested metric for %s", metricName)
+			// log.Warningf("Not interested metric for %s", metricName)
 			continue
 		}
 
@@ -212,17 +202,12 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		}
 
 		convertFactor, ok := unitConvertMap[metricName]
-
 		if ok {
 			metricValue *= convertFactor
 		}
 
-		log.Info(metricName, metricDesc, metricValue)
 		newPerfMetrics(ch, metricDesc, metricValue, &systemName)
-		updated++
 	}
-
-	log.Infof("completes round %d collection on %d metrics", f.sequenceNumber, updated)
 
 	return true
 }
