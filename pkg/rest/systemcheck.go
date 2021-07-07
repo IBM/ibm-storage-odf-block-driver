@@ -32,8 +32,8 @@ const (
 func (c *FSRestClient) CheckVersion() (bool, error) {
 	systeminfo, err := c.Lssystem()
 	if err != nil {
-		log.Error("get system version error")
-		return false, fmt.Errorf("rest client error")
+		log.Errorf("get flash system version error: %v", err)
+		return false, err
 	}
 
 	version := systeminfo[VersionKey].(string)
@@ -52,10 +52,9 @@ func (c *FSRestClient) CheckVersion() (bool, error) {
 func (c *FSRestClient) CheckUserRole() (bool, error) {
 	userinfo, err := c.Lscurrentuser()
 	if err != nil {
-		return false, fmt.Errorf("get user error due rest client error")
+		return false, err
 	}
 
-	log.Infof("current user information : %v", userinfo)
 	for _, info := range userinfo {
 		role, bHas := info[UserRoleKey]
 		if bHas {
@@ -65,7 +64,7 @@ func (c *FSRestClient) CheckUserRole() (bool, error) {
 			}
 		}
 	}
-
+	log.Infof("user info: %v", userinfo)
 	return false, nil
 }
 
@@ -112,6 +111,5 @@ func normalizeVersion(s string, width, parts int) string {
 	for i := len(strList); i < parts; i++ {
 		v += fmt.Sprintf("%0*s", width, "")
 	}
-	log.Infof("parseVersion: [%s] => [%s]", s, v)
 	return v
 }

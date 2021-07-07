@@ -30,8 +30,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 
-	//"k8s.io/client-go/kubernetes/scheme"
-
 	operatorapi "github.com/IBM/ibm-storage-odf-operator/api/v1alpha1"
 	conditionutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )

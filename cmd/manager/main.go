@@ -18,7 +18,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -74,34 +73,31 @@ func getRestConfigFromEnv() (*rest.Config, error) {
 }
 
 func main() {
-	klog.Info("Try to read config file")
+	klog.InitFlags(nil)
 
-	// FIXME, demo of how to read pool
-	scPoolMap, mistake := operutil.GetPoolConfigmapContent()
-	if mistake != nil {
-		log.Fatalf("Read ConfigMap failed, error: %s", mistake)
+	scPoolMap, err := operutil.GetPoolConfigmapContent()
+	if err != nil {
+		klog.Fatalf("Read pool configmap failed, error: %s", err)
 	} else {
-		klog.Info("Pool ready", scPoolMap)
+		klog.Infof("Read pool configmap %v", scPoolMap)
 	}
 
-	var err error
 	var valid bool
-
 	mgr, err := drivermanager.NewManager(scheme, scPoolMap.ScPool)
 	if err != nil {
-		log.Fatalf("Initialize mamager failed, error: %s", err)
+		klog.Fatalf("Initialize mamager failed, error: %s", err)
 	}
 
 	restConfig, err := getRestConfigFromEnv()
 	if err != nil {
-		log.Fatal(err)
+		klog.Fatal(err)
 	}
 
 	restClient, err := rest.NewFSRestClient(restConfig)
 	if err != nil {
 		// Update condition
 		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.AuthFailure, drivermanager.AuthFailureMessage)
-		klog.Errorf("Fail to initialize rest client, error:%s", err)
+		klog.Errorf("Fail to initialize rest client, error: %s", err)
 		goto error_out
 	}
 
@@ -155,7 +151,6 @@ func main() {
 
 	// TODO: handle pod terminating signal
 	go prome.RunExporter(restClient, mgr.GetSubsystemName(), mgr.GetNamespaceName())
-	// go prome.RunExporter(restClient, "FlashSystem", mgr.GetNamespaceName())
 
 error_out:
 	sigs := make(chan os.Signal, 1)
@@ -171,5 +166,4 @@ error_out:
 	// exiting
 	<-done
 	klog.Info("Exiting")
-
 }
