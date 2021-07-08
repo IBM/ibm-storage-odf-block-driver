@@ -62,9 +62,9 @@ func (c *FSRestClient) CheckUserRole() (bool, error) {
 			case "Administrator", "SecurityAdmin", "RestrictedAdmin":
 				return true, nil
 			}
+			log.Infof("The current user role is %v.", role)
 		}
 	}
-	log.Infof("user info: %v", userinfo)
 	return false, nil
 }
 

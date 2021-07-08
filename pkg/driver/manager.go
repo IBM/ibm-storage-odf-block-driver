@@ -54,9 +54,9 @@ const (
 	AuthFailureMessage     = "Authentication to flash system rest server failed"
 	AuthSuccessMessage     = "Authentication to flash system rest server succeed"
 	VersionCheckErrMessage = "Flash system code level too low, need >= 8.3.1"
-	RoleCheckErrMessage    = "User role need to be Monitor"
+	RoleCheckErrMessage    = "User role need to be Administrator, SecurityAdmin or RestrictedAdmin"
 	RestErrorMessage       = "Rest server hit unexpected error"
-	ClusterErrMessage      = "Flash system cluster not online"
+	ClusterErrMessage      = "Flash system cluster is not online"
 	ExporterReadyMessage   = "Flash system exporter is ready"
 )
 
