@@ -211,7 +211,7 @@ func (c *FSRestClient) retryDo(url string, jsonStr string) ([]byte, error) {
 			return body, err
 		}
 
-		// Sometimes got the 'Invalid toke error'.
+		// Sometimes got the 'Invalid token error'.
 		// Set the token to nil to do reauthentication
 		c.token = nil
 		body, statusCode, err = c.PostRequester.poster(req, c)
