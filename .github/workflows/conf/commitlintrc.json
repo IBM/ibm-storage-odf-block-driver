@@ -73,10 +73,10 @@
             [
                 "action",
                 "api",
-                "bundle",
                 "ci",
                 "controllers",
                 "docs",
+                "feature",
                 "fix",
                 "godeps",
                 "test"

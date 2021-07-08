@@ -22,26 +22,6 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: codespell
-      uses: codespell-project/actions-codespell@master
-      with:
-        check_filenames: true
-        check_hidden: true
-
-    - name: run commitlint
-      uses: wagoid/commitlint-github-action@v3
-      with:
-        configFile: './.github/workflows/conf/commitlintrc.json'
-        helpURL: |
-          Some helpful links
-          Naming Conventions -> https://commitlint.js.org/#/concepts-commit-conventions
-          Rules -> https://commitlint.js.org/#/reference-rules
-          How to Write a Good Git Commit Message -> https://chris.beams.io/posts/git-commit
-
-    - name: golangci-lint
-      run: |
-        make lint
-
     - name: run tests
       run: |
         make test
