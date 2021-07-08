@@ -70,7 +70,7 @@ func NewRequester(p Poster) *Requester {
 
 func NewFSRestClient(config *Config) (*FSRestClient, error) {
 	tr := &http.Transport{
-		// # nosec
+		// #nosec
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		Dial: (&net.Dialer{
 			Timeout: 5 * time.Second,
