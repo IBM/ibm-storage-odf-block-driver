@@ -17,7 +17,6 @@
 package collectors
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -181,7 +180,6 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newPerfMetrics(ch, f.sysInfoDescriptors[SystemHealth], status, &systemName)
 
 	// Parse statsResults
-	fmt.Println(statsResults)
 	for _, m := range statsResults {
 		metricName, ok := m["stat_name"]
 		if !ok {
