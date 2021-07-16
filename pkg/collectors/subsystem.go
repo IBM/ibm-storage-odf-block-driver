@@ -17,6 +17,7 @@
 package collectors
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -32,6 +33,7 @@ const (
 	VdiskWriteBW      = "vdisk_w_mb"
 	VdiskReadIOPS     = "vdisk_r_io"
 	VdiskWriteIOPS    = "vdisk_w_io"
+	VdiskLatency      = "vdisk_ms"
 	VdiskReadLatency  = "vdisk_r_ms"
 	VdiskWriteLatency = "vdisk_w_ms"
 
@@ -43,6 +45,7 @@ const (
 	SystemWriteIOPS    = "flashsystem_subsystem_wr_iops"
 	SystemReadBytes    = "flashsystem_subsystem_rd_bytes"
 	SystemWriteBytes   = "flashsystem_subsystem_wr_bytes"
+	SystemLatency      = "flashsystem_subsystem_latency_seconds"
 	SystemReadLatency  = "flashsystem_subsystem_rd_latency_seconds"
 	SystemWriteLatency = "flashsystem_subsystem_wr_latency_seconds"
 
@@ -67,6 +70,7 @@ var (
 		SystemWriteIOPS:    {"overall performance - write IOPS", subsystemCommonLabel},
 		SystemReadBytes:    {"overall performance - read throughput bytes/s", subsystemCommonLabel},
 		SystemWriteBytes:   {"overall performance - write throughput bytes/s", subsystemCommonLabel},
+		SystemLatency:      {"overall performance - average latency seconds", subsystemCommonLabel},
 		SystemReadLatency:  {"overall performance - read latency seconds", subsystemCommonLabel},
 		SystemWriteLatency: {"overall performance - write latency seconds", subsystemCommonLabel},
 	}
@@ -77,6 +81,7 @@ var (
 		VdiskWriteBW:      SystemWriteBytes,
 		VdiskReadIOPS:     SystemReadIOPS,
 		VdiskWriteIOPS:    SystemWriteIOPS,
+		VdiskLatency:      SystemLatency,
 		VdiskReadLatency:  SystemReadLatency,
 		VdiskWriteLatency: SystemWriteLatency,
 	}
@@ -87,6 +92,7 @@ var (
 		VdiskWriteBW:      1024 * 1024,
 		VdiskReadIOPS:     1,
 		VdiskWriteIOPS:    1,
+		VdiskLatency:      0.001,
 		VdiskReadLatency:  0.001,
 		VdiskWriteLatency: 0.001,
 	}
@@ -175,6 +181,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newPerfMetrics(ch, f.sysInfoDescriptors[SystemHealth], status, &systemName)
 
 	// Parse statsResults
+	fmt.Println(statsResults)
 	for _, m := range statsResults {
 		metricName, ok := m["stat_name"]
 		if !ok {
