@@ -62,6 +62,12 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 				"stat_peak_time": "210604161812"
 			},
 			{
+				"stat_name": "vdisk_ms",
+				"stat_current": "10",
+				"stat_peak": "20",
+				"stat_peak_time": "210716134213"
+			},
+			{
 				"stat_name": "vdisk_r_ms",
 				"stat_current": "0",
 				"stat_peak": "0",
@@ -294,6 +300,9 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_subsystem_health System health
 	# TYPE flashsystem_subsystem_health gauge
 	flashsystem_subsystem_health{subsystem_name="FS-system-name"} 0
+	# HELP flashsystem_subsystem_latency_seconds overall performance - average latency seconds
+	# TYPE flashsystem_subsystem_latency_seconds gauge
+	flashsystem_subsystem_latency_seconds{subsystem_name="FS-system-name"} 0.01
 	# HELP flashsystem_subsystem_metadata System information
 	# TYPE flashsystem_subsystem_metadata gauge
 	flashsystem_subsystem_metadata{model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
@@ -318,7 +327,7 @@ func TestMetrics(t *testing.T) {
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
-		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemReadLatency, SystemWriteLatency, SystemMetadata, SystemHealth,
+		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemLatency, SystemReadLatency, SystemWriteLatency, SystemMetadata, SystemHealth,
 		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings)
 
 	if err != nil {
