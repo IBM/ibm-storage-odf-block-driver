@@ -197,7 +197,8 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		// Get metric descriptor from sysPerfDescriptors
 		metricDesc, ok := f.sysPerfDescriptors[metricDescName]
 		if !ok {
-			log.Fatalf("metric mapping wrong: %s", metricName)
+			log.Errorf("metric mapping wrong: %s", metricName)
+			continue
 		}
 
 		metricValue, err := strconv.ParseFloat(m["stat_current"], 64)

@@ -77,7 +77,8 @@ func main() {
 
 	scPoolMap, err := operutil.GetPoolConfigmapContent()
 	if err != nil {
-		klog.Fatalf("Read pool configmap failed, error: %s", err)
+		klog.Errorf("Read pool configmap failed, error: %s", err)
+		panic(err)
 	} else {
 		klog.Infof("Read pool configmap %v", scPoolMap)
 	}
@@ -85,12 +86,14 @@ func main() {
 	var valid bool
 	mgr, err := drivermanager.NewManager(scheme, scPoolMap.ScPool)
 	if err != nil {
-		klog.Fatalf("Initialize mamager failed, error: %s", err)
+		klog.Errorf("Initialize mamager failed, error: %s", err)
+		panic(err)
 	}
 
 	restConfig, err := getRestConfigFromEnv()
 	if err != nil {
-		klog.Fatal(err)
+		klog.Error(err)
+		panic(err)
 	}
 
 	restClient, err := rest.NewFSRestClient(restConfig)

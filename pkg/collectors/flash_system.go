@@ -112,12 +112,14 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	// Refresh pool from manager
 	scPoolMap, err := getPoolMap()
 	if err != nil {
-		log.Fatalf("Read ConfigMap failed, error: %s", err)
+		log.Errorf("Read ConfigMap failed, error: %s", err)
+		panic(err)
 	}
 
 	mgr, err := drivermanager.GetManager()
 	if err != nil {
-		log.Fatalf("Get mamager failed, error: %s", err)
+		log.Errorf("Get mamager failed, error: %s", err)
+		panic(err)
 	}
 
 	mgr.UpdatePoolMap(scPoolMap.ScPool)
