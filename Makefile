@@ -3,7 +3,7 @@ LINT_VERSION="1.40.0"
 
 IMAGE_REPO="docker.io"
 NAME_SPACE="ibmcom"
-DRIVER_IMAGE_VERSION=latest
+DRIVER_IMAGE_VERSION=1.0.0
 
 DRIVER_NAME=ibm-storage-odf-block-driver
 
