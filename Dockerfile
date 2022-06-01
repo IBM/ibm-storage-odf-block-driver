@@ -18,9 +18,9 @@ MAINTAINER IBM Storage
 LABEL vendor="IBM" \
   name="ibm-storage-odf-block-driver" \
   org.label-schema.vendor="IBM" \
-  org.label-schema.name="ibm storage odf driver" \  
+  org.label-schema.name="ibm storage odf driver" \
   org.label-schema.vcs-url="https://github.com/IBM/ibm-storage-odf-block-driver" \
-  org.label-schema.schema-version="1.0.0"
+  org.label-schema.schema-version="1.0.1"
 
 WORKDIR /
 
