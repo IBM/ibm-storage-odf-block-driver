@@ -22,8 +22,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
-
-	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
 const (
@@ -50,6 +48,13 @@ const (
 
 	SystemMetadata = "flashsystem_subsystem_metadata"
 	SystemHealth   = "flashsystem_subsystem_health"
+
+	SystemPhysicalTotalCapacity = "flashsystem_subsystem_physical_total_capacity_bytes"
+	SystemPhysicalFreeCapacity  = "flashsystem_subsystem_physical_free_capacity_bytes"
+	SystemPhysicalUsedCapacity  = "flashsystem_subsystem_physical_used_capacity_bytes"
+
+	PhysicalTotalCapacity = "physical_capacity"
+	PhysicalFreeCapacity  = "physical_free_capacity"
 )
 
 var (
@@ -85,6 +90,13 @@ var (
 		VdiskWriteLatency: SystemWriteLatency,
 	}
 
+	// Metric define mapping
+	StorageSystemMetricsMap = map[string]MetricLabel{
+		SystemPhysicalTotalCapacity: {"System physical total capacity (Byte)", subsystemCommonLabel},
+		SystemPhysicalFreeCapacity:  {"System physical free capacity (byte)", subsystemCommonLabel},
+		SystemPhysicalUsedCapacity:  {"System physical used capacity (byte)", subsystemCommonLabel},
+	}
+
 	// Unit conversion for raw metrics
 	unitConvertMap = map[string]float64{
 		VdiskReadBW:       1024 * 1024,
@@ -111,6 +123,7 @@ type SystemName struct {
 func (f *PerfCollector) initSubsystemDescs() {
 	f.sysInfoDescriptors = make(map[string]*prometheus.Desc)
 	f.sysPerfDescriptors = make(map[string]*prometheus.Desc)
+	f.sysCapacityDescriptors = make(map[string]*prometheus.Desc)
 
 	for metricName, metricLabel := range systemMetricsMap {
 		f.sysInfoDescriptors[metricName] = prometheus.NewDesc(
@@ -121,6 +134,13 @@ func (f *PerfCollector) initSubsystemDescs() {
 
 	for metricName, metricLabel := range perfMetricsMap {
 		f.sysPerfDescriptors[metricName] = prometheus.NewDesc(
+			metricName,
+			metricLabel.Name, metricLabel.Labels, nil,
+		)
+	}
+
+	for metricName, metricLabel := range perfMetricsMap {
+		f.sysCapacityDescriptors[metricName] = prometheus.NewDesc(
 			metricName,
 			metricLabel.Name, metricLabel.Labels, nil,
 		)
@@ -169,6 +189,24 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.Name = f.systemName
+
+	// [lssystem]: physical_capacity
+	PhysicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
+	if err != nil {
+		log.Errorf("get physical capacity failed: %s", err)
+	}
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], PhysicalTotalCapacity, &systemName)
+
+	// [lssystem]: physical_free_capacity
+	PhysicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	if err != nil {
+		log.Errorf("get physical capacity failed: %s", err)
+	}
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], PhysicalFreeCapacity, &systemName)
+
+	// used = total - free
+	PhysicalUsedCapacity := PhysicalTotalCapacity - PhysicalFreeCapacity
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], PhysicalUsedCapacity, &systemName)
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 	// Determine the health 0 = OK, 1 = warning, 2 = error
@@ -231,6 +269,15 @@ func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value 
 }
 
 func newPerfMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, systemName *SystemName) {
+	ch <- prometheus.MustNewConstMetric(
+		desc,
+		prometheus.GaugeValue,
+		value,
+		systemName.Name,
+	)
+}
+
+func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, systemName *SystemName) {
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,
