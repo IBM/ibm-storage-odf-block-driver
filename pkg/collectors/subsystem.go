@@ -194,24 +194,25 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	// [lssystem]: physical_capacity
-	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
-	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
-	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
-
-	// [lssystem]: physical_free_capacity
-	physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
-	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
-	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
-
-	// used = total - free
-	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
-	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
+	log.infof("my array is: %v", sysInfoResults)
+	//// [lssystem]: physical_capacity
+	//physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
+	//if err != nil {
+	//	log.Errorf("get physical capacity failed: %s", err)
+	//}
+	//newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
+	//
+	//// [lssystem]: physical_free_capacity
+	//physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	//if err != nil {
+	//	log.Errorf("get physical capacity failed: %s", err)
+	//}
+	//newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
+	//
+	//// used = total - free
+	//physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
+	//newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
+	//log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := f.client.CheckFlashsystemClusterState()
