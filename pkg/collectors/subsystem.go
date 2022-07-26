@@ -285,7 +285,7 @@ func newPerfMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value fl
 	)
 }
 
-func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, systemName *SystemName) {
+func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value int64, systemName *SystemName) {
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,
