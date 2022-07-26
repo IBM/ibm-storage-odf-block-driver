@@ -23,6 +23,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
 
+	units "github.com/docker/go-units"
+
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
@@ -195,10 +197,11 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	log.Infof("my PhysicalTotalCapacity is: %v", sysInfoResults[PhysicalTotalCapacity].(string))
-	res := strings.ReplaceAll(sysInfoResults[PhysicalTotalCapacity].(string), "TB", "")
-	physicalTotalCapacity, err := strconv.ParseFloat(res, 64)
+	//res := strings.ReplaceAll(sysInfoResults[PhysicalTotalCapacity].(string), "TB", "")
+	//physicalTotalCapacity, err := strconv.ParseFloat(res, 64)
+	totalCapacity, err := units.RAMInBytes(sysInfoResults[PhysicalTotalCapacity].(string))
 	//resInBytes := intVar * 1024 * 1024 * 1024
-	log.Infof("my physical capacity in bytes is: %v", physicalTotalCapacity)
+	log.Infof("my physical capacity in bytes is: %v", totalCapacity)
 
 	//// [lssystem]: physical_capacity
 	//physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
