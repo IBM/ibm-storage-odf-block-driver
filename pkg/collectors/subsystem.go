@@ -204,7 +204,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], float64(physicalTotalCapacity), &systemName)
 
 	// [lssystem]: physical_free_capacity
-	physicalFreeCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	physicalFreeCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalFreeCapacity].(string))
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
