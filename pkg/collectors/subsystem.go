@@ -196,20 +196,15 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	log.Infof("my PhysicalTotalCapacity is: %v", sysInfoResults[PhysicalTotalCapacity].(string))
-	//res := strings.ReplaceAll(sysInfoResults[PhysicalTotalCapacity].(string), "TB", "")
-	//physicalTotalCapacity, err := strconv.ParseFloat(res, 64)
-	totalCapacity, err := units.RAMInBytes(sysInfoResults[PhysicalTotalCapacity].(string))
-	//resInBytes := intVar * 1024 * 1024 * 1024
-	log.Infof("my physical capacity in bytes is: %v", totalCapacity)
-
 	//// [lssystem]: physical_capacity
-	//physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
-	//if err != nil {
-	//	log.Errorf("get physical capacity failed: %s", err)
-	//}
-	//newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
-	//
+	log.Infof("my original PhysicalTotalCapacity is: %v", sysInfoResults[PhysicalTotalCapacity].(string))
+	physicalTotalCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalTotalCapacity].(string))
+	if err != nil {
+		log.Errorf("get physical capacity failed: %s", err)
+	}
+	log.Infof("my physical capacity in bytes is: %v", physicalTotalCapacity)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
+
 	//// [lssystem]: physical_free_capacity
 	//physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
 	//if err != nil {
