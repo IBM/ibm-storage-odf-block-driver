@@ -197,8 +197,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	log.Infof("my PhysicalTotalCapacity is: %v", sysInfoResults[PhysicalTotalCapacity].(string))
 	res := strings.ReplaceAll(sysInfoResults[PhysicalTotalCapacity].(string), "TB", "")
 	resInTB, err := strconv.ParseFloat(res, 64)
-	resInBytes := resInTB * 1024 * 1024 * 1024
-	log.Infof("my physical capacity in bytes is: %v", resInBytes)
+	log.Infof("my physical capacity in bytes is: %f", resInTB)
 
 	//// [lssystem]: physical_capacity
 	//physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
