@@ -203,7 +203,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
 	log.Infof("my physical capacity in bytes is: %v", physicalTotalCapacity)
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], float64(physicalTotalCapacity), &systemName)
 
 	//// [lssystem]: physical_free_capacity
 	//physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
@@ -285,7 +285,7 @@ func newPerfMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value fl
 	)
 }
 
-func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value int64, systemName *SystemName) {
+func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, systemName *SystemName) {
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,
