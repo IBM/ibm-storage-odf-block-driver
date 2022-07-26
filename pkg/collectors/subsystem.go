@@ -195,23 +195,23 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	// [lssystem]: physical_capacity
-	PhysicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
+	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], PhysicalTotalCapacity, &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
 
 	// [lssystem]: physical_free_capacity
-	PhysicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], PhysicalFreeCapacity, &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
 
 	// used = total - free
-	PhysicalUsedCapacity := PhysicalTotalCapacity - PhysicalFreeCapacity
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], PhysicalUsedCapacity, &systemName)
-	log.Infof("system capacity total: %f, free: %f, used: %f", PhysicalTotalCapacity, PhysicalFreeCapacity, PhysicalUsedCapacity)
+	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
+	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := f.client.CheckFlashsystemClusterState()
