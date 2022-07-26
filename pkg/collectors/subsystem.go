@@ -213,7 +213,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	// used = total - free
 	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], float64(physicalUsedCapacity), &systemName)
-	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
+	log.Infof("system capacity total: %d, free: %d, used: %d", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := f.client.CheckFlashsystemClusterState()
