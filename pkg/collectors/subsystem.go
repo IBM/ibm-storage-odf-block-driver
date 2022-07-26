@@ -139,7 +139,7 @@ func (f *PerfCollector) initSubsystemDescs() {
 		)
 	}
 
-	for metricName, metricLabel := range perfMetricsMap {
+	for metricName, metricLabel := range StorageSystemMetricsMap {
 		f.sysCapacityDescriptors[metricName] = prometheus.NewDesc(
 			metricName,
 			metricLabel.Name, metricLabel.Labels, nil,
@@ -190,6 +190,8 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.Name = f.systemName
 
+	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
+
 	// [lssystem]: physical_capacity
 	PhysicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	if err != nil {
@@ -208,7 +210,6 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	PhysicalUsedCapacity := PhysicalTotalCapacity - PhysicalFreeCapacity
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], PhysicalUsedCapacity, &systemName)
 
-	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := f.client.CheckFlashsystemClusterState()
 	status := 0.0
