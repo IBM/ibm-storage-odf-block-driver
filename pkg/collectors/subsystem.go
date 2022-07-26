@@ -194,7 +194,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	log.infof("my array is: %v", sysInfoResults)
+	log.Infof("my array is: %v", sysInfoResults[PhysicalTotalCapacity].(string))
 	//// [lssystem]: physical_capacity
 	//physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	//if err != nil {
