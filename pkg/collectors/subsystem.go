@@ -22,6 +22,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
+
+	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
 const (
