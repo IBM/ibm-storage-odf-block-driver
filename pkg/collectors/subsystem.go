@@ -96,7 +96,7 @@ var (
 
 	// Metric define mapping
 	StorageSystemMetricsMap = map[string]MetricLabel{
-		SystemPhysicalTotalCapacity: {"System physical total capacity (Byte)", subsystemCommonLabel},
+		SystemPhysicalTotalCapacity: {"System physical total capacity (byte)", subsystemCommonLabel},
 		SystemPhysicalFreeCapacity:  {"System physical free capacity (byte)", subsystemCommonLabel},
 		SystemPhysicalUsedCapacity:  {"System physical used capacity (byte)", subsystemCommonLabel},
 	}
