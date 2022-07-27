@@ -12,4 +12,7 @@ require (
 	sigs.k8s.io/controller-runtime v0.8.3
 )
 
-require github.com/docker/go-units v0.4.0 // indirect
+require (
+	github.com/docker/go-units v0.4.0 // indirect
+	github.com/dustin/go-humanize v1.0.0 // indirect
+)

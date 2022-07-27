@@ -23,7 +23,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
 
-	units "github.com/docker/go-units"
+	humanize "github.com/dustin/go-humanize"
 
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
@@ -197,14 +197,16 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	//// [lssystem]: physical_capacity
-	physicalTotalCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalTotalCapacity].(string))
+	physicalTotalCapacity, err := humanize.ParseBytes(sysInfoResults[PhysicalTotalCapacity].(string))
+
+	//physicalTotalCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalTotalCapacity].(string))
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], float64(physicalTotalCapacity), &systemName)
 
 	// [lssystem]: physical_free_capacity
-	physicalFreeCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalFreeCapacity].(string))
+	physicalFreeCapacity, err := humanize.ParseBytes(sysInfoResults[PhysicalFreeCapacity].(string))
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
