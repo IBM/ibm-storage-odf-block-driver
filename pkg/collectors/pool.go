@@ -187,10 +187,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 			poolInfo.PoolId, pool[PhysicalFreeKey], pool[ReclaimableKey], pool[DataReductionKey],
 			pool[PhysicalCapacityKey], pool[VirtualCapacityKey], pool[RealCapacityKey], pool[CapacityKey], pool[FreeCapacityKey])
 
-		if isParentPool(pool) {
-			createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo)
-		}
-
+		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo)
 		createLogicalCapacityPoolMetrics(ch, f, pool, poolInfo)
 		createTotalSavingPoolMetrics(ch, f, pool, poolInfo)
 
@@ -321,19 +318,24 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 }
 
 func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
-	if err != nil {
-		log.Errorf("get physical free failed: %s", err)
-	}
-	usable := physicalFree
-	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
+	if isParentPool(pool) {
+		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
+		if err != nil {
+			log.Errorf("get physical free failed: %s", err)
+		}
+		usable := physicalFree
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 
-	physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
-	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
+		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
+		if err != nil {
+			log.Errorf("get physical capacity failed: %s", err)
+		}
+		used := physical - usable
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
+	} else {
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], float64(-1), &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], float64(-1), &poolInfo)
 	}
-	used := physical - usable
-	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
 }
 
 func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
