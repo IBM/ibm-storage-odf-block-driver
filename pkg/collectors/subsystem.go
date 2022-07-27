@@ -196,7 +196,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	//// [lssystem]: physical_capacity
+	// [lssystem]: physical_capacity
 	PhysicalTotalCapacityB := sysInfoResults[PhysicalTotalCapacity].(string)
 	PhysicalTotalCapacityIB := convertStringToBytes(PhysicalTotalCapacityB)
 	physicalTotalCapacityFormat, err := humanize.ParseBytes(PhysicalTotalCapacityIB)
