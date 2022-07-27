@@ -30,10 +30,11 @@ type PerfCollector struct {
 	namespace  string
 	client     *rest.FSRestClient
 
-	sysInfoDescriptors map[string]*prometheus.Desc
-	sysPerfDescriptors map[string]*prometheus.Desc
-	poolDescriptors    map[string]*prometheus.Desc
-	volumeDescriptors  map[string]*prometheus.Desc
+	sysInfoDescriptors     map[string]*prometheus.Desc
+	sysPerfDescriptors     map[string]*prometheus.Desc
+	sysCapacityDescriptors map[string]*prometheus.Desc
+	poolDescriptors        map[string]*prometheus.Desc
+	volumeDescriptors      map[string]*prometheus.Desc
 
 	up prometheus.Gauge
 	// totalScrapes   prometheus.Counter
@@ -85,6 +86,10 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 
 	for _, v := range f.sysPerfDescriptors {
+		ch <- v
+	}
+
+	for _, v := range f.sysCapacityDescriptors {
 		ch <- v
 	}
 
