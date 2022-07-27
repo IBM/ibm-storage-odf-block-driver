@@ -197,9 +197,12 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	//// [lssystem]: physical_capacity
-	physicalTotalCapacity, err := humanize.ParseBytes(sysInfoResults[PhysicalTotalCapacity].(string))
+	PhysicalTotalCapacityinTB := sysInfoResults[PhysicalTotalCapacity].(string)
+	PhysicalTotalCapacityinTB = PhysicalTotalCapacityinTB[:len(PhysicalTotalCapacityinTB)-1]
+	PhysicalTotalCapacityinTiB := PhysicalTotalCapacityinTB + "iB"
+	log.Infof("orig system capacity TB: %s, TiB: %d", PhysicalTotalCapacityinTB, PhysicalTotalCapacityinTiB)
 
-	//physicalTotalCapacity, err := units.FromHumanSize(sysInfoResults[PhysicalTotalCapacity].(string))
+	physicalTotalCapacity, err := humanize.ParseBytes(PhysicalTotalCapacityinTiB)
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
