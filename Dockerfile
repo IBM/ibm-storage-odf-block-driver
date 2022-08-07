@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM golang:1.16 as builder
+FROM --platform=linux/amd64 golang:1.16 as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -20,7 +20,7 @@ LABEL vendor="IBM" \
   org.label-schema.vendor="IBM" \
   org.label-schema.name="ibm storage odf driver" \
   org.label-schema.vcs-url="https://github.com/IBM/ibm-storage-odf-block-driver" \
-  org.label-schema.schema-version="1.0.2"
+  org.label-schema.schema-version="1.2.0"
 
 WORKDIR /
 
