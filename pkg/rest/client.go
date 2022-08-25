@@ -341,8 +341,14 @@ func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
 	return stats, nil
 }
 
-func (c *FSRestClient) UpdateCredentials(newConfig Config) {
+func (c *FSRestClient) UpdateCredentials(newConfig Config) error {
 	if !reflect.DeepEqual(newConfig, c.RestConfig) {
 		c.RestConfig = newConfig
+		if err := c.authenticate(); err != nil {
+			log.Errorf("Failed to authenticate rest server, err:%v", err)
+			return err
+		}
 	}
+	return nil
+
 }
