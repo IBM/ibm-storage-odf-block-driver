@@ -42,7 +42,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 
 	fscMap, err := GetFscMap()
 	if err != nil {
-		log.Error("Read pool configmap failed, error: %s", err)
+		log.Errorf("Read pool configmap failed, error: %v", err)
 		return nil, err
 	} else {
 		log.Infof("Read pool configmap %v", fscMap)
@@ -58,7 +58,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 			log.Infof("Create new manager for %s", fscName)
 			mgr, mgrErr := drivermanager.NewManager(Scheme, namespace, fscName, fscScSecretMap)
 			if mgrErr != nil {
-				log.Errorf("Initialize manager failed, error: %s", mgrErr)
+				log.Errorf("Initialize manager failed, error: %v", mgrErr)
 				return nil, mgrErr
 			}
 
@@ -70,7 +70,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 
 			restConfig, SecretErr := GetStorageCredentials(&mgr)
 			if SecretErr != nil {
-				log.Error("Fail to get FlashSystemCluster secret, error: %v", SecretErr)
+				log.Errorf("Fail to get FlashSystemCluster secret, error: %v", SecretErr)
 				return nil, SecretErr
 			}
 
