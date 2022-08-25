@@ -17,18 +17,15 @@
 package collectors
 
 import (
+	clientmanagers "github.com/IBM/ibm-storage-odf-block-driver/pkg/managers"
+	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
-
-	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
-	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
-	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )
 
 type PerfCollector struct {
-	systemName string
-	namespace  string
-	client     *rest.FSRestClient
+	systems   map[string]*rest.FSRestClient
+	namespace string
 
 	sysInfoDescriptors     map[string]*prometheus.Desc
 	sysPerfDescriptors     map[string]*prometheus.Desc
@@ -44,12 +41,11 @@ type PerfCollector struct {
 	sequenceNumber uint64
 }
 
-func NewPerfCollector(restClient *rest.FSRestClient, name string, namespace string) (*PerfCollector, error) {
+func NewPerfCollector(systems map[string]*rest.FSRestClient, namespace string) (*PerfCollector, error) {
 
 	f := &PerfCollector{
-		systemName: name,
-		namespace:  namespace,
-		client:     restClient,
+		systems:   systems,
+		namespace: namespace,
 
 		up: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "up",
@@ -108,35 +104,25 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 
 }
 
-// Remove dependency for unit test
-var getPoolMap = func() (operutil.ScPoolMap, error) {
-	return operutil.GetPoolConfigmapContent()
-}
-
 func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
-	// Refresh pool from manager
-	scPoolMap, err := getPoolMap()
+	updatedSystems, err := clientmanagers.GetManagers(f.namespace, f.systems)
 	if err != nil {
-		log.Errorf("Read ConfigMap failed, error: %s", err)
 		panic(err)
 	}
+	f.systems = updatedSystems
 
-	mgr, err := drivermanager.GetManager()
-	if err != nil {
-		log.Errorf("Get mamager failed, error: %s", err)
-		panic(err)
+	for systemName, fsRestClient := range f.systems {
+		log.Info("Collect metrics for ", systemName)
+		f.collectSystemMetrics(ch, fsRestClient)
+
+		// TODO - collect pool metrics only if there is pools
+		valid, _ := fsRestClient.CheckVersion()
+		if valid {
+			// Skip unsupported version when generate pool metrics
+			f.collectPoolMetrics(ch, fsRestClient)
+		}
+
 	}
-
-	mgr.UpdatePoolMap(scPoolMap.ScPool)
-
-	f.collectSystemMetrics(ch)
-
-	valid, _ := f.client.CheckVersion()
-	if valid {
-		// Skip unsupported version when generate pool metrics
-		f.collectPoolMetrics(ch)
-	}
-
 	ch <- f.up
 	// ch <- f.scrapeDuration
 	// ch <- f.totalScrapes

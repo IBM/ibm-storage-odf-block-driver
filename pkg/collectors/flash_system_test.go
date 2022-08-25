@@ -1,30 +1,32 @@
 /**
- * Copyright contributors to the ibm-storage-odf-block-driver project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+* Copyright contributors to the ibm-storage-odf-block-driver project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
  */
 
 package collectors
 
 import (
 	"fmt"
+	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
+	clientmanagers "github.com/IBM/ibm-storage-odf-block-driver/pkg/managers"
+
 	"net/http"
 	"strings"
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus/testutil"
 
-	"github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )
@@ -248,23 +250,32 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 	return []byte(body), 200, nil
 }
 
-var client = &rest.FSRestClient{PostRequester: rest.NewRequester(poster)}
-var testCollector, _ = NewPerfCollector(client, "FS-system-name", "FS-ns")
+var restConfig = &rest.Config{
+	Host:     "FS-Host",
+	Username: "FS-Username",
+	Password: "FS-Password",
+}
+var manager = drivermanager.DriverManager{SystemName: "FS-system-name"}
+var client = &rest.FSRestClient{PostRequester: rest.NewRequester(poster), DriverManager: &manager, RestConfig: *restConfig}
+
+var testCollector, _ = NewPerfCollector(map[string]*rest.FSRestClient{"FS-system-name": client}, "FS-ns")
 
 func TestMetrics(t *testing.T) {
 	// Mock the dependency
-	getPoolMap = func() (operutil.ScPoolMap, error) {
-		poolMap := operutil.ScPoolMap{ScPool: map[string]string{}}
-		poolMap.ScPool["fs-sc-default"] = "Pool0"
-		poolMap.ScPool["fs-sc-1"] = "Pool0"
-		poolMap.ScPool["fs-sc-2"] = "Pool1"
-		poolMap.ScPool["fs-sc-3"] = "Pool1"
-		poolMap.ScPool["fs-sc-4"] = "Pool2"
-
-		return poolMap, nil
+	clientmanagers.GetStorageCredentials = func(*drivermanager.DriverManager) (*rest.Config, error) {
+		return restConfig, nil
 	}
 
-	driver.CacheManager.Ready()
+	clientmanagers.GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error) {
+		fscScSecretMap := operutil.FlashSystemClusterMapContent{ScPoolMap: map[string]string{}, Secret: "FC-secret"}
+		fscScSecretMap.ScPoolMap["fs-sc-default"] = "Pool0"
+		fscScSecretMap.ScPoolMap["fs-sc-1"] = "Pool0"
+		fscScSecretMap.ScPoolMap["fs-sc-2"] = "Pool1"
+		fscScSecretMap.ScPoolMap["fs-sc-3"] = "Pool1"
+		fscScSecretMap.ScPoolMap["fs-sc-4"] = "Pool2"
+		return map[string]operutil.FlashSystemClusterMapContent{"FS-system-name": fscScSecretMap}, nil
+	}
+	testCollector.systems["FS-system-name"].DriverManager.Ready()
 
 	expected := `
 	# HELP flashsystem_pool_capacity_usable_bytes Pool usable capacity (Byte)

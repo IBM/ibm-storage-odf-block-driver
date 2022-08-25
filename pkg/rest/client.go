@@ -42,15 +42,15 @@ type Config struct {
 }
 
 const (
-	FailedEventTheshold = time.Minute * 2 // 2 minutes
+	FailedEventThreshold = time.Minute * 2 // 2 minutes
 )
 
 type FSRestClient struct {
-	Client     *http.Client
-	RestConfig Config
-	BaseURL    string
-	token      *string // use nil as invalid token
-
+	Client        *http.Client
+	RestConfig    Config
+	BaseURL       string
+	token         *string // use nil as invalid token
+	DriverManager *drivermanager.DriverManager
 	PostRequester *Requester
 
 	failedTime time.Time
@@ -68,7 +68,7 @@ func NewRequester(p Poster) *Requester {
 	return &Requester{poster: p}
 }
 
-func NewFSRestClient(config *Config) (*FSRestClient, error) {
+func NewFSRestClient(config *Config, driverManager *drivermanager.DriverManager) (*FSRestClient, error) {
 	tr := &http.Transport{
 		// #nosec
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -89,6 +89,7 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 		BaseURL:       fmt.Sprintf("https://%s:7443/rest", config.Host),
 		RestConfig:    *config,
 		token:         nil,
+		DriverManager: driverManager,
 		PostRequester: NewRequester(doRequest),
 	}
 
@@ -102,8 +103,8 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 type authenResult map[string]interface{}
 
 func (c *FSRestClient) authenticate() error {
-	if !c.bNotified && !c.failedTime.Equal(time.Time{}) && time.Since(c.failedTime) > FailedEventTheshold {
-		mgr, _ := drivermanager.GetManager()
+	if !c.bNotified && !c.failedTime.Equal(time.Time{}) && time.Since(c.failedTime) > FailedEventThreshold {
+		mgr := c.DriverManager
 		if mgr != nil {
 			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err == nil {
 				c.bNotified = true
@@ -179,7 +180,7 @@ func (c *FSRestClient) authenticate() error {
 	c.token = &tokenStr
 
 	if c.bNotified {
-		mgr, _ := drivermanager.GetManager()
+		mgr := c.DriverManager
 		if mgr != nil {
 			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err == nil {
 				c.bNotified = false
@@ -338,4 +339,10 @@ func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
 	}
 
 	return stats, nil
+}
+
+func (c *FSRestClient) UpdateCredentials(newConfig Config) {
+	if !reflect.DeepEqual(newConfig, c.RestConfig) {
+		c.RestConfig = newConfig
+	}
 }
