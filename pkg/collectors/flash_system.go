@@ -115,9 +115,8 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 		log.Info("Collect metrics for ", systemName)
 		f.collectSystemMetrics(ch, fsRestClient)
 
-		// TODO - collect pool metrics only if there is pools
 		valid, _ := fsRestClient.CheckVersion()
-		if valid {
+		if valid && len(fsRestClient.DriverManager.GetPoolNames()) > 0 {
 			// Skip unsupported version when generate pool metrics
 			f.collectPoolMetrics(ch, fsRestClient)
 		}
