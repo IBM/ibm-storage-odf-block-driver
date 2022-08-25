@@ -53,6 +53,7 @@ func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
 	})
 
 	log.Info("Beginning to serve on port :9100")
+	// #nosec
 	if err = http.ListenAndServe(":9100", nil); err != nil {
 		log.Error(err, "failed to start http server")
 		panic(err)
