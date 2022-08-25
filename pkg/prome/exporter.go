@@ -27,9 +27,8 @@ import (
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
-func RunExporter(restClient *rest.FSRestClient, subsystemName string, namespace string) {
-
-	c, err := collector.NewPerfCollector(restClient, subsystemName, namespace)
+func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
+	c, err := collector.NewPerfCollector(restClients, namespace)
 	if err != nil {
 		log.Warningf("NewFSPerfCollector fails, err:%s", err)
 	}
