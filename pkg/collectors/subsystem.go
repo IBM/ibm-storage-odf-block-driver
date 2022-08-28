@@ -149,7 +149,7 @@ func (f *PerfCollector) initSubsystemDescs() {
 	}
 }
 
-func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
+func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient) bool {
 
 	// timer := prometheus.NewTimer(f.scrapeDuration)
 	// defer timer.ObserveDuration()
@@ -163,13 +163,14 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	var systemName SystemName
 	var err error
 
+	manager := fsRestClient.DriverManager
 	// Subsystem name is from CR
-	systemName.Name = f.systemName
+	systemName.Name = manager.GetSubsystemName()
 
 	// Get flash system results
-	statsResults, err = f.client.Lssystemstats()
+	statsResults, err = fsRestClient.Lssystemstats()
 	if err == nil {
-		sysInfoResults, err = f.client.Lssystem()
+		sysInfoResults, err = fsRestClient.Lssystem()
 	}
 	if err != nil {
 		f.up.Set(0)
@@ -190,7 +191,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
-	systemInfo.Name = f.systemName
+	systemInfo.Name = manager.GetSubsystemName()
 
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
@@ -214,7 +215,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric) bool {
 	log.Infof("system capacity total: %d, free: %d, used: %d", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
-	bReady, err := f.client.CheckFlashsystemClusterState()
+	bReady, err := fsRestClient.CheckFlashsystemClusterState()
 	status := 0.0
 	if err != nil || !bReady {
 		status = 1

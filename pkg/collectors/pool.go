@@ -18,6 +18,7 @@ package collectors
 
 import (
 	"fmt"
+	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	"math"
 	"sort"
 	"strconv"
@@ -126,17 +127,13 @@ func (f *PerfCollector) initPoolDescs() {
 	}
 }
 
-func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
+func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient) bool {
 	// Get pool names
-	manager, err := driver.GetManager()
-	if err != nil {
-		log.Errorf("get driver manager error: %s", err)
-		return false
-	}
+	manager := fsRestClient.DriverManager
 	poolNames := manager.GetPoolNames()
 	// log.Infof("pool count: %d, pools: %v", len(poolNames), poolNames)
 
-	pools, err := f.client.Lsmdiskgrp()
+	pools, err := fsRestClient.Lsmdiskgrp()
 	if err != nil {
 		log.Errorf("get pool list error: %v", err)
 		return false
@@ -161,7 +158,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 			threshold = "100"
 		}
 		poolInfo := PoolInfo{
-			SystemName:               f.systemName,
+			SystemName:               manager.GetSubsystemName(),
 			PoolId:                   poolId,
 			PoolName:                 poolName,
 			State:                    pool[PoolStatusKey].(string),
@@ -266,7 +263,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric) bool {
 		if driver.INIT_POOL_ID == poolId {
 			scnames := manager.GetSCNameByPoolName(poolName)
 			poolInfo := PoolInfo{
-				SystemName:               f.systemName,
+				SystemName:               fsRestClient.DriverManager.GetSubsystemName(),
 				PoolId:                   poolId,
 				PoolName:                 poolName,
 				State:                    "NotFound",
