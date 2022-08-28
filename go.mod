@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/IBM/ibm-storage-odf-operator v1.3.0-rc1
-	github.com/dustin/go-humanize v1.0.0
 	github.com/prometheus/client_golang v1.8.0
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2

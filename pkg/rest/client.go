@@ -256,7 +256,8 @@ func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 type StorageSystem map[string]interface{}
 
 func (c *FSRestClient) Lssystem() (StorageSystem, error) {
-	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), "")
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), jsonStr)
 	if err != nil {
 		return nil, err
 	}
