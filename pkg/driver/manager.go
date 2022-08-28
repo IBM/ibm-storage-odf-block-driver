@@ -19,7 +19,6 @@ package driver
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"time"
 
@@ -32,11 +31,7 @@ import (
 
 	operatorapi "github.com/IBM/ibm-storage-odf-operator/api/v1alpha1"
 	conditionutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
-)
-
-const (
-	EnvNamespaceName = "WATCH_NAMESPACE"
-	EnvClusterCRName = "FLASHSYSTEM_CLUSTERNAME"
+	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )
 
 // Reason
@@ -62,53 +57,34 @@ const (
 
 const INIT_POOL_ID = -1
 
-var CacheManager DriverManager
+var K8SClient client.Client = nil
 
 type DriverManager struct {
 	client.Client
 	namespace  string
-	systemName string
+	SystemName string
 	ready      bool
 	scPoolMap  map[string]string
+	secretName string
 }
 
-func NewManager(scheme *runtime.Scheme, scPool map[string]string) (*DriverManager, error) {
+func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FlashSystemClusterMapContent) (DriverManager, error) {
+	var manager DriverManager
 
-	k8sclient, err := newClient(scheme)
+	k8sClient, err := getK8sClient(scheme)
 	if err != nil {
 		log.Errorf("fail to create k8s client, error: %v", err)
-		return nil, err
+		return DriverManager{}, err
 	}
 
-	CacheManager.Client = k8sclient
+	manager.Client = k8sClient
+	manager.SystemName = fscName
+	manager.namespace = namespace
+	manager.scPoolMap = fscScSecretMap.ScPoolMap
+	manager.secretName = fscScSecretMap.Secret
+	manager.Ready()
 
-	// Flashsystem Cluster CR
-	name, err := getFlashSystemClusterName()
-	if err != nil {
-		log.Errorf("Fail to get FlashSystemCluster CR Name, error: %v", err)
-		return nil, err
-	}
-
-	// Namespace name
-	namespace, err := getOperatorNamespace()
-	if err != nil {
-		log.Errorf("Fail to get operator namespace Name, error: %v", err)
-		return nil, err
-	}
-
-	_, err = getFlashSystemClusterCR(k8sclient, name, namespace)
-	if err != nil {
-		log.Errorf("Fail to get FlashSystemCluster CR, error: %v", err)
-		return nil, err
-	}
-
-	CacheManager.systemName = name
-	CacheManager.namespace = namespace
-	// CacheManager.ready = true
-	CacheManager.Ready()
-	CacheManager.scPoolMap = scPool
-
-	return &CacheManager, nil
+	return manager, nil
 }
 
 // Add helper function to expose the state for mockup
@@ -116,23 +92,23 @@ func (d *DriverManager) Ready() {
 	d.ready = true
 }
 
-func GetManager() (*DriverManager, error) {
-
-	if CacheManager.ready {
-		return &CacheManager, nil
-	}
-
-	return nil, fmt.Errorf("Manager not ready")
+func (d *DriverManager) GetClient() client.Client {
+	return d.Client
 }
 
 func (d *DriverManager) GetSubsystemName() string {
 	// CR Name is the subsystem name
-	return d.systemName
+	return d.SystemName
 }
 
 func (d *DriverManager) GetNamespaceName() string {
 	// CR Name is the subsystem name
 	return d.namespace
+}
+
+func (d *DriverManager) GetSecretName() string {
+	// CR Name is the subsystem name
+	return d.secretName
 }
 
 func (d *DriverManager) GetSCNameByPoolName(poolName string) []string {
@@ -164,7 +140,7 @@ func (d *DriverManager) GetPoolNames() map[string]int {
 func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType, ready bool, reason string, message string) error {
 	k8sclient := d.Client
 
-	fscluster, err := getFlashSystemClusterCR(k8sclient, d.systemName, d.namespace)
+	fscluster, err := d.GetFlashSystemClusterCR()
 	if err != nil {
 		log.Errorf("Get flash system CR failed: %v", err)
 		return err
@@ -203,7 +179,7 @@ func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType,
 }
 
 func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
-	fscluster, err := getFlashSystemClusterCR(d.Client, d.systemName, d.namespace)
+	fscluster, err := d.GetFlashSystemClusterCR()
 	if err != nil {
 		log.Errorf("Get flash system CR failed: %v", err)
 		return err
@@ -212,9 +188,9 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 	t := metav1.Time{Time: time.Now()}
 	evt := &corev1.Event{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      fmt.Sprintf("%v.%x", d.systemName, t.UnixNano()),
+			Name:      fmt.Sprintf("%v.%x", d.SystemName, t.UnixNano()),
 			Namespace: fscluster.Namespace,
-			Labels:    conditionutil.GetLabels(d.systemName),
+			Labels:    conditionutil.GetLabels(d.SystemName),
 		},
 		InvolvedObject: corev1.ObjectReference{
 			Kind:            fscluster.Kind,
@@ -239,45 +215,32 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 	return err
 }
 
-func getFlashSystemClusterCR(k8sclient client.Client, name string, namespace string) (*operatorapi.FlashSystemCluster, error) {
+func (d *DriverManager) GetFlashSystemClusterCR() (*operatorapi.FlashSystemCluster, error) {
 	fscluster := operatorapi.FlashSystemCluster{}
-	err := k8sclient.Get(
+	err := d.Client.Get(
 		context.TODO(),
 		client.ObjectKey{
-			Namespace: namespace,
-			Name:      name,
+			Namespace: d.namespace,
+			Name:      d.SystemName,
 		},
 		&fscluster,
 	)
 	if err != nil {
-		log.Errorf("Fail to get FlashSystemCluster CR, error: %v", err)
+		log.Errorf("Fail to get FlashSystemCluster CR %s, error: %v", d.SystemName, err)
 		return nil, err
 	}
-
 	return &fscluster, nil
 }
 
-func newClient(scheme *runtime.Scheme) (client.Client, error) {
+func getK8sClient(scheme *runtime.Scheme) (client.Client, error) {
+	if K8SClient != nil {
+		return K8SClient, nil
+	}
 	restConfig := config.GetConfigOrDie()
-	k8sclient, err := client.New(restConfig, client.Options{Scheme: scheme})
+	k8sClient, err := client.New(restConfig, client.Options{Scheme: scheme})
 	if err != nil {
 		return nil, err
 	}
-	return k8sclient, nil
-}
-
-func getFlashSystemClusterName() (string, error) {
-	if value, ok := os.LookupEnv(EnvClusterCRName); ok {
-		return value, nil
-	} else {
-		return "", fmt.Errorf("Required env variable: '%s' isn't found", EnvClusterCRName)
-	}
-}
-
-func getOperatorNamespace() (string, error) {
-	if value, ok := os.LookupEnv(EnvNamespaceName); ok {
-		return value, nil
-	} else {
-		return "", fmt.Errorf("Required env variable: '%s' isn't found", EnvNamespaceName)
-	}
+	K8SClient = k8sClient
+	return k8sClient, nil
 }

@@ -27,9 +27,8 @@ import (
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
-func RunExporter(restClient *rest.FSRestClient, subsystemName string, namespace string) {
-
-	c, err := collector.NewPerfCollector(restClient, subsystemName, namespace)
+func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
+	c, err := collector.NewPerfCollector(restClients, namespace)
 	if err != nil {
 		log.Warningf("NewFSPerfCollector fails, err:%s", err)
 	}
@@ -54,6 +53,7 @@ func RunExporter(restClient *rest.FSRestClient, subsystemName string, namespace 
 	})
 
 	log.Info("Beginning to serve on port :9100")
+	// #nosec
 	if err = http.ListenAndServe(":9100", nil); err != nil {
 		log.Error(err, "failed to start http server")
 		panic(err)
