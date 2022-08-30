@@ -195,27 +195,9 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.Name = manager.GetSubsystemName()
-
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	// [lssystem]: physical_capacity
-	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
-	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
-	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
-
-	// [lssystem]: physical_free_capacity
-	physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
-	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
-	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
-
-	// used = total - free
-	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
-	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
+	f.createSystemPhysicalCapacityMetrics(ch, err, sysInfoResults, systemName)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := fsRestClient.CheckFlashsystemClusterState()
@@ -262,6 +244,31 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	}
 
 	return true
+}
+
+func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, err error, sysInfoResults rest.StorageSystem, systemName SystemName) {
+	// [lssystem]: physical_capacity
+	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
+	if err != nil {
+		log.Errorf("get physical capacity failed: %s", err)
+	}
+	// [lssystem]: physical_free_capacity
+	physicalUsableCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	if err != nil {
+		log.Errorf("get physical capacity failed: %s", err)
+	}
+	physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacity].(string), 64)
+	if err != nil {
+		log.Errorf("get physical Reclaimable failed: %s", err)
+	}
+	physicalFreeCapacity := physicalUsableCapacity + physicalReclaimableCapacity
+	// used = total - free
+	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
+	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
+
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
 }
 
 func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, info *SystemInfo) {
