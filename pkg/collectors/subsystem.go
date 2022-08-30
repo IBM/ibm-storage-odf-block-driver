@@ -56,9 +56,11 @@ const (
 	SystemPhysicalTotalCapacity = "flashsystem_subsystem_physical_total_capacity_bytes"
 	SystemPhysicalFreeCapacity  = "flashsystem_subsystem_physical_free_capacity_bytes"
 	SystemPhysicalUsedCapacity  = "flashsystem_subsystem_physical_used_capacity_bytes"
+	SystemReclaimableCapacity   = "flashsystem_subsystem_reclamation_capacity_bytes"
 
 	PhysicalTotalCapacity = "physical_capacity"
 	PhysicalFreeCapacity  = "physical_free_capacity"
+	ReclaimableCapacity   = "total_reclaimable_capacity"
 )
 
 var (
@@ -94,11 +96,12 @@ var (
 		VdiskWriteLatency: SystemWriteLatency,
 	}
 
-	// Metric define mapping
+	// StorageSystemMetricsMap defines mapping
 	StorageSystemMetricsMap = map[string]MetricLabel{
 		SystemPhysicalTotalCapacity: {"System physical total capacity (byte)", subsystemCommonLabel},
 		SystemPhysicalFreeCapacity:  {"System physical free capacity (byte)", subsystemCommonLabel},
 		SystemPhysicalUsedCapacity:  {"System physical used capacity (byte)", subsystemCommonLabel},
+		SystemReclaimableCapacity:   {"System reclaimable capacity (byte)", subsystemCommonLabel},
 	}
 
 	// Unit conversion for raw metrics
