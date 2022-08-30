@@ -288,11 +288,11 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
-	# HELP flashsystem_pool_capacity_warning_threshold Pool capacatity warning threshold
-	# TYPE flashsystem_pool_capacity_warning_threshold gauge
-	flashsystem_pool_capacity_warning_threshold{pool_name="Pool0",subsystem_name="FS-system-name"} 80
-	flashsystem_pool_capacity_warning_threshold{pool_name="Pool1",subsystem_name="FS-system-name"} 80
-	flashsystem_pool_capacity_warning_threshold{pool_name="Pool2",subsystem_name="FS-system-name"} 60
+	# HELP flashsystem_capacity_warning_threshold Pool capacity warning threshold
+	# TYPE flashsystem_capacity_warning_threshold gauge
+	flashsystem_capacity_warning_threshold{pool_name="Pool0",subsystem_name="FS-system-name"} 80
+	flashsystem_capacity_warning_threshold{pool_name="Pool1",subsystem_name="FS-system-name"} 80
+	flashsystem_capacity_warning_threshold{pool_name="Pool2",subsystem_name="FS-system-name"} 60
 	# HELP flashsystem_pool_health Pool health status
 	# TYPE flashsystem_pool_health gauge
 	flashsystem_pool_health{pool_name="Pool0",subsystem_name="FS-system-name"} 0
