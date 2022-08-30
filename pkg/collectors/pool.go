@@ -36,7 +36,7 @@ const (
 	// Metric name defines
 	PoolMetadata              = "flashsystem_pool_metadata"
 	PoolHealth                = "flashsystem_pool_health"
-	PoolWarningThreshold      = "flashsystem_pool_capacity_warning_threshold"
+	PoolWarningThreshold      = "flashsystem_capacity_warning_threshold"
 	PoolCapacityUsable        = "flashsystem_pool_capacity_usable_bytes"
 	PoolCapacityUsed          = "flashsystem_pool_capacity_used_bytes"
 	PoolLogicalCapacityUsable = "flashsystem_pool_logical_capacity_usable_bytes"
@@ -95,7 +95,7 @@ var (
 	poolMetricsMap = map[string]MetricLabel{
 		PoolMetadata:              {"Pool metadata", poolMetadataLabel},
 		PoolHealth:                {"Pool health status", poolLabelCommon},
-		PoolWarningThreshold:      {"Pool capacatity warning threshold", poolLabelCommon},
+		PoolWarningThreshold:      {"Pool capacity warning threshold", poolLabelCommon},
 		PoolCapacityUsable:        {"Pool usable capacity (Byte)", poolLabelCommon},
 		PoolCapacityUsed:          {"Pool used capacity (byte)", poolLabelCommon},
 		PoolLogicalCapacityUsable: {"Pool logical usable capacity (byte)", poolLabelCommon},

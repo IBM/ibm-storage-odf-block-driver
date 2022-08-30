@@ -23,8 +23,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
 
-	humanize "github.com/dustin/go-humanize"
-
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 )
 
@@ -201,27 +199,23 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	// [lssystem]: physical_capacity
-	PhysicalTotalCapacityB := sysInfoResults[PhysicalTotalCapacity].(string)
-	PhysicalTotalCapacityIB := convertStringToBytes(PhysicalTotalCapacityB)
-	physicalTotalCapacityFormat, err := humanize.ParseBytes(PhysicalTotalCapacityIB)
+	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], float64(physicalTotalCapacityFormat), &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalTotalCapacity], physicalTotalCapacity, &systemName)
 
 	// [lssystem]: physical_free_capacity
-	physicalFreeCapacityB := sysInfoResults[PhysicalFreeCapacity].(string)
-	physicalFreeCapacityIB := convertStringToBytes(physicalFreeCapacityB)
-	physicalFreeCapacityFormat, err := humanize.ParseBytes(physicalFreeCapacityIB)
+	physicalFreeCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
 	if err != nil {
 		log.Errorf("get physical capacity failed: %s", err)
 	}
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], float64(physicalFreeCapacityFormat), &systemName)
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
 
 	// used = total - free
-	physicalUsedCapacity := physicalTotalCapacityFormat - physicalFreeCapacityFormat
-	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], float64(physicalUsedCapacity), &systemName)
-	log.Infof("system capacity total: %d, free: %d, used: %d", physicalTotalCapacityFormat, physicalFreeCapacityFormat, physicalUsedCapacity)
+	physicalUsedCapacity := physicalTotalCapacity - physicalFreeCapacity
+	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalUsedCapacity], physicalUsedCapacity, &systemName)
+	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := fsRestClient.CheckFlashsystemClusterState()
@@ -298,9 +292,4 @@ func newSystemCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc
 		value,
 		systemName.Name,
 	)
-}
-
-func convertStringToBytes(originalString string) string {
-	stringWithoutLastChar := originalString[:len(originalString)-1]
-	return stringWithoutLastChar + "iB"
 }

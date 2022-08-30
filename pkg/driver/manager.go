@@ -190,7 +190,7 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%v.%x", d.SystemName, t.UnixNano()),
 			Namespace: fscluster.Namespace,
-			Labels:    conditionutil.GetLabels(d.SystemName),
+			Labels:    conditionutil.GetLabels(),
 		},
 		InvolvedObject: corev1.ObjectReference{
 			Kind:            fscluster.Kind,
