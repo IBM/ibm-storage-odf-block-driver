@@ -36,7 +36,7 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 	body := ""
 	switch path {
 	case "/lssystem":
-		body = `{"code_level": "8.4.0.2 (build 152.23.2102111856000)","product_name":"IBM SAN Volume Controller", "physical_capacity":"64.33TB", "physical_free_capacity":"34.92TB"}`
+		body = `{"code_level": "8.4.0.2 (build 152.23.2102111856000)","product_name":"IBM SAN Volume Controller", "physical_capacity":"70727768211456", "physical_free_capacity":"37416452751360", "total_reclaimable_capacity":"32564"}`
 	case "/lssystemstats":
 		body = `[
 			{

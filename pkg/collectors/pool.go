@@ -320,7 +320,12 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
 		}
-		usable := physicalFree
+
+		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		if err != nil {
+			log.Errorf("get reclaimable failed: %s", err)
+		}
+		usable := physicalFree + reclaimable
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 
 		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
