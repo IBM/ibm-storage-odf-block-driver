@@ -44,19 +44,24 @@ func main() {
 
 	namespace, err := getOperatorNamespace()
 	if err != nil {
-		panic(err)
+		// todo tal - remove panic ? os.Exit(1)
+		os.Exit(1)
 	}
 
 	systems, err := clientmanagers.GetManagers(namespace, make(map[string]*rest.FSRestClient))
-	if err != nil {
-		goto error_out
+	if err != nil || len(systems) == 0 {
+		log.Error("Could not create managers")
+		os.Exit(1)
 	}
 
 	// TODO: handle pod terminating signal
 	go prome.RunExporter(systems, namespace)
+	waitForSignal()
+	// TODO: understand why do we need goto command instead of regular error\termination process ? remove goto_error
 
-	// TODO: understand why do we need goto command instead of regular error\termination process
-error_out:
+}
+
+func waitForSignal() {
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -70,13 +75,12 @@ error_out:
 	// exiting
 	<-done
 	log.Info("Exiting")
-
 }
 
 func getOperatorNamespace() (string, error) {
 	if value, ok := os.LookupEnv(EnvNamespaceName); ok {
 		return value, nil
 	} else {
-		return "", fmt.Errorf("Required env variable: '%s' isn't found", EnvNamespaceName)
+		return "", fmt.Errorf("required env variable: '%s' isn't found", EnvNamespaceName)
 	}
 }

@@ -141,6 +141,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 
 	// Pool metrics
 	for _, pool := range pools {
+		// todo tal - add return val in case of an error OR continue to next pool ? --> continue to next pool
 		poolId, _ := strconv.Atoi(pool[MdiskIdKey].(string))
 		poolName := pool[MdiskNameKey].(string)
 		if _, bHas := poolNames[poolName]; bHas {
@@ -292,6 +293,7 @@ func isParentPool(pool Pool) bool {
 }
 
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+	// todo tal - add return val in case of an error
 	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
@@ -316,6 +318,7 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 
 func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
 	if isParentPool(pool) {
+		// todo tal - add return val in case of an error
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
@@ -341,6 +344,8 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 }
 
 func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+	// todo tal - add return val in case of an error
+
 	drpool := pool[DataReductionKey].(string) == "yes"
 
 	physicalFree := float64(0)

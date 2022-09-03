@@ -156,6 +156,8 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	// defer timer.ObserveDuration()
 
 	// f.totalScrapes.Inc()
+
+	// todo tal - consider adding sequenceNumber for each storageSystem
 	f.sequenceNumber++
 
 	var statsResults rest.SystemStats
@@ -175,6 +177,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	}
 	if err != nil {
 		f.up.Set(0)
+		// todo tal - consider adding new metric for each storageSystem called `flashsystem_storage_status` (0 = error, 1 = ok)
 		log.Errorf("fail metrics pulling in round %d", f.sequenceNumber)
 		return false
 	} else {
@@ -245,6 +248,8 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 }
 
 func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem, systemName SystemName) {
+	// todo tal - add return val in case of an error
+
 	// [lssystem]: physical_capacity
 	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	if err != nil {
