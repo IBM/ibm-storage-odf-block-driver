@@ -291,23 +291,23 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
-func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) error {
+func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
 	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
-		return err
+		return
 	}
 
 	logicalFreeCapacity, err := strconv.ParseFloat(pool[FreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical free capacity failed: %s", err)
-		return err
+		return
 	}
 
 	reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get reclaimable failed: %s", err)
-		return err
+		return
 	}
 
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
@@ -315,38 +315,35 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 
 	logicalUsedCapacity := logicalCapacity - logicalUsableCapacity
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
-	return nil
 }
 
-func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) error {
+func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
 	if isParentPool(pool) {
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
-			return err
+			return
 		}
 
 		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
-			return err
+			return
 		}
 
 		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical capacity failed: %s", err)
-			return err
+			return
 
 		}
 		usable := physicalFree + reclaimable
 		used := physical - usable
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
-		return nil
 	} else {
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], float64(-1), &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], float64(-1), &poolInfo)
-		return nil
 	}
 }
 
