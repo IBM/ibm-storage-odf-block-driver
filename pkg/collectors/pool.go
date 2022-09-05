@@ -141,7 +141,6 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 
 	// Pool metrics
 	for _, pool := range pools {
-		// todo tal - add return val in case of an error OR continue to next pool ? --> continue to next pool
 		poolId, _ := strconv.Atoi(pool[MdiskIdKey].(string))
 		poolName := pool[MdiskNameKey].(string)
 		if _, bHas := poolNames[poolName]; bHas {
@@ -292,21 +291,23 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
-func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	// todo tal - add return val in case of an error
+func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) error {
 	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
+		return err
 	}
 
 	logicalFreeCapacity, err := strconv.ParseFloat(pool[FreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical free capacity failed: %s", err)
+		return err
 	}
 
 	reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get reclaimable failed: %s", err)
+		return err
 	}
 
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
@@ -314,37 +315,43 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 
 	logicalUsedCapacity := logicalCapacity - logicalUsableCapacity
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
+	return nil
 }
 
-func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) error {
 	if isParentPool(pool) {
-		// todo tal - add return val in case of an error
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
+			return err
 		}
 
 		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
+			return err
 		}
-		usable := physicalFree + reclaimable
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 
 		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical capacity failed: %s", err)
+			return err
+
 		}
+		usable := physicalFree + reclaimable
 		used := physical - usable
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
+		return nil
 	} else {
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], float64(-1), &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], float64(-1), &poolInfo)
+		return nil
 	}
 }
 
 func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	// todo tal - add return val in case of an error
+	// TODO:ticket #42 - expose total saving per system
 
 	drpool := pool[DataReductionKey].(string) == "yes"
 

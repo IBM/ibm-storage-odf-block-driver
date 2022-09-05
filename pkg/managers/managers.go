@@ -48,7 +48,6 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 		log.Infof("Read pool configmap %v", fscMap)
 	}
 
-	// todo tal - return error \ continue to next system ? continue to next system
 	for fscName, fscScSecretMap := range fscMap {
 		if _, exist := currentSystems[fscName]; exist {
 			log.Infof("Using existing manager for %s", fscName)
@@ -58,7 +57,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				log.Error(secretErr)
 				continue
 			}
-			if authErr := currentSystems[fscName].UpdateCredentials(*restConfig); err != nil {
+			if authErr := currentSystems[fscName].UpdateCredentials(*restConfig); authErr != nil {
 				log.Errorf("Failed to update Flashsystem credentials, error: %v", authErr)
 				continue
 			}
@@ -121,7 +120,6 @@ var GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error)
 }
 
 func checkRestClientState(restClient *rest.FSRestClient, mgr drivermanager.DriverManager, err error) error {
-	// todo tal - check return val of this func, and handle it as an error \ panic \ retry ? continue to next system
 	if err != nil {
 		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.AuthFailure, drivermanager.AuthFailureMessage)
 		log.Errorf("Fail to initialize rest client for %s, error: %s", mgr.GetSubsystemName(), err)

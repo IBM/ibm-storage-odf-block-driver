@@ -44,7 +44,6 @@ func main() {
 
 	namespace, err := getOperatorNamespace()
 	if err != nil {
-		// todo tal - remove panic ? os.Exit(1)
 		os.Exit(1)
 	}
 
@@ -57,7 +56,6 @@ func main() {
 	// TODO: handle pod terminating signal
 	go prome.RunExporter(systems, namespace)
 	waitForSignal()
-	// TODO: understand why do we need goto command instead of regular error\termination process ? remove goto_error
 
 }
 

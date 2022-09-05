@@ -108,8 +108,6 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	updatedSystems, err := clientmanagers.GetManagers(f.namespace, f.systems)
 	if err != nil {
 		return
-		// todo tal - remove panic ? remove panic
-		//panic(err)
 	}
 	f.systems = updatedSystems
 
