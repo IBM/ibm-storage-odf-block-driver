@@ -245,19 +245,23 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 }
 
 func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem, systemName SystemName) {
+
 	// [lssystem]: physical_capacity
 	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
 	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
+		log.Errorf("get physical total capacity failed: %s", err)
+		return
 	}
 	// [lssystem]: physical_free_capacity
 	physicalUsableCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
 	if err != nil {
-		log.Errorf("get physical capacity failed: %s", err)
+		log.Errorf("get physical usable capacity failed: %s", err)
+		return
 	}
 	physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacity].(string), 64)
 	if err != nil {
-		log.Errorf("get physical Reclaimable failed: %s", err)
+		log.Errorf("get physical reclaimable capacity failed: %s", err)
+		return
 	}
 	physicalFreeCapacity := physicalUsableCapacity + physicalReclaimableCapacity
 	// used = total - free

@@ -51,41 +51,41 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 	for fscName, fscScSecretMap := range fscMap {
 		if _, exist := currentSystems[fscName]; exist {
 			log.Infof("Using existing manager for %s", fscName)
-			newSystems[fscName] = currentSystems[fscName]
 
-			restConfig, secretErr := GetStorageCredentials(newSystems[fscName].DriverManager)
+			restConfig, secretErr := GetStorageCredentials(currentSystems[fscName].DriverManager)
 			if secretErr != nil {
 				log.Error(secretErr)
-				return nil, secretErr
+				continue
 			}
-			if authErr := newSystems[fscName].UpdateCredentials(*restConfig); err != nil {
+			if authErr := currentSystems[fscName].UpdateCredentials(*restConfig); authErr != nil {
 				log.Errorf("Failed to update Flashsystem credentials, error: %v", authErr)
-				return nil, authErr
+				continue
 			}
-			newSystems[fscName].DriverManager.UpdatePoolMap(fscScSecretMap.ScPoolMap)
+			currentSystems[fscName].DriverManager.UpdatePoolMap(fscScSecretMap.ScPoolMap)
+			newSystems[fscName] = currentSystems[fscName]
 		} else {
 			log.Infof("Create new manager for %s", fscName)
 			mgr, mgrErr := drivermanager.NewManager(Scheme, namespace, fscName, fscScSecretMap)
 			if mgrErr != nil {
 				log.Errorf("Initialize manager failed, error: %v", mgrErr)
-				return nil, mgrErr
+				continue
 			}
 
 			_, fscErr := mgr.GetFlashSystemClusterCR()
 			if fscErr != nil {
 				log.Errorf("Fail to get FlashSystemCluster CR, error: %v", fscErr)
-				return nil, fscErr
+				continue
 			}
 
 			restConfig, SecretErr := GetStorageCredentials(&mgr)
 			if SecretErr != nil {
 				log.Errorf("Fail to get FlashSystemCluster secret, error: %v", SecretErr)
-				return nil, SecretErr
+				continue
 			}
 
 			restClient, restErr := rest.NewFSRestClient(restConfig, &mgr)
-			if err := checkRestClientState(restClient, mgr, restErr); err != nil {
-				return nil, err
+			if err = checkRestClientState(restClient, mgr, restErr); err != nil {
+				continue
 			}
 
 			newSystems[fscName] = restClient

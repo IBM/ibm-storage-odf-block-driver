@@ -295,16 +295,19 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
+		return
 	}
 
 	logicalFreeCapacity, err := strconv.ParseFloat(pool[FreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical free capacity failed: %s", err)
+		return
 	}
 
 	reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get reclaimable failed: %s", err)
+		return
 	}
 
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
@@ -319,20 +322,24 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
+			return
 		}
 
 		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
+			return
 		}
-		usable := physicalFree + reclaimable
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 
 		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical capacity failed: %s", err)
+			return
+
 		}
+		usable := physicalFree + reclaimable
 		used := physical - usable
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
 	} else {
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], float64(-1), &poolInfo)
@@ -341,6 +348,8 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 }
 
 func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+	// TODO:ticket #42 - expose total saving per system
+
 	drpool := pool[DataReductionKey].(string) == "yes"
 
 	physicalFree := float64(0)
