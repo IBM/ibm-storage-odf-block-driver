@@ -50,6 +50,7 @@ const (
 
 	SystemMetadata = "flashsystem_subsystem_metadata"
 	SystemHealth   = "flashsystem_subsystem_health"
+	SystemResponse = "flashsystem_subsystem_response"
 
 	SystemPhysicalTotalCapacity = "flashsystem_subsystem_physical_total_capacity_bytes"
 	SystemPhysicalFreeCapacity  = "flashsystem_subsystem_physical_free_capacity_bytes"
@@ -70,6 +71,7 @@ var (
 	systemMetricsMap = map[string]MetricLabel{
 		SystemMetadata: {"System information", subsystemMetadataLabel},
 		SystemHealth:   {"System health", subsystemCommonLabel},
+		SystemResponse: {"System response", subsystemMetadataLabel},
 	}
 
 	perfMetricsMap = map[string]MetricLabel{
@@ -156,7 +158,6 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	// defer timer.ObserveDuration()
 
 	// f.totalScrapes.Inc()
-	f.sequenceNumber++
 
 	var statsResults rest.SystemStats
 	var sysInfoResults rest.StorageSystem
@@ -167,6 +168,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	manager := fsRestClient.DriverManager
 	// Subsystem name is from CR
 	systemName.Name = manager.GetSubsystemName()
+	systemInfo.Name = manager.GetSubsystemName()
 
 	// Get flash system results
 	statsResults, err = fsRestClient.Lssystemstats()
@@ -174,11 +176,11 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 		sysInfoResults, err = fsRestClient.Lssystem()
 	}
 	if err != nil {
-		f.up.Set(0)
-		log.Errorf("fail metrics pulling in round %d", f.sequenceNumber)
+		newSystemMetrics(ch, f.sysInfoDescriptors[SystemResponse], 0, &systemInfo)
+		log.Error("fail to get system stats")
 		return false
 	} else {
-		f.up.Set(1)
+		newSystemMetrics(ch, f.sysInfoDescriptors[SystemResponse], 1, &systemInfo)
 	}
 
 	// code level example: 8.3.1.2 (build 150.24.2008101830000)
@@ -192,7 +194,6 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
-	systemInfo.Name = manager.GetSubsystemName()
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName)

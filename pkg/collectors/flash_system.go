@@ -33,12 +33,10 @@ type PerfCollector struct {
 	poolDescriptors        map[string]*prometheus.Desc
 	volumeDescriptors      map[string]*prometheus.Desc
 
-	up prometheus.Gauge
 	// totalScrapes   prometheus.Counter
 	// failedScrapes  prometheus.Counter
 	// scrapeDuration prometheus.Summary
 
-	sequenceNumber uint64
 }
 
 func NewPerfCollector(systems map[string]*rest.FSRestClient, namespace string) (*PerfCollector, error) {
@@ -46,11 +44,6 @@ func NewPerfCollector(systems map[string]*rest.FSRestClient, namespace string) (
 	f := &PerfCollector{
 		systems:   systems,
 		namespace: namespace,
-
-		up: prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: "up",
-			Help: "Was the last scrape successful.",
-		}),
 
 		// totalScrapes: prometheus.NewCounter(prometheus.CounterOpts{
 		// 	Name: "exporter_total_scrapes",
@@ -97,7 +90,6 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 		ch <- v
 	}
 
-	ch <- f.up.Desc()
 	// ch <- f.totalScrapes.Desc()
 	// ch <- f.failedScrapes.Desc()
 	// ch <- f.scrapeDuration.Desc()
@@ -122,7 +114,6 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 
 	}
-	ch <- f.up
 	// ch <- f.scrapeDuration
 	// ch <- f.totalScrapes
 	// ch <- f.failedScrapes
