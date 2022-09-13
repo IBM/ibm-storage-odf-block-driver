@@ -68,7 +68,7 @@ func NewRequester(p Poster) *Requester {
 	return &Requester{poster: p}
 }
 
-func NewFSRestClient(config *Config, driverManager *drivermanager.DriverManager) (*FSRestClient, error) {
+func NewFSRestClient(config Config, driverManager *drivermanager.DriverManager) (*FSRestClient, error) {
 	tr := &http.Transport{
 		// #nosec
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -87,7 +87,7 @@ func NewFSRestClient(config *Config, driverManager *drivermanager.DriverManager)
 	c := &FSRestClient{
 		Client:        client,
 		BaseURL:       fmt.Sprintf("https://%s:7443/rest", config.Host),
-		RestConfig:    *config,
+		RestConfig:    config,
 		token:         nil,
 		DriverManager: driverManager,
 		PostRequester: NewRequester(doRequest),
