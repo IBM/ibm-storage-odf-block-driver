@@ -250,19 +250,19 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 	return []byte(body), 200, nil
 }
 
-var restConfig = &rest.Config{
+var restConfig = rest.Config{
 	Host:     "FS-Host",
 	Username: "FS-Username",
 	Password: "FS-Password",
 }
 var manager = drivermanager.DriverManager{SystemName: "FS-system-name"}
-var client = &rest.FSRestClient{PostRequester: rest.NewRequester(poster), DriverManager: &manager, RestConfig: *restConfig}
+var client = &rest.FSRestClient{PostRequester: rest.NewRequester(poster), DriverManager: &manager, RestConfig: restConfig}
 
 var testCollector, _ = NewPerfCollector(map[string]*rest.FSRestClient{"FS-system-name": client}, "FS-ns")
 
 func TestMetrics(t *testing.T) {
 	// Mock the dependency
-	clientmanagers.GetStorageCredentials = func(*drivermanager.DriverManager) (*rest.Config, error) {
+	clientmanagers.GetStorageCredentials = func(*drivermanager.DriverManager) (rest.Config, error) {
 		return restConfig, nil
 	}
 
