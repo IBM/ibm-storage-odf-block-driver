@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/IBM/ibm-storage-odf-operator v1.3.0-rc1.0.20220830102604-52e74686da0b
 	// TODO change to updated 1.3.0 operator version
-	github.com/prometheus/client_golang v1.8.0
+	github.com/prometheus/client_golang v1.13.0
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2
 	k8s.io/client-go v0.22.2
