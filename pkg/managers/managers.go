@@ -57,7 +57,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				log.Error(secretErr)
 				continue
 			}
-			if authErr := currentSystems[fscName].UpdateCredentials(*restConfig); authErr != nil {
+			if authErr := currentSystems[fscName].UpdateCredentials(restConfig); authErr != nil {
 				log.Errorf("Failed to update Flashsystem credentials, error: %v", authErr)
 				continue
 			}
@@ -95,7 +95,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 	return newSystems, nil
 }
 
-var GetStorageCredentials = func(d *drivermanager.DriverManager) (*rest.Config, error) {
+var GetStorageCredentials = func(d *drivermanager.DriverManager) (rest.Config, error) {
 	secret := &corev1.Secret{}
 	err := d.Client.Get(context.TODO(),
 		types.NamespacedName{
@@ -103,10 +103,10 @@ var GetStorageCredentials = func(d *drivermanager.DriverManager) (*rest.Config, 
 			Name:      d.GetSecretName()},
 		secret)
 	if err != nil {
-		return &rest.Config{}, err
+		return rest.Config{}, err
 	}
 
-	restConfig := &rest.Config{
+	restConfig := rest.Config{
 		Host:     string(secret.Data[SecretMgmtKey]),
 		Username: string(secret.Data[SecretUsernameKey]),
 		Password: string(secret.Data[SecretPasswordKey]),
