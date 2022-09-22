@@ -255,7 +255,7 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 	body := ""
 	switch path {
 	case "/lssystem":
-		body = `{"code_level": "8.5.2.0 (build 161.15.2208121040000)","product_name":"IBM FlashSystem 9200", "physical_capacity":"70727768211456", "physical_free_capacity":"37416452751360", "total_reclaimable_capacity":"32564"}`
+		body = `{"code_level": "8.5.2.0 (build 161.15.2208121040000)","product_name":"IBM FlashSystem 9200", "physical_capacity":"76427768211456", "physical_free_capacity":"28416452751360", "total_reclaimable_capacity":"40564"}`
 	case "/lssystemstats":
 		body = `[
 			{
@@ -579,12 +579,29 @@ func TestMetrics(t *testing.T) {
 	# TYPE flashsystem_subsystem_wr_iops gauge
 	flashsystem_subsystem_wr_iops{subsystem_name="FS-system-name"} 11
 	flashsystem_subsystem_wr_iops{subsystem_name="FS-system-name-second"} 13
+
+	# HELP flashsystem_subsystem_physical_free_capacity_bytes System physical free capacity (byte)
+	# TYPE flashsystem_subsystem_physical_free_capacity_bytes gauge
+	flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name"} 3.7416452783924e+13
+    flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name-second"} 2.8416452791924e+13
+
+	# HELP flashsystem_subsystem_physical_total_capacity_bytes System physical total capacity (byte)
+    # TYPE flashsystem_subsystem_physical_total_capacity_bytes gauge
+    flashsystem_subsystem_physical_total_capacity_bytes{subsystem_name="FS-system-name"} 7.0727768211456e+13
+    flashsystem_subsystem_physical_total_capacity_bytes{subsystem_name="FS-system-name-second"} 7.6427768211456e+13
+    
+	# HELP flashsystem_subsystem_physical_used_capacity_bytes System physical used capacity (byte)
+    # TYPE flashsystem_subsystem_physical_used_capacity_bytes gauge
+    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name"} 3.3311315427532e+13
+    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name-second"} 4.8011315419532e+13
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
-		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemLatency, SystemReadLatency, SystemWriteLatency, SystemMetadata, SystemHealth,
+		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemLatency, SystemReadLatency,
+		SystemWriteLatency, SystemMetadata, SystemHealth, SystemResponse, SystemPhysicalTotalCapacity,
+		SystemPhysicalUsedCapacity, SystemPhysicalFreeCapacity,
 		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings,
-		PoolLogicalCapacityUsable, PoolLogicalCapacityUsed, SystemResponse)
+		PoolLogicalCapacityUsable, PoolLogicalCapacityUsed)
 
 	if err != nil {
 		t.Errorf("unexpected metrics:\n %s", err)
