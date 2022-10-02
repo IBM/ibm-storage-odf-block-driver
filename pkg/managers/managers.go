@@ -58,9 +58,14 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				continue
 			}
 			if authErr := currentSystems[fscName].UpdateCredentials(restConfig); authErr != nil {
-				log.Errorf("Failed to update Flashsystem credentials, error: %v", authErr)
+				log.Errorf("Failed to update FlashSystem credentials, error: %v", authErr)
 				continue
 			}
+			if err = CheckRestClientState(currentSystems[fscName], *currentSystems[fscName].DriverManager, nil); err != nil {
+				log.Errorf("Failed to check existing manager state, error: %v", err)
+				continue
+			}
+
 			currentSystems[fscName].DriverManager.UpdatePoolMap(fscScSecretMap.ScPoolMap)
 			newSystems[fscName] = currentSystems[fscName]
 		} else {
@@ -84,7 +89,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 			}
 
 			restClient, restErr := rest.NewFSRestClient(restConfig, &mgr)
-			if err = checkRestClientState(restClient, mgr, restErr); err != nil {
+			if err = CheckRestClientState(restClient, mgr, restErr); err != nil {
 				continue
 			}
 
@@ -119,7 +124,7 @@ var GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error)
 	return operutil.ReadPoolConfigMapFile()
 }
 
-func checkRestClientState(restClient *rest.FSRestClient, mgr drivermanager.DriverManager, err error) error {
+var CheckRestClientState = func(restClient *rest.FSRestClient, mgr drivermanager.DriverManager, err error) error {
 	if err != nil {
 		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.AuthFailure, drivermanager.AuthFailureMessage)
 		log.Errorf("Fail to initialize rest client for %s, error: %s", mgr.GetSubsystemName(), err)
