@@ -450,6 +450,10 @@ func TestMetrics(t *testing.T) {
 		return restConfig2, nil
 	}
 
+	clientmanagers.CheckRestClientState = func(restClient *rest.FSRestClient, mgr drivermanager.DriverManager, err error) error {
+		return nil
+	}
+
 	clientmanagers.GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error) {
 		fscScSecretMap := operutil.FlashSystemClusterMapContent{ScPoolMap: map[string]string{}, Secret: "FC-secret"}
 		fscScSecretMap.ScPoolMap["fs-sc-default"] = "Pool0"
