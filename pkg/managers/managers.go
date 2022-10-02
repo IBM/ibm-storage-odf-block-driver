@@ -61,7 +61,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				log.Errorf("Failed to update Flashsystem credentials, error: %v", authErr)
 				continue
 			}
-
+			log.Infof("checking existing manager state for %s", fscName)
 			if err = checkRestClientState(currentSystems[fscName], *currentSystems[fscName].DriverManager, nil); err != nil {
 				log.Errorf("Failed to check existing manager state, error: %v", err)
 				continue

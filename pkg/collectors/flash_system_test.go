@@ -246,6 +246,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 				"auto_expand_max_capacity": "0"
 			}
 		]`
+	case "/lscurrentuser":
+		body = `[{"name": "superuser", "role": "SecurityAdmin"}]`
 	}
 	return []byte(body), 200, nil
 }
@@ -413,6 +415,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 				"auto_expand_max_capacity": "0"
 			}
 		]`
+	case "/lscurrentuser":
+		body = `[{"name": "superuser", "role": "Administrator"}]`
 	}
 	return []byte(body), 200, nil
 }
