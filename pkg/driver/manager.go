@@ -146,6 +146,13 @@ func (d *DriverManager) UpdateCondition(conditionType operatorapi.ConditionType,
 		return err
 	}
 
+	isStatusUpdated := (ready && conditionutil.IsStatusConditionTrue(fscluster.Status.Conditions, conditionType)) ||
+		(!ready && conditionutil.IsStatusConditionFalse(fscluster.Status.Conditions, conditionType))
+	if isStatusUpdated {
+		log.Infof("existing FlashSystemCluster status is expected with no change")
+		return nil
+	}
+
 	// Update status ExporterReady
 	if ready {
 		conditionutil.SetStatusCondition(&fscluster.Status.Conditions, operatorapi.Condition{
