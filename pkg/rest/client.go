@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"reflect"
@@ -144,7 +143,7 @@ func (c *FSRestClient) authenticate() error {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
@@ -250,7 +249,7 @@ func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	return body, resp.StatusCode, err
 }
 
