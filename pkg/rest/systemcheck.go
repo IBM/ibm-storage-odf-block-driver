@@ -68,7 +68,7 @@ func (c *FSRestClient) CheckUserRole() (bool, error) {
 	return false, nil
 }
 
-func isHealth(status string) bool {
+func (c *FSRestClient) IsHealth(status string) bool {
 	switch status {
 	case "starting", "service", "pending", "offline", "flushing", "deleting", "adding":
 		return false
@@ -84,7 +84,7 @@ func (c *FSRestClient) CheckFlashsystemClusterState() (bool, error) {
 
 	iogrps := map[string]int{}
 	for _, node := range nodes {
-		if !isHealth(node["status"]) {
+		if !c.IsHealth(node["status"]) {
 			log.Infof("The node %s id %s status %s is unhealthy.", node["name"], node["id"], node["status"])
 			return false, nil
 		}
