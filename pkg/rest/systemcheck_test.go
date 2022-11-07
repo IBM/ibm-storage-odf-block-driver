@@ -17,6 +17,7 @@
 package rest
 
 import (
+	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
 	"net/http"
 	"testing"
 )
@@ -45,6 +46,24 @@ func TestNormalizeVersion(t *testing.T) {
 		valid, _ := c.CheckVersion()
 		if valid {
 			t.Errorf("Check version should return false.")
+		}
+	})
+}
+
+func TestIsHealth(t *testing.T) {
+	// Happy path
+	t.Run("health check state", func(t *testing.T) {
+		res := c.IsHealth("completed")
+		if res != true {
+			t.Errorf("Health check should return true.")
+		}
+	})
+
+	// Unhappy path
+	t.Run("health check state", func(t *testing.T) {
+		res := c.IsHealth("pending")
+		if res != false {
+			t.Errorf("Health check should return false.")
 		}
 	})
 }
@@ -112,6 +131,123 @@ func TestCheckFlashsystemClusterState(t *testing.T) {
 		valid, _ := c.CheckFlashsystemClusterState()
 		if valid {
 			t.Errorf("CheckFlashsystemClusterState should return false for node online and iogrp Unhealth.")
+		}
+	})
+}
+
+func TestLssystem(t *testing.T) {
+	// Happy path
+	t.Run("run successful lssystem", func(t *testing.T) {
+		body = `{"id": "0000020420E0E8DC", "name": "fab3p-159-c", "location": "local"}`
+		_, err := c.Lssystem()
+		if err != nil {
+			t.Errorf("lssystem check should return without error ")
+		}
+	})
+
+	// unhappy path
+	t.Run("run failed lssystem", func(t *testing.T) {
+		body = ``
+		_, err := c.Lssystem()
+		if err == nil {
+			t.Errorf("lssystem check should return error ")
+		}
+	})
+}
+
+func TestLsnode(t *testing.T) {
+	// Happy path
+	t.Run("run successful lsnode", func(t *testing.T) {
+		body = `[{"name":"node1", "id":"1", "status":"online", "IO_group_name":"io_grp0"}]`
+		_, err := c.Lsnode()
+		if err != nil {
+			t.Errorf("lsnode check should return without error ")
+		}
+	})
+
+	// unhappy path
+	t.Run("run failed lsnode", func(t *testing.T) {
+		body = ``
+		_, err := c.Lsnode()
+		if err == nil {
+			t.Errorf("lsnode check should return error")
+		}
+	})
+}
+
+func TestLssystemstats(t *testing.T) {
+	// Happy path
+	t.Run("run successful Lssystemstats", func(t *testing.T) {
+		body = `[{"stat_name": "vdisk_r_mb", "stat_current": "5", "stat_peak": "0" ,"stat_peak_time": "210604162102"}]`
+		_, err := c.Lssystemstats()
+		if err != nil {
+			t.Errorf("Lssystemstats check should return without error ")
+		}
+	})
+
+	// unhappy path
+	t.Run("run failed Lssystemstats", func(t *testing.T) {
+		body = ``
+		_, err := c.Lssystemstats()
+		if err == nil {
+			t.Errorf("Lssystemstats check should return error")
+		}
+	})
+}
+
+func TestLscurrentuser(t *testing.T) {
+	// Happy path
+	t.Run("run successful Lscurrentuser", func(t *testing.T) {
+		body = `[{"name": "superuser", "role": "Administrator"}]`
+		_, err := c.Lscurrentuser()
+		if err != nil {
+			t.Errorf("Lscurrentuser check should return without error")
+		}
+	})
+
+	// unhappy path
+	t.Run("run failed Lscurrentuser", func(t *testing.T) {
+		body = ``
+		_, err := c.Lscurrentuser()
+		if err == nil {
+			t.Errorf("Lscurrentuser check should return error")
+		}
+	})
+}
+
+func TestLsmdiskgrp(t *testing.T) {
+	// Happy path
+	t.Run("run successful Lsmdiskgrp", func(t *testing.T) {
+		body = `[{"id": "0", "name": "Pool0", "status": "online"}]`
+		_, err := c.Lsmdiskgrp()
+		if err != nil {
+			t.Errorf("Lsmdiskgrp check should return without error")
+		}
+	})
+
+	// unhappy path
+	t.Run("run failed Lsmdiskgrp", func(t *testing.T) {
+		body = ``
+		_, err := c.Lsmdiskgrp()
+		if err == nil {
+			t.Errorf("Lsmdiskgrp check should return error")
+		}
+	})
+}
+
+var manager1 = drivermanager.DriverManager{SystemName: "FS-system-name"}
+var config1 = Config{
+	Host:     "FS-Host",
+	Username: "FS-Username",
+	Password: "FS-Password",
+}
+
+func TestNewFSRestClient(t *testing.T) {
+	// Happy path
+	t.Run("run successful NewFSRestClient", func(t *testing.T) {
+		_, err := c.NewFSRestClient(config1, &manager1)
+		if err == nil {
+			t.Errorf("NewFSRestClient check should return without error")
 		}
 	})
 }
