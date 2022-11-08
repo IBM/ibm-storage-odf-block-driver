@@ -88,7 +88,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				continue
 			}
 
-			restClient, restErr := rest.NewFSRestClient(restConfig, &mgr)
+			restClient, restErr := newSystems[fscName].NewFSRestClient(restConfig, &mgr)
 			if err = CheckRestClientState(restClient, mgr, restErr); err != nil {
 				continue
 			}
