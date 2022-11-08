@@ -34,7 +34,6 @@ var config1 = Config{
 	Username: "FS-Username",
 	Password: "FS-Password",
 }
-var req *http.Request
 
 func TestNormalizeVersion(t *testing.T) {
 
