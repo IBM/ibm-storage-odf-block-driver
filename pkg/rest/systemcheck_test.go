@@ -59,7 +59,7 @@ func TestNormalizeVersion(t *testing.T) {
 func TestIsHealth(t *testing.T) {
 	// Happy path
 	t.Run("health check state", func(t *testing.T) {
-		res := c.IsHealth("completed")
+		res := c.isHealth("completed")
 		if res != true {
 			t.Errorf("Health check should return true.")
 		}
@@ -67,7 +67,7 @@ func TestIsHealth(t *testing.T) {
 
 	// Unhappy path
 	t.Run("health check state", func(t *testing.T) {
-		res := c.IsHealth("pending")
+		res := c.isHealth("pending")
 		if res != false {
 			t.Errorf("Health check should return false.")
 		}
