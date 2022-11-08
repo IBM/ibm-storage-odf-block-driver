@@ -28,6 +28,13 @@ var c = FSRestClient{PostRequester: &Requester{
 		return []byte(body), 200, nil
 	},
 }}
+var manager1 = drivermanager.DriverManager{SystemName: "FS-system-name"}
+var config1 = Config{
+	Host:     "FS-Host",
+	Username: "FS-Username",
+	Password: "FS-Password",
+}
+var req *http.Request
 
 func TestNormalizeVersion(t *testing.T) {
 
@@ -141,7 +148,7 @@ func TestLssystem(t *testing.T) {
 		body = `{"id": "0000020420E0E8DC", "name": "fab3p-159-c", "location": "local"}`
 		_, err := c.Lssystem()
 		if err != nil {
-			t.Errorf("lssystem check should return without error ")
+			t.Errorf("lssystem check should return without error")
 		}
 	})
 
@@ -161,7 +168,7 @@ func TestLsnode(t *testing.T) {
 		body = `[{"name":"node1", "id":"1", "status":"online", "IO_group_name":"io_grp0"}]`
 		_, err := c.Lsnode()
 		if err != nil {
-			t.Errorf("lsnode check should return without error ")
+			t.Errorf("lsnode check should return without error")
 		}
 	})
 
@@ -181,7 +188,7 @@ func TestLssystemstats(t *testing.T) {
 		body = `[{"stat_name": "vdisk_r_mb", "stat_current": "5", "stat_peak": "0" ,"stat_peak_time": "210604162102"}]`
 		_, err := c.Lssystemstats()
 		if err != nil {
-			t.Errorf("Lssystemstats check should return without error ")
+			t.Errorf("Lssystemstats check should return without error")
 		}
 	})
 
@@ -235,19 +242,23 @@ func TestLsmdiskgrp(t *testing.T) {
 	})
 }
 
-var manager1 = drivermanager.DriverManager{SystemName: "FS-system-name"}
-var config1 = Config{
-	Host:     "FS-Host",
-	Username: "FS-Username",
-	Password: "FS-Password",
-}
-
 func TestNewFSRestClient(t *testing.T) {
-	// Happy path
+	// unHappy path
 	t.Run("run successful NewFSRestClient", func(t *testing.T) {
 		_, err := c.NewFSRestClient(config1, &manager1)
 		if err == nil {
-			t.Errorf("NewFSRestClient check should return without error")
+			t.Errorf("NewFSRestClient check should return with error")
+		}
+	})
+}
+
+func TestRetryDo(t *testing.T) {
+	// Happy path
+	t.Run("run successful retryDo", func(t *testing.T) {
+		body = `{"id": "0000020420E0E8DC", "name": "fab3p-159-c", "location": "local"}`
+		_, err := c.retryDo("https://my-url", "lssystem")
+		if err != nil {
+			t.Errorf("retryDo check should return without error")
 		}
 	})
 }
