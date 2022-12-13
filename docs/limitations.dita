@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA IBM Reference//EN" "ibm-reference.dtd">
+<reference id="svc_odf_config" xml:lang="en-us" otherprops="50845">
+<title>Limitations</title>
+<titlealts>
+<navtitle>Limitations</navtitle>
+<searchtitle>Configuring considerations when working with OpenShift Data Foundation</searchtitle>
+</titlealts>
+<shortdesc>Refer to these limitations before working with the ODF FlashSystem driver</shortdesc>
+<refbody>
+<section id="limitations">The ODF FlashSystem Operator and ODF FlashSystem Driver contain the
+following limitations:<ul>
+<li>Only one FlashSystem storage system can be connected to ODF at a time. <note><tm
+trademark="Red Hat" tmtype="reg">Red Hat</tm>
+<tm trademark="OpenShift" tmtype="reg">OpenShift</tm> can work with several FlashSystem storage
+systems simultaneously.</note></li>
+<li>Only x86 architecture is supported.</li>
+<li>When creating a storage class from within the <tm trademark="Red Hat" tmtype="reg">Red Hat</tm>
+ODF user-interface, installation of <tm trademark="Ceph" tmtype="reg">Ceph</tm> RWO on FlashSystem
+storage systems is allowed. When working with FlashSystem storage systems, it is best to use a
+direct I/O path to the storage system. For more information, see <xref href="configuring.dita"
+format="dita"/>.</li>
+<li>Capacity calculations provide erroneous output values for child pools and external storage
+attachments.</li>
+<li>The following individual reports are not currently generated:<ul>
+<li>Pool performance</li>
+<li>Pool storage class capacity</li>
+<li>Volume performance</li>
+<li>Volume storage class capacity</li>
+</ul></li>
+<li>Reports are not generated for FlashSystem information and events.</li>
+</ul></section>
+</refbody>
+</reference><?tm 1639394264348 22 Red Hat||OpenShift||IBM FlashSystem||IBM||Ceph ?>
