@@ -7,15 +7,16 @@
 <searchtitle>Configuring</searchtitle>
 </titlealts>
 <shortdesc><tm trademark="Red Hat" tmtype="reg">Red Hat</tm>
-<tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation (ODF) uses the ODF FlashSystem
-driver to integrate with your <tm trademark="IBM FlashSystem" tmtype="reg">IBM FlashSystem</tm>
-storage system. When using the <tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation
-with your storage system ensure that all configuration needs are met by following the <tm
-trademark="Red Hat" tmtype="reg">Red Hat</tm> ODF documentation set.</shortdesc>
+<tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation (ODF) uses the <ph
+translate="no">ODF FlashSystem driver</ph> to integrate with your <tm trademark="IBM FlashSystem"
+tmtype="reg">IBM FlashSystem</tm> storage system. When using the <tm trademark="OpenShift"
+tmtype="reg">OpenShift</tm> Data Foundation with your storage system ensure that all configuration
+needs are met by following the <tm trademark="Red Hat" tmtype="reg">Red Hat</tm> ODF documentation
+set.</shortdesc>
 <refbody>
 <section>
-<p>The ODF FlashSystem driver enable IBM Spectrum Virtualize family products to be used with <tm
-trademark="Red Hat" tmtype="reg">Red Hat</tm>
+<p>The <ph translate="no">ODF FlashSystem driver</ph> enable IBM Spectrum Virtualize family products
+to be used with <tm trademark="Red Hat" tmtype="reg">Red Hat</tm>
 <tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation.</p>
 <p>For more information and documentation, see the following:<ul>
 <li>Support summary for enabled IBM Spectrum Virtualize  family products and <tm trademark="Red Hat"
@@ -32,7 +33,7 @@ documentation</xref>.</li>
 Foundation, a software-defined storage for containers: <xref
 href="https://www.redhat.com/en/technologies/cloud-computing/openshift-data-foundation"
 format="html" scope="external"><tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data
-Foundation</xref></li>
+Foundation</xref>.</li>
 </ul></p>
 </section>
 <section id="odf_config">

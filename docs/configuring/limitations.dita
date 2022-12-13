@@ -4,12 +4,12 @@
 <title>Limitations</title>
 <titlealts>
 <navtitle>Limitations</navtitle>
-<searchtitle>Configuring considerations when working with OpenShift Data Foundation</searchtitle>
+<searchtitle>Limitations</searchtitle>
 </titlealts>
-<shortdesc>Refer to these limitations before working with the ODF FlashSystem driver</shortdesc>
+<shortdesc>Refer to these limitations before working with the <ph translate="no">ODF FlashSystem
+driver</ph>.</shortdesc>
 <refbody>
-<section id="limitations">The ODF FlashSystem Operator and ODF FlashSystem Driver contain the
-following limitations:<ul>
+<section id="limitations">The <ph translate="no">ODF FlashSystem driver</ph> contains the following limitations:<ul>
 <li>Only one FlashSystem storage system can be connected to ODF at a time. <note><tm
 trademark="Red Hat" tmtype="reg">Red Hat</tm>
 <tm trademark="OpenShift" tmtype="reg">OpenShift</tm> can work with several FlashSystem storage
