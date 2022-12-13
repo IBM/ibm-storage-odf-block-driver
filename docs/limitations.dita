@@ -18,8 +18,8 @@ systems simultaneously.</note></li>
 <li>When creating a storage class from within the <tm trademark="Red Hat" tmtype="reg">Red Hat</tm>
 ODF user-interface, installation of <tm trademark="Ceph" tmtype="reg">Ceph</tm> RWO on FlashSystem
 storage systems is allowed. When working with FlashSystem storage systems, it is best to use a
-direct I/O path to the storage system. For more information, see <xref href="configuring.dita"
-format="dita"/>.</li>
+direct I/O path to the storage system. For more information, see <xref
+href="configuring.dita#configuring/odf_config"/>.</li>
 <li>Capacity calculations provide erroneous output values for child pools and external storage
 attachments.</li>
 <li>The following individual reports are not currently generated:<ul>
