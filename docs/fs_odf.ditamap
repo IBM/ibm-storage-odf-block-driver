@@ -10,9 +10,10 @@
 </copyright>
 </topicmeta>
 <topicref href="docs_general/docs_welcome.dita"><?Pub Caret -1?></topicref>
-<topicref href="docs_general/docs_whatsnew.dita" navtitle="\"/>
-<topicref href="overview/overview.dita"/>
-<topicref href="configuring.dita"/>
-<topicref href="limitations.dita"/>
+<topicref href="docs_general/docs_whatsnew.dita"/>
+<topicref href="docs_general/trademarks.dita" navtitle="Trademarks"/>
+<topicref href="configuring/configuring.dita">
+<topicref href="configuring/limitations.dita"/>
+</topicref>
 <topicref href="docs_general/relatedpubs.dita"/>
 </map><?Pub *0000001378?><?tm 1670402701885 1 IBM Spectrum ?>

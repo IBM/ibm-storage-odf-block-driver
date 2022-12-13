@@ -45,9 +45,10 @@ logo, <tm tmtype="tm" trademark="PostScript">PostScript</tm>, and the <tm tmtype
 trademark="PostScript">PostScript</tm> logo are either registered trademarks or trademarks of <tm
 tmtype="tm" trademark="Adobe">Adobe</tm> Systems Incorporated in the United States, and/or other
 countries.</p>
-<p>VMware, the VMware logo, VMware Cloud Foundation, VMware Cloud Foundation Service, VMware vCenter
-Server, and VMware vSphere are registered trademarks or trademarks of VMware, Inc. or its
-subsidiaries in the United States and/or other jurisdictions.</p>
+<!--<p><tm tmtype="tm" trademark="Intel">Intel</tm> and <tm tmtype="tm" trademark="Intel Xeon">Intel Xeon</tm> are trademarks or registered trademarks of <tm tmtype="tm" trademark="Intel">Intel</tm> Corporation or its subsidiaries in the United States and other countries.</p><p><tm tmtype="tm" trademark="Java">Java</tm> and all Java-based trademarks and logos are trademarks or registered trademarks of Oracle and/or its affiliates.</p><p><tm tmtype="tm" trademark="Linux">Linux</tm> and the <tm tmtype="tm" trademark="Linux">Linux</tm> logo is a registered trademark of Linus Torvalds in the United States, other countries, or both. </p><p><tm tmtype="tm" trademark="Microsoft">Microsoft</tm>, <tm tmtype="tm" trademark="Windows">Windows</tm>, and the <tm tmtype="tm" trademark="Windows">Windows</tm> logo are trademarks of <tm tmtype="tm" trademark="Microsoft">Microsoft</tm> Corporation in the United States, other countries, or both. </p><p><tm tmtype="tm" trademark="UNIX">UNIX</tm> is a registered trademark of The Open Group in the United States and other countries. </p>-->
+<p>Red Hat®, JBoss®, OpenShift®, Fedora®, Hibernate®, Ansible®, CloudForms®, RHCA®, RHCE®, RHCSA®,
+Ceph®, and Gluster® are trademarks or registered trademarks of Red Hat, Inc. or its subsidiaries in
+the United States and other countries. </p>
 <p>Other product and service names might be trademarks of <tm tmtype="reg" trademark="IBM">IBM</tm>
 or other companies.</p>
 </section>
