@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map PUBLIC "-//IBM//DTD DITA IBM Map//EN" "ibm-map.dtd">
+<?Pub Sty _display FontColor="red"?><?Pub Inc?>
+<map xml:lang="en-us">
+<title>FS ODF IBM Docs ditamap</title>
+<topicmeta>
+<copyright>
+<copyryear year="2023"/>
+<copyrholder>IBM Corp.</copyrholder>
+</copyright>
+</topicmeta>
+<topicref href="docs_general/docs_welcome.dita"><?Pub Caret -1?></topicref>
+<topicref href="docs_general/docs_whatsnew.dita" navtitle="\"/>
+<topicref href="overview/overview.dita"/>
+<topicref href="configuring.dita"/>
+<topicref href="limitations.dita"/>
+<topicref href="docs_general/relatedpubs.dita"/>
+</map><?Pub *0000001378?><?tm 1670402701885 1 IBM Spectrum ?>

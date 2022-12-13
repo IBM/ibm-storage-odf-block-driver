@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//OASIS//DTD DITA Topic//EN" "topic.dtd">
+<topic id="welcome" outputclass="kc_welcome" xml:lang="en-us">
+<title>FlashSystem ODF driver welcome</title>
+<prolog>
+<copyright>
+<copyryear year="2022"/>
+<copyrholder/><!--Add copyright year or years as the "year" attribute for copyryear. Copyright holder information is filled in automatically
+ for IBM. Critdates are not currently used by the transform, but they are preserved in the metadata. -->
+</copyright>
+</prolog>
+</topic>

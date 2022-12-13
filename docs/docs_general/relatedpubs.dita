@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE topic PUBLIC "-//IBM//DTD DITA IBM Topic//EN" "ibm-topic.dtd">
+<?Pub Sty _display FontColor="red"?><?Pub Inc?><topic id="vcplugin_ug_relatedpubs" xml:lang="en-us">
+<title>Related information and publications</title>
+<?Pub Caret -2?>
+<titlealts>
+<searchtitle>Related documentation</searchtitle>
+</titlealts>
+<body>
+<p>You can find additional information and publications related to the <ph conref="../reusable.dita#reusable/vsphere_full" /> at the following websites:<ul id="related_info">
+<li><xref href="https://www.ibm.com/docs/en/flashsystem-5x00" scope="external" format="html"><tm tmtype="reg" trademark="IBM">IBM</tm> FlashSystem 5200, 5000, 5100, <tm tmtype="reg" trademark="Storwize">Storwize</tm> V5100 and V5000E in <tm trademark="IBM" tmtype="reg">IBM</tm>
+Documentation</xref>
+</li>
+<li><xref href="https://www.ibm.com/docs/en/flashsystem-7x00" scope="external" format="html"><tm tmtype="reg" trademark="IBM">IBM</tm> FlashSystem 7300, 7200 and <tm tmtype="reg" trademark="Storwize">Storwize</tm> V7000 in <tm trademark="IBM" tmtype="reg">IBM</tm>
+Documentation</xref>
+</li>
+<li><xref format="html" href="https://www.ibm.com/docs/en/flashsystem-9x00" scope="external"><tm trademark="IBM FlashSystem" tmtype="reg">IBM FlashSystem</tm> 9500, 9200 and 9100 in <tm trademark="IBM" tmtype="reg">IBM</tm> Documentation</xref>
+</li>
+<li><xref format="html" href="https://www.ibm.com/docs/en/sanvolumecontroller" scope="external"><tm tmtype="reg" trademark="IBM">IBM</tm> SAN Volume Controller (2145 and 2147) in <tm trademark="IBM" tmtype="reg">IBM</tm> Documentation</xref>
+</li>
+<li><xref format="html" href="http://www.redbooks.ibm.com/redbooks/pdfs/sg247574.pdf" scope="external">SAN Volume Controller and <tm trademark="Storwize" tmtype="reg">Storwize</tm> V7000 Replication Family Services</xref>
+</li>
+<li><xref format="html" href="http://www.redbooks.ibm.com/redbooks/pdfs/sg247521.pdf" scope="external">SAN Volume Controller Best Practices and Performance Guidelines</xref></li>
+<li rev="r5"><xref href="https://docs.vmware.com/en/VMware-vSphere/index.html" format="html"
+scope="external">VMware vSphere Documentation</xref></li>
+<li><xref href="http://www.vmware.com/support/pubs" scope="external" format="html">VMware
+Documentation</xref></li>
+<li><xref href="http://www.vmware.com/support" scope="external" format="html">VMware Product
+Support</xref></li>
+<li><xref href="http://kb.vmware.com" scope="external" format="html">VMware Knowledge
+Base</xref></li>
+</ul></p>
+</body>
+</topic><?Pub *0000002156?><?tm 1670402701365 11 Storwize||IBM FlashSystem||IBM ?>
