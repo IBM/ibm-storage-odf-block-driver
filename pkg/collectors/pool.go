@@ -40,6 +40,7 @@ const (
 	PoolCapacityUsable        = "flashsystem_pool_capacity_usable_bytes"
 	PoolCapacityUsed          = "flashsystem_pool_capacity_used_bytes"
 	PoolLogicalCapacityUsable = "flashsystem_pool_logical_capacity_usable_bytes"
+	PoolLogicalCapacity       = "flashsystem_pool_logical_capacity_bytes"
 	PoolLogicalCapacityUsed   = "flashsystem_pool_logical_capacity_used_bytes"
 	PoolEfficiencySavings     = "flashsystem_pool_savings_bytes"
 	// PoolEfficiencySavingsThin        = "flashsystem_pool_savings_thin_bytes"
@@ -379,7 +380,7 @@ func isParentPool(pool Pool) bool {
 }
 
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
+	totalLogicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
 		return
@@ -397,11 +398,18 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 		return
 	}
 
+	childPoolCapacity, err := strconv.ParseFloat(pool[ChildPoolCapacityKey].(string), 64)
+	if err != nil {
+		log.Errorf("get Child Pool Capacity failed: %s", err)
+		return
+	}
+
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsable], logicalUsableCapacity, &poolInfo)
 
-	logicalUsedCapacity := logicalCapacity - logicalUsableCapacity
+	logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity - childPoolCapacity
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
+	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacity], totalLogicalCapacity, &poolInfo)
 }
 
 func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, fsRestClient *rest.FSRestClient) {
