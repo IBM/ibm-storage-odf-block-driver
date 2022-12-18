@@ -101,6 +101,7 @@ var (
 		PoolWarningThreshold:      {"Pool capacity warning threshold", poolLabelCommon},
 		PoolCapacityUsable:        {"Pool usable capacity (Byte)", poolLabelCommon},
 		PoolCapacityUsed:          {"Pool used capacity (byte)", poolLabelCommon},
+		PoolLogicalCapacity:       {"Pool total logical capacity (byte)", poolLabelCommon},
 		PoolLogicalCapacityUsable: {"Pool logical usable capacity (byte)", poolLabelCommon},
 		PoolLogicalCapacityUsed:   {"Pool logical used capacity (byte)", poolLabelCommon},
 		PoolEfficiencySavings:     {"dedupe, thin provisioning, and compression savings", poolLabelCommon},
