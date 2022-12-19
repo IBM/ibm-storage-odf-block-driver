@@ -22,8 +22,8 @@ to be used with <tm trademark="Red Hat" tmtype="reg">Red Hat</tm>
 <li>Support summary for enabled IBM Spectrum Virtualize family products and <tm trademark="Red Hat"
 tmtype="reg">Red Hat</tm>
 <tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation: <xref
-href="../landing/odf_flashsystem_support_matrix.html" scope="peer" format="html">ODF FlashSystem
-driver support summary</xref>.</li>
+href="../landing/odf_flashsystem_driver_support_matrix.html" scope="peer" format="html">ODF
+FlashSystem driver support summary</xref>.</li>
 <li>User information and release notes documentation for the <tm trademark="Red Hat" tmtype="reg"
 >Red Hat</tm>
 <tm trademark="OpenShift" tmtype="reg">OpenShift</tm> Data Foundation: <xref
