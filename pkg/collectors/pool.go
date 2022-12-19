@@ -399,16 +399,18 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 		return
 	}
 
-	childPoolCapacity, err := strconv.ParseFloat(pool[ChildPoolCapacityKey].(string), 64)
-	if err != nil {
-		log.Errorf("get Child Pool Capacity failed: %s", err)
-		return
-	}
+	//childPoolCapacity, err := strconv.ParseFloat(pool[ChildPoolCapacityKey].(string), 64)
+	//if err != nil {
+	//	log.Errorf("get Child Pool Capacity failed: %s", err)
+	//	return
+	//}
 
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsable], logicalUsableCapacity, &poolInfo)
 
-	logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity - childPoolCapacity
+	//logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity - childPoolCapacity
+	logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity
+
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacity], totalLogicalCapacity, &poolInfo)
 }
@@ -426,7 +428,7 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 			return
 
 		}
-		reclaimable := f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient)
+		reclaimable := f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient) // vered - add
 		if reclaimable == -1 {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
 			return
