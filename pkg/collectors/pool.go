@@ -428,17 +428,22 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 			return
 
 		}
-		reclaimable := f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient) // vered - add
-		if reclaimable == -1 {
+		reducedReclaimable := f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient) // vered - add
+		if reducedReclaimable == -1 {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
+			return
+		}
+		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		if err != nil {
+			log.Errorf("get reclaimable failed: %s", err)
 			return
 		}
 
 		usable := physicalFree + reclaimable
-		used := physical - usable
+		used := physical - (physicalFree + reducedReclaimable)
 		log.Infof("Physical free: %f, Reduced Reclaimable Capacity: %f, therefore usable (available is): %f"+
 			" total physical capacity %f, therefore used capacity is %f",
-			physicalFree, reclaimable, usable, physical, used)
+			physicalFree, reducedReclaimable, usable, physical, used)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
 	} else {
