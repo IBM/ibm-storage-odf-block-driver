@@ -731,7 +731,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0798621523968e+13
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0798621523968e+13
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.0798621523968e+13
-	flashsystem_pool_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 1.594291860275e+12
+	flashsystem_pool_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 1.594291860315e+12
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} -1
 
 	# HELP flashsystem_pool_capacity_used_bytes Pool used capacity (byte)
