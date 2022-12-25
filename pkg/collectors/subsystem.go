@@ -266,7 +266,7 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 	}
 	physicalUsedCapacity := physicalTotalCapacity - physicalUsableCapacity - physicalReclaimableCapacity
 
-	physicalFreeCapacity := physicalTotalCapacity - physicalReclaimableCapacity
+	physicalFreeCapacity := physicalTotalCapacity - physicalUsedCapacity
 	// used = total - free
 	log.Infof("system capacity total: %f, free: %f, used: %f", physicalTotalCapacity, physicalFreeCapacity, physicalUsedCapacity)
 
@@ -289,7 +289,6 @@ func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestC
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
 			return -1, err
 		}
-		log.Infof("For system calc - pool name: %s has reclaimable physical capacity of: %f", pool[MdiskNameKey].(string), reclaimable)
 		ReclaimableSum += reclaimable
 	}
 	return ReclaimableSum, nil
