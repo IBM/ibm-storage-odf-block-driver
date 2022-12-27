@@ -248,6 +248,120 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 		]`
 	case "/lscurrentuser":
 		body = `[{"name": "superuser", "role": "SecurityAdmin"}]`
+	case "/lsmdisk":
+		body =
+			`[
+				{
+					"id": "9",
+					"name": "mdisk9",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1099511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "10",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "11",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "9",
+					"mdisk_grp_name": "Pool9",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "12",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "2",
+					"mdisk_grp_name": "Pool2",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": ""
+				}
+			]`
+	case "/lsmdisk/9":
+		body = `{
+					"id": "9",
+					"name": "mdisk9",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1099511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/10":
+		body = `{
+					"id": "10",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/11":
+		body =
+			`{
+					"id": "11",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "9",
+					"mdisk_grp_name": "Pool9",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/12":
+		body =
+			`{
+					"id": "12",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "2",
+					"mdisk_grp_name": "Pool2",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": ""
+				}`
 	}
 	return []byte(body), 200, nil
 }
@@ -417,6 +531,120 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 		]`
 	case "/lscurrentuser":
 		body = `[{"name": "superuser", "role": "Administrator"}]`
+	case "/lsmdisk":
+		body =
+			`[
+				{
+					"id": "9",
+					"name": "mdisk9",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1099511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "10",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "11",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "9",
+					"mdisk_grp_name": "Pool9",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				},
+				{
+					"id": "12",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "2",
+					"mdisk_grp_name": "Pool2",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": ""
+				}
+			]`
+	case "/lsmdisk/9":
+		body = `{
+					"id": "9",
+					"name": "mdisk9",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1099511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/10":
+		body = `{
+					"id": "10",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "3",
+					"mdisk_grp_name": "Pool0",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/11":
+		body =
+			`{
+					"id": "11",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "9",
+					"mdisk_grp_name": "Pool9",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776"
+				}`
+	case "/lsmdisk/12":
+		body =
+			`{
+					"id": "12",
+					"name": "mdisk1",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "2",
+					"mdisk_grp_name": "Pool2",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": ""
+				}`
 	}
 	return []byte(body), 200, nil
 }
@@ -490,6 +718,14 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.07863255737e+11
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 6.02369163264e+11
 
+	# HELP flashsystem_pool_logical_capacity_bytes Pool total logical capacity (byte)
+	# TYPE flashsystem_pool_logical_capacity_bytes gauge
+	flashsystem_pool_logical_capacity_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 7882338729984
+	flashsystem_pool_logical_capacity_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 644245094400
+	flashsystem_pool_logical_capacity_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 644245094400
+	flashsystem_pool_logical_capacity_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 4244114883215
+	flashsystem_pool_logical_capacity_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 644245094400
+
 	# HELP flashsystem_pool_capacity_usable_bytes Pool usable capacity (Byte)
 	# TYPE flashsystem_pool_capacity_usable_bytes gauge
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0798621523968e+13
@@ -503,7 +739,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
-	flashsystem_pool_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 5.4975581349e+10
+	flashsystem_pool_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 5.4975581389e+10
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} -1
 
 	# HELP flashsystem_capacity_warning_threshold Pool capacity warning threshold
@@ -590,8 +826,8 @@ func TestMetrics(t *testing.T) {
 
 	# HELP flashsystem_subsystem_physical_free_capacity_bytes System physical free capacity (byte)
 	# TYPE flashsystem_subsystem_physical_free_capacity_bytes gauge
-	flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name"} 3.7416452783924e+13
-    flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name-second"} 2.8416452791924e+13
+	flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name"} 3.741645275136e+13
+    flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name-second"} 2.841645275136e+13
 
 	# HELP flashsystem_subsystem_physical_total_capacity_bytes System physical total capacity (byte)
     # TYPE flashsystem_subsystem_physical_total_capacity_bytes gauge
@@ -600,15 +836,15 @@ func TestMetrics(t *testing.T) {
     
 	# HELP flashsystem_subsystem_physical_used_capacity_bytes System physical used capacity (byte)
     # TYPE flashsystem_subsystem_physical_used_capacity_bytes gauge
-    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name"} 3.3311315427532e+13
-    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name-second"} 4.8011315419532e+13
+    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name"} 3.3311315460096e+13
+    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name-second"} 4.8011315460096e+13
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
 		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemLatency, SystemReadLatency,
 		SystemWriteLatency, SystemMetadata, SystemHealth, SystemResponse, SystemPhysicalTotalCapacity,
 		SystemPhysicalUsedCapacity, SystemPhysicalFreeCapacity,
-		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings,
+		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolLogicalCapacity, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings,
 		PoolLogicalCapacityUsable, PoolLogicalCapacityUsed)
 
 	if err != nil {

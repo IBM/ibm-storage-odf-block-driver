@@ -334,7 +334,43 @@ func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
 
 	var stats PoolList
 	if err = json.Unmarshal(body, &stats); err != nil {
-		log.Errorf("lsmdiskgrp err %v, body %s", err, body)
+		log.Errorf("Lsmdiskgrp err %v, body %s", err, body)
+		return nil, err
+	}
+
+	return stats, nil
+}
+
+type MDisksList []map[string]interface{}
+
+func (c *FSRestClient) LsAllMDisk() (MDisksList, error) {
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsmdisk"), jsonStr)
+	if err != nil {
+		return nil, err
+	}
+
+	var stats MDisksList
+	if err = json.Unmarshal(body, &stats); err != nil {
+		log.Errorf("Lsmdisk for list err %v, body %s", err, body)
+		return nil, err
+	}
+
+	return stats, nil
+}
+
+type SingleMDiskInfo map[string]interface{}
+
+func (c *FSRestClient) LsSingleMDisk(diskID int) (SingleMDiskInfo, error) {
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s/%d", c.BaseURL, "lsmdisk", diskID), jsonStr)
+	if err != nil {
+		return nil, err
+	}
+
+	var stats SingleMDiskInfo
+	if err = json.Unmarshal(body, &stats); err != nil {
+		log.Errorf("Lsmdisk for single disk err %v, body %s", err, body)
 		return nil, err
 	}
 
