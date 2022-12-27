@@ -430,7 +430,7 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 		log.Errorf("Failed to determine internal or external pool: %s", err)
 		return
 	}
-	if internalPool == false {
+	if !internalPool {
 		reclaimable = 0
 	} else {
 		reclaimable, err = strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
@@ -512,13 +512,13 @@ func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClie
 		return reclaimable, err
 	}
 
-	if compressionActive == "yes" && dataReduction == "yes" && internalPool == true && arrayMode == true {
+	if compressionActive == "yes" && dataReduction == "yes" && internalPool && arrayMode {
 		reclaimable, err = f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
 			return reclaimable, err
 		}
-	} else if internalPool == false {
+	} else if !internalPool {
 		reclaimable = 0
 	} else {
 		poolOrigReclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
