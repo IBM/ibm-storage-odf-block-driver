@@ -262,7 +262,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": "controller0"
 				},
 				{
 					"id": "10",
@@ -275,7 +276,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": "controller0"
 				},
 				{
 					"id": "11",
@@ -288,7 +290,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				},
 				{
 					"id": "12",
@@ -301,7 +304,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": ""
+					"effective_used_capacity": "",
+					"controller_name": ""
 				}
 			]`
 	case "/lsmdisk/9":
@@ -545,7 +549,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				},
 				{
 					"id": "10",
@@ -558,7 +563,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				},
 				{
 					"id": "11",
@@ -571,7 +577,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": "controller0"
 				},
 				{
 					"id": "12",
@@ -584,7 +591,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": ""
+					"effective_used_capacity": "",
+					"controller_name": "controller0"
 				}
 			]`
 	case "/lsmdisk/9":
@@ -707,7 +715,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 6.386616369152e+12
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 4.1875931136e+10
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 6.442450944e+11
-	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.936251627478e+12
+	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.936251627438e+12
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 4.1875931136e+10
 
 	# HELP flashsystem_pool_logical_capacity_used_bytes Pool logical used capacity (byte)
@@ -715,7 +723,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.495722360832e+12
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 6.02369163264e+11
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.07863255737e+11
+	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.07863255777e+11
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 6.02369163264e+11
 
 	# HELP flashsystem_pool_logical_capacity_bytes Pool total logical capacity (byte)
@@ -726,7 +734,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 4244114883215
 	flashsystem_pool_logical_capacity_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 644245094400
 
-	# HELP flashsystem_pool_capacity_usable_bytes Pool usable capacity (Byte)
+	# HELP flashsystem_pool_capacity_usable_bytes Pool usable capacity (byte)
 	# TYPE flashsystem_pool_capacity_usable_bytes gauge
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0798621523968e+13
 	flashsystem_pool_capacity_usable_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0798621523968e+13
@@ -741,6 +749,14 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 5.4975581389e+10
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} -1
+
+	# HELP flashsystem_pool_capacity_bytes Pool total capacity (bytes)
+	# TYPE flashsystem_pool_capacity_bytes gauge
+	flashsystem_pool_capacity_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.0799695265792e+13
+	flashsystem_pool_capacity_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.0799695265792e+13
+	flashsystem_pool_capacity_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.0799695265792e+13
+	flashsystem_pool_capacity_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 1.649267441664e+12
+	flashsystem_pool_capacity_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} -1
 
 	# HELP flashsystem_capacity_warning_threshold Pool capacity warning threshold
 	# TYPE flashsystem_capacity_warning_threshold gauge
@@ -844,7 +860,7 @@ func TestMetrics(t *testing.T) {
 		SystemReadIOPS, SystemWriteIOPS, SystemReadBytes, SystemWriteBytes, SystemLatency, SystemReadLatency,
 		SystemWriteLatency, SystemMetadata, SystemHealth, SystemResponse, SystemPhysicalTotalCapacity,
 		SystemPhysicalUsedCapacity, SystemPhysicalFreeCapacity,
-		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolLogicalCapacity, PoolCapacityUsable, PoolCapacityUsed, PoolEfficiencySavings,
+		PoolMetadata, PoolHealth, PoolWarningThreshold, PoolLogicalCapacity, PoolCapacityUsable, PoolPhysicalCapacity, PoolCapacityUsed, PoolEfficiencySavings,
 		PoolLogicalCapacityUsable, PoolLogicalCapacityUsed)
 
 	if err != nil {
