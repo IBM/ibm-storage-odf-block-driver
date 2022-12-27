@@ -36,8 +36,11 @@ const (
 	VdiskReadLatency  = "vdisk_r_ms"
 	VdiskWriteLatency = "vdisk_w_ms"
 
-	VersionKey = "code_level"
-	ModelKey   = "product_name"
+	VersionKey               = "code_level"
+	ModelKey                 = "product_name"
+	PhysicalTotalCapacityKey = "physical_capacity"
+	PhysicalFreeCapacityKey  = "physical_free_capacity"
+	//ReclaimableCapacity      = "total_reclaimable_capacity"
 
 	// Metric name shown outside
 	SystemReadIOPS     = "flashsystem_subsystem_rd_iops"
@@ -55,10 +58,6 @@ const (
 	SystemPhysicalTotalCapacity = "flashsystem_subsystem_physical_total_capacity_bytes"
 	SystemPhysicalFreeCapacity  = "flashsystem_subsystem_physical_free_capacity_bytes"
 	SystemPhysicalUsedCapacity  = "flashsystem_subsystem_physical_used_capacity_bytes"
-
-	PhysicalTotalCapacity = "physical_capacity"
-	PhysicalFreeCapacity  = "physical_free_capacity"
-	ReclaimableCapacity   = "total_reclaimable_capacity"
 )
 
 var (
@@ -247,19 +246,19 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 
 func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem, systemName SystemName, fsRestClient *rest.FSRestClient) {
 	// [lssystem]: physical_capacity
-	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacity].(string), 64)
+	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get system physical total capacity failed: %s", err)
 		return
 	}
 	// [lssystem]: physical_free_capacity
-	physicalUsableCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacity].(string), 64)
+	physicalUsableCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalFreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get system physical usable capacity failed: %s", err)
 		return
 	}
 	physicalReclaimableCapacity, err := f.calcSystemReclaimableCapacity(fsRestClient)
-	//physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacity].(string), 64)
+	//physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get system physical reclaimable capacity failed: %s", err)
 		return
@@ -283,8 +282,14 @@ func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestC
 		return -1, err
 	}
 
+	mDisksList, err := fsRestClient.LsAllMDisk()
+	if err != nil {
+		log.Errorf("get disk list error: %v", err)
+		return -1, err
+	}
+
 	for _, pool := range pools {
-		reclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient)
+		reclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
 			return -1, err
