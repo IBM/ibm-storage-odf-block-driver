@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE concept PUBLIC "-//IBM//DTD DITA IBM Concept//EN" "ibm-concept.dtd">
+<?Pub Inc?><concept id="docs_whatsnew" xml:lang="en-us">
+<title>What's new</title>
+<shortdesc>This topic lists the dates and nature of updates to the published information of the <ph
+translate="no">ODF FlashSystem driver</ph>.</shortdesc>
+<conbody>
+<table>
+<tgroup cols="2">
+<colspec colname="col1" colwidth="29*" />
+<colspec colname="col2" colwidth="70*" />
+<thead>
+<row outputclass="xlight" valign="bottom">
+<entry align="left" colname="col1">Date</entry>
+<entry align="left" colname="col2">Nature of updates to the published information</entry>
+</row>
+</thead>
+<tbody>
+<row>
+<entry colname="col1">XX January 2023</entry>
+<entry colname="col2">
+<p>The version information was added in IBM Documentation as part of the initial <ph translate="no"
+>ODF FlashSystem driver</ph> 1.3.0 release.</p>
+</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+</conbody>
+
+</concept><?Pub *0000001199?><?tm 1670402701300 1 IBM ?>
