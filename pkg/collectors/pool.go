@@ -66,6 +66,7 @@ const (
 	PhysicalFreeKey            = "physical_free_capacity"
 	ReclaimableKey             = "reclaimable_capacity"
 	PhysicalCapacityKey        = "physical_capacity"
+	OverProvisionedKey         = "over_provisioned"
 	CompressionEnabledKey      = "compression_active"
 	CapacityKey                = "capacity"
 	FreeCapacityKey            = "free_capacity"
@@ -147,6 +148,25 @@ func isPoolInternalMDisks(poolName string, disksList rest.MDisksList) (bool, err
 		}
 	}
 	return internalPool, nil
+}
+
+func isCompressionEnabled(poolName string, disksList rest.MDisksList, fsRestClient *rest.FSRestClient) (bool, error) {
+	var compressionEnabled bool
+	disksInPool := mapMDisksToPool(poolName, disksList)
+
+	for _, diskID := range disksInPool {
+		MDiskInfo, err := fsRestClient.LsSingleMDisk(diskID)
+		if err != nil {
+			log.Errorf("get single mdisk info error: %v", err)
+			return compressionEnabled, err
+		}
+		if MDiskInfo[MdiskEffectiveUsedCapacity].(string) == "" {
+			compressionEnabled = false
+		} else {
+			compressionEnabled = true
+		}
+	}
+	return compressionEnabled, nil
 }
 
 func isPoolArrayMode(poolName string, disksList rest.MDisksList) (bool, error) {
@@ -498,8 +518,13 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 
 func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
 	var reclaimable float64
-	compressionActive := pool[CompressionEnabledKey].(string)
 	dataReduction := pool[DataReductionKey].(string)
+
+	compressionEnabled, err := isCompressionEnabled(pool[MdiskNameKey].(string), mDisksList, fsRestClient)
+	if err != nil {
+		log.Errorf("Failed to determine internal or external pool: %s", err)
+		return reclaimable, err
+	}
 
 	internalPool, err := isPoolInternalMDisks(pool[MdiskNameKey].(string), mDisksList)
 	if err != nil {
@@ -512,7 +537,7 @@ func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClie
 		return reclaimable, err
 	}
 
-	if compressionActive == "yes" && dataReduction == "yes" && internalPool && arrayMode {
+	if compressionEnabled && dataReduction == "yes" && internalPool && arrayMode {
 		reclaimable, err = f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
