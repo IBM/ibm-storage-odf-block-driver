@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DITA Reference//EN" "reference.dtd">
+<reference id="installing" xml:lang="en-us">
+<title>Installing the driver</title>
+<shortdesc>Download and install the <ph translate="no">ODF FlashSystem driver</ph> to manage your
+FlashSystem storage systems through Red Hat OpenShift Data Foundation.</shortdesc>
+<refbody>
+<section>
+<p><note type="important"><ph translate="no">ODF FlashSystem driver</ph> is not a standalone product
+and <b>must</b> be used together with Red Hat OpenShift Data Foundation and with Red Hat OpenShift
+Data Foundation already installed.</note>Install the <ph translate="no">ODF FlashSystem driver</ph>
+from <xref href="https://github.com/IBM/ibm-storage-odf-block-driver/releases/tag/v1.3.0"
+format="html" scope="external"/>.</p>
+</section>
+</refbody>
+</reference>
