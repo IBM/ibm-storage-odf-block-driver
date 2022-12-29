@@ -10,6 +10,8 @@
 </copyright>
 </topicmeta>
 <topicref href="docs_general/docs_welcome.dita"><?Pub Caret -1?></topicref>
+<topicref href="../landing/odf_flashsystem_driver_support_matrix.html" scope="peer"
+navtitle="ODF FlashSystem driver support summary" format="html"/>
 <topicref href="docs_general/docs_whatsnew.dita"/>
 <topicref href="docs_general/trademarks.dita" navtitle="Trademarks"/>
 <topicref href="installing/installing.dita" navtitle="Downloading the driver"/>
