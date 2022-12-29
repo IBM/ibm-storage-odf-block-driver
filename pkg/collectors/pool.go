@@ -242,20 +242,20 @@ func calcCapacityForSingleDisk(fsRestClient *rest.FSRestClient, diskID int) (flo
 		log.Errorf("get disk physical capacity failed: %s", err)
 		return -1, -1, -1, err
 	}
-	EU, err := strconv.ParseFloat(MDisksInfo[MdiskEffectiveUsedCapacity].(string), 64)
-	if err != nil {
-		if MDisksInfo[MdiskEffectiveUsedCapacity].(string) == "" {
-			EU = 1
-		} else {
-			log.Errorf("get disk physical effective used capacity failed: %s", err)
-			return -1, -1, -1, err
-		}
-	}
-
 	physicalFree, err := strconv.ParseFloat(MDisksInfo[PhysicalFreeKey].(string), 64)
 	if err != nil {
 		log.Errorf("get disk physical free capacity failed: %s", err)
 		return -1, -1, -1, err
+	}
+
+	EU, err := strconv.ParseFloat(MDisksInfo[MdiskEffectiveUsedCapacity].(string), 64)
+	if err != nil {
+		if MDisksInfo[MdiskEffectiveUsedCapacity].(string) == "" { // can happen only on drives without compression
+			EU = PC - physicalFree
+		} else {
+			log.Errorf("get disk physical effective used capacity failed: %s", err)
+			return -1, -1, -1, err
+		}
 	}
 
 	return PC, EU, physicalFree, nil
@@ -502,7 +502,7 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 			reclaimableCalculatedCapacity = 0
 		}
 
-		used := physical - (physicalFree + reclaimableCalculatedCapacity)
+		used := physical - physicalFree - reclaimableCalculatedCapacity
 		usable := physicalFree + poolOrigReclaimable
 
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
