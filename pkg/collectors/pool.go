@@ -205,9 +205,9 @@ func (f *PerfCollector) CalcReducedReclaimableCapacityForPool(pool Pool, fsRestC
 		totalDisksCapacities += PC
 		midSum += diskRatio
 
-		log.Infof("Disk ID: %d, PhysicalCapacity PC: %f, MdiskEffectiveUsedCapacity EU: %f, PU: %f, "+
-			"diskRatio: %f, totalDisksCapacities: %f, midSum: %f",
-			diskID, PC, EU, PU, diskRatio, totalDisksCapacities, midSum)
+		log.Infof("Calculating reduced reclaimable capacity for Disk ID: %d related to pool %v, "+
+			"PhysicalCapacity PC: %f, MdiskEffectiveUsedCapacity EU: %f, PU: %f, diskRatio: %f, totalDisksCapacities: %f, midSum: %f",
+			diskID, pool[MdiskNameKey].(string), PC, EU, PU, diskRatio, totalDisksCapacities, midSum)
 	}
 
 	if totalDisksCapacities == 0 || midSum == 0 {
@@ -222,7 +222,6 @@ func mapMDisksToPool(poolName string, disksList rest.MDisksList) []int {
 	for _, disk := range disksList {
 		if poolName == disk[MdiskGroupNameKey].(string) {
 			diskId, _ := strconv.Atoi(disk[MdiskIdKey].(string))
-			log.Infof("found disk name %s with ID %d", disk[MdiskGroupNameKey].(string), diskId)
 			disksInPool = append(disksInPool, diskId)
 		} else {
 			continue
