@@ -22,10 +22,10 @@ translate="no">ODF FlashSystem driver</ph>.</shortdesc>
 <p>The version information was added in IBM Documentation as part of the initial <ph translate="no"
 >ODF FlashSystem driver</ph> 1.3.0 release.</p>
 <p><ph translate="no">ODF FlashSystem driver</ph> adds new support for the following:<ul>
-<li>Displaying multiple FlashSystem storage systems, including health, capacity, and performance
+<li>Multiple FlashSystem storage systems, including health, capacity, and performance
 information.</li>
-<li>Displaying storage calculations for FlashSystem child pools.</li>
-<li>Displaying calculations for external storage systems.</li>
+<li>Storage calculations for FlashSystem child pools.</li>
+<li>External storage system calculations.</li>
 </ul></p>
 </entry>
 </row>
