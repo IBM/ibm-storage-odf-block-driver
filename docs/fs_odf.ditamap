@@ -12,6 +12,7 @@
 <topicref href="docs_general/docs_welcome.dita"><?Pub Caret -1?></topicref>
 <topicref href="docs_general/docs_whatsnew.dita"/>
 <topicref href="docs_general/trademarks.dita" navtitle="Trademarks"/>
+<topicref href="installing/installing.dita" navtitle="Downloading the driver"/>
 <topicref href="configuring/configuring.dita">
 <topicref href="configuring/limitations.dita"/>
 </topicref>
