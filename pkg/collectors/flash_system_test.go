@@ -715,7 +715,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 6.386616369152e+12
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 4.1875931136e+10
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 6.442450944e+11
-	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.936251627438e+12
+	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.936251627478e+12
 	flashsystem_pool_logical_capacity_usable_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 4.1875931136e+10
 
 	# HELP flashsystem_pool_logical_capacity_used_bytes Pool logical used capacity (byte)
@@ -723,7 +723,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.495722360832e+12
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 6.02369163264e+11
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.07863255777e+11
+	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 3.07863255737e+11
 	flashsystem_pool_logical_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} 6.02369163264e+11
 
 	# HELP flashsystem_pool_logical_capacity_bytes Pool total logical capacity (byte)
@@ -747,7 +747,7 @@ func TestMetrics(t *testing.T) {
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool0",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool1",subsystem_name="FS-system-name"} 1.073741824e+09
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool2",subsystem_name="FS-system-name"} 1.073741824e+09
-	flashsystem_pool_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 5.4975581389e+10
+	flashsystem_pool_capacity_used_bytes{pool_name="Pool5",subsystem_name="FS-system-name-second"} 5.4975581349e+10
 	flashsystem_pool_capacity_used_bytes{pool_name="Pool6",subsystem_name="FS-system-name-second"} -1
 
 	# HELP flashsystem_pool_capacity_bytes Pool total capacity (bytes)
@@ -843,7 +843,7 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_subsystem_physical_free_capacity_bytes System physical free capacity (byte)
 	# TYPE flashsystem_subsystem_physical_free_capacity_bytes gauge
 	flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name"} 3.741645275136e+13
-    flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name-second"} 2.841645275136e+13
+    flashsystem_subsystem_physical_free_capacity_bytes{subsystem_name="FS-system-name-second"} 2.84164527514e+13
 
 	# HELP flashsystem_subsystem_physical_total_capacity_bytes System physical total capacity (byte)
     # TYPE flashsystem_subsystem_physical_total_capacity_bytes gauge
@@ -853,7 +853,7 @@ func TestMetrics(t *testing.T) {
 	# HELP flashsystem_subsystem_physical_used_capacity_bytes System physical used capacity (byte)
     # TYPE flashsystem_subsystem_physical_used_capacity_bytes gauge
     flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name"} 3.3311315460096e+13
-    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name-second"} 4.8011315460096e+13
+    flashsystem_subsystem_physical_used_capacity_bytes{subsystem_name="FS-system-name-second"} 4.8011315460056e+13
 	`
 
 	err := testutil.CollectAndCompare(testCollector, strings.NewReader(expected),
