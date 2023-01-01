@@ -275,7 +275,7 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 }
 
 func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient) (float64, error) {
-	var ReclaimableSum float64
+	var totalSystemReclaimable float64
 	pools, err := fsRestClient.Lsmdiskgrp()
 	if err != nil {
 		log.Errorf("get pool list error: %v", err)
@@ -289,14 +289,14 @@ func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestC
 	}
 
 	for _, pool := range pools {
-		reclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
+		poolReclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
 			return InvalidVal, err
 		}
-		ReclaimableSum += reclaimable
+		totalSystemReclaimable += poolReclaimable
 	}
-	return ReclaimableSum, nil
+	return totalSystemReclaimable, nil
 }
 
 func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, info *SystemInfo) {
