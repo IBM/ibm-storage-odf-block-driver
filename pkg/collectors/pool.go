@@ -206,7 +206,7 @@ func (f *PerfCollector) CalcReducedReclaimableCapacityForPool(pool Pool, fsRestC
 	if totalDisksCapacities == 0 || midSum == 0 {
 		return 0, nil
 	} else {
-		return reclaimable / totalDisksCapacities * midSum, nil
+		return (reclaimable / totalDisksCapacities) * midSum, nil
 	}
 }
 
@@ -498,12 +498,7 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 
 func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
 	var reclaimable float64
-
-	var dataReduction bool
-	if pool[DataReductionKey].(string) == "yes" {
-		dataReduction = true
-	}
-
+	dataReduction := pool[DataReductionKey].(string) == "yes"
 	compressionEnabled, err := isCompressionEnabled(pool[MdiskNameKey].(string), mDisksList, fsRestClient)
 	if err != nil {
 		log.Errorf("Failed to determine internal or external pool: %s", err)
