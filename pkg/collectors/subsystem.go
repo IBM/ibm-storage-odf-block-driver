@@ -279,20 +279,20 @@ func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestC
 	pools, err := fsRestClient.Lsmdiskgrp()
 	if err != nil {
 		log.Errorf("get pool list error: %v", err)
-		return -1, err
+		return InvalidVal, err
 	}
 
 	mDisksList, err := fsRestClient.LsAllMDisk()
 	if err != nil {
 		log.Errorf("get disk list error: %v", err)
-		return -1, err
+		return InvalidVal, err
 	}
 
 	for _, pool := range pools {
 		reclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
-			return -1, err
+			return InvalidVal, err
 		}
 		ReclaimableSum += reclaimable
 	}
