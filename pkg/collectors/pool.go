@@ -440,15 +440,8 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 		return
 	}
 
-	//childPoolCapacity, err := strconv.ParseFloat(pool[ChildPoolCapacityKey].(string), 64)
-	//if err != nil {
-	//	log.Errorf("get Child Pool Capacity failed: %s", err)
-	//	return
-	//}
-
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
 	logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity
-	//logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity - childPoolCapacity
 
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsable], logicalUsableCapacity, &poolInfo)
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
