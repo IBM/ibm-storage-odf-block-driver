@@ -39,7 +39,9 @@ const (
 	PoolWarningThreshold      = "flashsystem_capacity_warning_threshold"
 	PoolCapacityUsable        = "flashsystem_pool_capacity_usable_bytes"
 	PoolCapacityUsed          = "flashsystem_pool_capacity_used_bytes"
+	PoolPhysicalCapacity      = "flashsystem_pool_capacity_bytes"
 	PoolLogicalCapacityUsable = "flashsystem_pool_logical_capacity_usable_bytes"
+	PoolLogicalCapacity       = "flashsystem_pool_logical_capacity_bytes"
 	PoolLogicalCapacityUsed   = "flashsystem_pool_logical_capacity_used_bytes"
 	PoolEfficiencySavings     = "flashsystem_pool_savings_bytes"
 	// PoolEfficiencySavingsThin        = "flashsystem_pool_savings_thin_bytes"
@@ -50,30 +52,37 @@ const (
 	StateOnline   = "online"
 	StateDegraded = "degraded"
 	StateOffline  = "offline"
+
+	InvalidVal = float64(-1)
 )
 
 // Interested keys
 const (
-	DataReductionKey         = "data_reduction"
-	MdiskIdKey               = "id"
-	ParentMdiskIdKey         = "parent_mdisk_grp_id"
-	MdiskNameKey             = "name"
-	PoolStatusKey            = "status"
-	PhysicalFreeKey          = "physical_free_capacity"
-	ReclaimableKey           = "reclaimable_capacity"
-	PhysicalCapacityKey      = "physical_capacity"
-	CapacityKey              = "capacity"
-	FreeCapacityKey          = "free_capacity"
-	ChildPoolCapacityKey     = "child_mdisk_grp_capacity"
-	RealCapacityKey          = "real_capacity"
-	UsedBeforeDedupKey       = "used_capacity_before_reduction"
-	UsedAfterDedupKey        = "used_capacity_after_reduction"
-	DedupSavingsKey          = "deduplication_capacity_saving"
-	VirtualCapacityKey       = "virtual_capacity"
-	UncompressedKey          = "compression_uncompressed_capacity"
-	CompressedKey            = "compression_compressed_capacity"
-	CompressionActiveKey     = "compression_active"
-	CapacityWarningThreshold = "warning"
+	DataReductionKey           = "data_reduction"
+	MdiskIdKey                 = "id"
+	MdiskEffectiveUsedCapacity = "effective_used_capacity"
+	ParentMdiskIdKey           = "parent_mdisk_grp_id"
+	MdiskGroupNameKey          = "mdisk_grp_name"
+	MdiskNameKey               = "name"
+	PoolStatusKey              = "status"
+	PhysicalFreeKey            = "physical_free_capacity"
+	ReclaimableKey             = "reclaimable_capacity"
+	PhysicalCapacityKey        = "physical_capacity"
+	OverProvisionedKey         = "over_provisioned"
+	CompressionEnabledKey      = "compression_active"
+	CapacityKey                = "capacity"
+	FreeCapacityKey            = "free_capacity"
+	ChildPoolCapacityKey       = "child_mdisk_grp_capacity"
+	ControllerNameKey          = "controller_name"
+	DiskModekey                = "mode"
+	RealCapacityKey            = "real_capacity"
+	UsedBeforeDedupKey         = "used_capacity_before_reduction"
+	UsedAfterDedupKey          = "used_capacity_after_reduction"
+	DedupSavingsKey            = "deduplication_capacity_saving"
+	VirtualCapacityKey         = "virtual_capacity"
+	UncompressedKey            = "compression_uncompressed_capacity"
+	CompressedKey              = "compression_compressed_capacity"
+	CapacityWarningThreshold   = "warning"
 )
 
 var (
@@ -96,8 +105,10 @@ var (
 		PoolMetadata:              {"Pool metadata", poolMetadataLabel},
 		PoolHealth:                {"Pool health status", poolLabelCommon},
 		PoolWarningThreshold:      {"Pool capacity warning threshold", poolLabelCommon},
-		PoolCapacityUsable:        {"Pool usable capacity (Byte)", poolLabelCommon},
+		PoolCapacityUsable:        {"Pool usable capacity (byte)", poolLabelCommon},
 		PoolCapacityUsed:          {"Pool used capacity (byte)", poolLabelCommon},
+		PoolPhysicalCapacity:      {"Pool total capacity (bytes)", poolLabelCommon},
+		PoolLogicalCapacity:       {"Pool total logical capacity (byte)", poolLabelCommon},
 		PoolLogicalCapacityUsable: {"Pool logical usable capacity (byte)", poolLabelCommon},
 		PoolLogicalCapacityUsed:   {"Pool logical used capacity (byte)", poolLabelCommon},
 		PoolEfficiencySavings:     {"dedupe, thin provisioning, and compression savings", poolLabelCommon},
@@ -127,6 +138,120 @@ func (f *PerfCollector) initPoolDescs() {
 	}
 }
 
+func isInternalStorage(poolName string, disksList rest.MDisksList) bool {
+	for _, disk := range disksList {
+		if poolName == disk[MdiskGroupNameKey].(string) {
+			if disk[ControllerNameKey].(string) != "" {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func isCompressionEnabled(poolName string, disksList rest.MDisksList, fsRestClient *rest.FSRestClient) (bool, error) {
+	disksInPool := listMDisksInPool(poolName, disksList)
+
+	for _, diskID := range disksInPool {
+		MDiskInfo, err := fsRestClient.LsSingleMDisk(diskID)
+		if err != nil {
+			log.Errorf("get single mdisk info error: %v", err)
+			return false, err
+		}
+		if MDiskInfo[MdiskEffectiveUsedCapacity].(string) == "" {
+			return false, nil
+		}
+	}
+	return true, nil
+}
+
+func isPoolArrayMode(poolName string, disksList rest.MDisksList) bool {
+	for _, disk := range disksList {
+		if poolName == disk[MdiskGroupNameKey].(string) {
+			if disk[DiskModekey].(string) != "array" {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (f *PerfCollector) CalcReducedReclaimableCapacityForPool(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
+	var totalDisksCapacities float64
+	var midSum float64
+	disksInPool := listMDisksInPool(pool[MdiskNameKey].(string), mDisksList)
+	reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+	if err != nil {
+		log.Errorf("get pool reclaimable capacity failed: %s", err)
+		return InvalidVal, err
+	}
+
+	for _, diskID := range disksInPool {
+		PC, EU, physicalFree, err := calcCapacityForSingleDisk(fsRestClient, diskID)
+		if err != nil {
+			log.Errorf("get single disk capacity failed: %s", err)
+			return InvalidVal, err
+		}
+		PU := math.Max(0, PC-physicalFree)
+		diskRatio := PC * PU / EU
+
+		totalDisksCapacities += PC
+		midSum += diskRatio
+
+		log.Infof("Calculating reduced reclaimable capacity for Disk ID: %d related to pool %v, "+
+			"PhysicalCapacity PC: %f, MdiskEffectiveUsedCapacity EU: %f, PU: %f, diskRatio: %f, totalDisksCapacities: %f, midSum: %f",
+			diskID, pool[MdiskNameKey].(string), PC, EU, PU, diskRatio, totalDisksCapacities, midSum)
+	}
+
+	if totalDisksCapacities == 0 || midSum == 0 {
+		return 0, nil
+	} else {
+		return (reclaimable / totalDisksCapacities) * midSum, nil
+	}
+}
+
+func listMDisksInPool(poolName string, disksList rest.MDisksList) []int {
+	var disksInPool []int
+	for _, disk := range disksList {
+		if poolName == disk[MdiskGroupNameKey].(string) {
+			diskId, _ := strconv.Atoi(disk[MdiskIdKey].(string))
+			disksInPool = append(disksInPool, diskId)
+		}
+	}
+	return disksInPool
+}
+
+func calcCapacityForSingleDisk(fsRestClient *rest.FSRestClient, diskID int) (float64, float64, float64, error) {
+	MDisksInfo, err := fsRestClient.LsSingleMDisk(diskID)
+	if err != nil {
+		log.Errorf("get disk list error: %v", err)
+		return InvalidVal, InvalidVal, InvalidVal, err
+	}
+
+	PC, err := strconv.ParseFloat(MDisksInfo[PhysicalCapacityKey].(string), 64)
+	if err != nil {
+		log.Errorf("get disk physical capacity failed: %s", err)
+		return InvalidVal, InvalidVal, InvalidVal, err
+	}
+	physicalFree, err := strconv.ParseFloat(MDisksInfo[PhysicalFreeKey].(string), 64)
+	if err != nil {
+		log.Errorf("get disk physical free capacity failed: %s", err)
+		return InvalidVal, InvalidVal, InvalidVal, err
+	}
+
+	EU, err := strconv.ParseFloat(MDisksInfo[MdiskEffectiveUsedCapacity].(string), 64)
+	if err != nil {
+		if MDisksInfo[MdiskEffectiveUsedCapacity].(string) == "" { // can happen only on drives without compression
+			EU = PC - physicalFree
+		} else {
+			log.Errorf("get disk physical effective used capacity failed: %s", err)
+			return InvalidVal, InvalidVal, InvalidVal, err
+		}
+	}
+
+	return PC, EU, physicalFree, nil
+}
+
 func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient) bool {
 	// Get pool names
 	manager := fsRestClient.DriverManager
@@ -136,6 +261,12 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 	pools, err := fsRestClient.Lsmdiskgrp()
 	if err != nil {
 		log.Errorf("get pool list error: %v", err)
+		return false
+	}
+
+	mDisksList, err := fsRestClient.LsAllMDisk()
+	if err != nil {
+		log.Errorf("get disk list error: %v", err)
 		return false
 	}
 
@@ -184,8 +315,8 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			poolInfo.PoolId, pool[PhysicalFreeKey], pool[ReclaimableKey], pool[DataReductionKey],
 			pool[PhysicalCapacityKey], pool[VirtualCapacityKey], pool[RealCapacityKey], pool[CapacityKey], pool[FreeCapacityKey])
 
-		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo)
-		createLogicalCapacityPoolMetrics(ch, f, pool, poolInfo)
+		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo, fsRestClient, mDisksList)
+		createLogicalCapacityPoolMetrics(ch, f, pool, poolInfo, mDisksList)
 		createTotalSavingPoolMetrics(ch, f, pool, poolInfo)
 
 		// pool_efficiency_savings_thin
@@ -291,13 +422,12 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
-func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	logicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
+func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, mDisksList rest.MDisksList) {
+	totalLogicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
 		return
 	}
-
 	logicalFreeCapacity, err := strconv.ParseFloat(pool[FreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical free capacity failed: %s", err)
@@ -311,40 +441,81 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 	}
 
 	logicalUsableCapacity := logicalFreeCapacity + reclaimable
-	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsable], logicalUsableCapacity, &poolInfo)
+	logicalUsedCapacity := totalLogicalCapacity - logicalUsableCapacity
 
-	logicalUsedCapacity := logicalCapacity - logicalUsableCapacity
+	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsable], logicalUsableCapacity, &poolInfo)
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacityUsed], logicalUsedCapacity, &poolInfo)
+	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacity], totalLogicalCapacity, &poolInfo)
 }
 
-func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) {
 	if isParentPool(pool) {
+		var reclaimableCalculatedCapacity float64
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
 			return
 		}
-
-		reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
-		if err != nil {
-			log.Errorf("get reclaimable failed: %s", err)
-			return
-		}
-
 		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical capacity failed: %s", err)
 			return
-
 		}
-		usable := physicalFree + reclaimable
-		used := physical - usable
+		poolOrigReclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		if err != nil {
+			log.Errorf("get reclaimable failed: %s", err)
+			return
+		}
+		if poolOrigReclaimable != 0 {
+			reclaimableCalculatedCapacity, err = f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
+			if err != nil {
+				log.Errorf("get reduced reclaimable capacity failed: %s", err)
+				return
+			}
+		} else {
+			reclaimableCalculatedCapacity = 0
+		}
+
+		used := physical - physicalFree - reclaimableCalculatedCapacity
+		usable := physicalFree + poolOrigReclaimable
+
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], usable, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], physical, &poolInfo)
 	} else {
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], float64(-1), &poolInfo)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], float64(-1), &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], InvalidVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], InvalidVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], InvalidVal, &poolInfo)
 	}
+}
+
+func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
+	var reclaimable float64
+	dataReduction := pool[DataReductionKey].(string) == "yes"
+	compressionEnabled, err := isCompressionEnabled(pool[MdiskNameKey].(string), mDisksList, fsRestClient)
+	if err != nil {
+		log.Errorf("Failed to determine internal or external pool: %s", err)
+		return InvalidVal, err
+	}
+
+	internalStorage := isInternalStorage(pool[MdiskNameKey].(string), mDisksList)
+	arrayMode := isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
+
+	if compressionEnabled && dataReduction && internalStorage && arrayMode {
+		reclaimable, err = f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
+		if err != nil {
+			log.Errorf("get reduced reclaimable capacity for pool failed")
+			return InvalidVal, err
+		}
+	} else {
+		poolOrigReclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		if err != nil {
+			log.Errorf("get reclaimable failed: %s", err)
+			return InvalidVal, err
+		}
+		reclaimable = poolOrigReclaimable
+	}
+	return reclaimable, nil
 }
 
 func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
