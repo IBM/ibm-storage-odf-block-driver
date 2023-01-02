@@ -140,7 +140,7 @@ func (f *PerfCollector) initPoolDescs() {
 	}
 }
 
-func (f *PerfCollector) isInternalStorage(poolName string, disksList rest.MDisksList) bool {
+func (f *PerfCollector) isPoolFromInternalStorage(poolName string, disksList rest.MDisksList) bool {
 	for _, disk := range disksList {
 		if poolName == disk[MdiskGroupNameKey].(string) {
 			if disk[ControllerNameKey].(string) != "" {
@@ -292,7 +292,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 		}
 
 		var isInternal int
-		if f.isInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
+		if f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
 			isInternal = 0
 		} else {
 			isInternal = 1
@@ -512,7 +512,7 @@ func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClie
 		return InvalidVal, err
 	}
 
-	internalStorage := f.isInternalStorage(pool[MdiskNameKey].(string), mDisksList)
+	internalStorage := f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList)
 	arrayMode := isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
 
 	if compressionEnabled && dataReduction && internalStorage && arrayMode {
@@ -588,7 +588,7 @@ func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 		fmt.Sprintf("%d", info.PoolId),
 		info.PoolName,
 		info.StorageClass,
-		string(info.InternalStorage),
+		fmt.Sprintf("%d", info.InternalStorage),
 	)
 }
 
