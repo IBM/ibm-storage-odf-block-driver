@@ -17,6 +17,7 @@
 package collectors
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -62,7 +63,7 @@ const (
 
 var (
 	// Metadata label
-	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version"}
+	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version", "is_internal_storage"}
 
 	// Other label
 	subsystemCommonLabel = []string{"subsystem_name"}
@@ -114,10 +115,11 @@ var (
 )
 
 type SystemInfo struct {
-	Name    string
-	Vendor  string
-	Model   string
-	Version string
+	Name              string
+	Vendor            string
+	Model             string
+	Version           string
+	isInternalStorage int
 }
 
 type SystemName struct {
@@ -193,6 +195,12 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
+
+	if f.isAllInternalStorage(fsRestClient) {
+		systemInfo.isInternalStorage = 0
+	} else {
+		systemInfo.isInternalStorage = 1
+	}
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, fsRestClient)
@@ -274,17 +282,41 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
 }
 
-func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient) (float64, error) {
-	var totalSystemReclaimable float64
+func getPoolAndMdisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDisksList, error) {
+	var pools rest.PoolList
+	var mDisksList rest.MDisksList
 	pools, err := fsRestClient.Lsmdiskgrp()
 	if err != nil {
 		log.Errorf("get pool list error: %v", err)
-		return InvalidVal, err
+		return pools, mDisksList, err
 	}
 
-	mDisksList, err := fsRestClient.LsAllMDisk()
+	mDisksList, err = fsRestClient.LsAllMDisk()
 	if err != nil {
 		log.Errorf("get disk list error: %v", err)
+		return pools, mDisksList, err
+	}
+	return pools, mDisksList, err
+}
+
+func (f *PerfCollector) isAllInternalStorage(fsRestClient *rest.FSRestClient) bool {
+	var isInternal = true
+	pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
+	if err != nil {
+		log.Errorf("get pools or mdisks failed: %v", err)
+		return isInternal
+	}
+	for _, pool := range pools {
+		isInternal = isInternal && f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList)
+	}
+	return isInternal
+}
+
+func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient) (float64, error) {
+	var totalSystemReclaimable float64
+	pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
+	if err != nil {
+		log.Errorf("get pools or mdisks failed: %v", err)
 		return InvalidVal, err
 	}
 
@@ -308,6 +340,7 @@ func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value 
 		info.Vendor,
 		info.Model,
 		info.Version,
+		fmt.Sprintf("%d", info.isInternalStorage),
 	)
 }
 
