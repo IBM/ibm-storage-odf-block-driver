@@ -784,16 +784,16 @@ func TestMetrics(t *testing.T) {
 
 	# HELP flashsystem_pool_metadata Pool metadata
 	# TYPE flashsystem_pool_metadata gauge
-	flashsystem_pool_metadata{pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="5",pool_name="Pool5",storageclass="fs-second-sc-1",subsystem_name="FS-system-name-second"} 0
-	flashsystem_pool_metadata{pool_id="6",pool_name="Pool6",storageclass="fs-second-sc-2",subsystem_name="FS-system-name-second"} 0
+	flashsystem_pool_metadata{is_internal_storage="0",pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="5",pool_name="Pool5",storageclass="fs-second-sc-1",subsystem_name="FS-system-name-second"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="6",pool_name="Pool6",storageclass="fs-second-sc-2",subsystem_name="FS-system-name-second"} 0
 
 	# HELP flashsystem_subsystem_metadata System information
 	# TYPE flashsystem_subsystem_metadata gauge
-	flashsystem_subsystem_metadata{model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
-	flashsystem_subsystem_metadata{model="FlashSystem 9200",subsystem_name="FS-system-name-second",vendor="IBM",version="8.5.2.0"} 0
+	flashsystem_subsystem_metadata{is_internal_storage="0",model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
+	flashsystem_subsystem_metadata{is_internal_storage="1",model="FlashSystem 9200",subsystem_name="FS-system-name-second",vendor="IBM",version="8.5.2.0"} 0
 
 	# HELP flashsystem_subsystem_health System health
 	# TYPE flashsystem_subsystem_health gauge
@@ -802,8 +802,8 @@ func TestMetrics(t *testing.T) {
 	
 	# HELP flashsystem_subsystem_response System response
     # TYPE flashsystem_subsystem_response gauge
-	flashsystem_subsystem_response{model="",subsystem_name="FS-system-name",vendor="",version=""} 1
-    flashsystem_subsystem_response{model="",subsystem_name="FS-system-name-second",vendor="",version=""} 1
+	flashsystem_subsystem_response{is_internal_storage="0",model="",subsystem_name="FS-system-name",vendor="",version="",} 1
+    flashsystem_subsystem_response{is_internal_storage="0", model="",subsystem_name="FS-system-name-second",vendor="",version=""} 1
 
 	# HELP flashsystem_subsystem_latency_seconds overall performance - average latency seconds
 	# TYPE flashsystem_subsystem_latency_seconds gauge
