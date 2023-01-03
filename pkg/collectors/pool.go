@@ -293,9 +293,9 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 
 		var isInternal int
 		if f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
-			isInternal = 0
-		} else {
 			isInternal = 1
+		} else {
+			isInternal = 0
 		}
 
 		poolInfo := PoolInfo{

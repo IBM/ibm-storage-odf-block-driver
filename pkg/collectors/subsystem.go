@@ -197,9 +197,9 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	systemInfo.Model = strings.TrimSpace(model)
 
 	if f.isAllInternalStorage(fsRestClient) {
-		systemInfo.isInternalStorage = 0
-	} else {
 		systemInfo.isInternalStorage = 1
+	} else {
+		systemInfo.isInternalStorage = 0
 	}
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
