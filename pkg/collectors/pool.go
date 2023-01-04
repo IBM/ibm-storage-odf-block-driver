@@ -140,7 +140,7 @@ func (f *PerfCollector) initPoolDescs() {
 	}
 }
 
-func (f *PerfCollector) isPoolFromInternalStorage(poolName string, disksList rest.MDisksList) bool {
+func IsPoolFromInternalStorage(poolName string, disksList rest.MDisksList) bool {
 	for _, disk := range disksList {
 		if poolName == disk[MdiskGroupNameKey].(string) {
 			if disk[ControllerNameKey].(string) != "" {
@@ -178,7 +178,7 @@ func isPoolArrayMode(poolName string, disksList rest.MDisksList) bool {
 	return true
 }
 
-func (f *PerfCollector) CalcReducedReclaimableCapacityForPool(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
+func calcReducedReclaimableCapacityForPool(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
 	var totalDisksCapacities float64
 	var midSum float64
 	disksInPool := listMDisksInPool(pool[MdiskNameKey].(string), mDisksList)
@@ -291,11 +291,11 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			threshold = "100"
 		}
 
-		var isInternal int
-		if f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
-			isInternal = 1
+		var isInternalStorage int
+		if IsPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
+			isInternalStorage = 1
 		} else {
-			isInternal = 0
+			isInternalStorage = 0
 		}
 
 		poolInfo := PoolInfo{
@@ -305,7 +305,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			State:                    pool[PoolStatusKey].(string),
 			CapacityWarningThreshold: threshold,
 			StorageClass:             strings.Join(scnames, ","),
-			InternalStorage:          isInternal,
+			InternalStorage:          isInternalStorage,
 		}
 		// metadata metrics
 		poolMetaMetricDesc := f.poolDescriptors[PoolMetadata]
@@ -327,7 +327,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			poolInfo.PoolId, pool[PhysicalFreeKey], pool[ReclaimableKey], pool[DataReductionKey],
 			pool[PhysicalCapacityKey], pool[VirtualCapacityKey], pool[RealCapacityKey], pool[CapacityKey], pool[FreeCapacityKey])
 
-		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo, fsRestClient, mDisksList)
+		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo, fsRestClient, mDisksList, isInternalStorage)
 		createLogicalCapacityPoolMetrics(ch, f, pool, poolInfo)
 		createTotalSavingPoolMetrics(ch, f, pool, poolInfo)
 
@@ -462,7 +462,7 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacity], totalLogicalCapacity, &poolInfo)
 }
 
-func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) {
+func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, isInternalStorage int) {
 	if isParentPool(pool) {
 		var reclaimableCalculatedCapacity float64
 		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
@@ -481,7 +481,7 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 			return
 		}
 		if poolOrigReclaimable != 0 {
-			reclaimableCalculatedCapacity, err = f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
+			reclaimableCalculatedCapacity, err = GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList, isInternalStorage)
 			if err != nil {
 				log.Errorf("get reduced reclaimable capacity failed: %s", err)
 				return
@@ -503,7 +503,7 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 	}
 }
 
-func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
+func GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, isInternalStorage int) (float64, error) {
 	var reclaimable float64
 	dataReduction := pool[DataReductionKey].(string) == "yes"
 	compressionEnabled, err := isCompressionEnabled(pool[MdiskNameKey].(string), mDisksList, fsRestClient)
@@ -512,11 +512,11 @@ func (f *PerfCollector) GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClie
 		return InvalidVal, err
 	}
 
-	internalStorage := f.isPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList)
+	internalStorage := isInternalStorage == 1
 	arrayMode := isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
 
 	if compressionEnabled && dataReduction && internalStorage && arrayMode {
-		reclaimable, err = f.CalcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
+		reclaimable, err = calcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
 			return InvalidVal, err
