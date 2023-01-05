@@ -153,8 +153,7 @@ func (f *PerfCollector) initSubsystemDescs() {
 	}
 }
 
-func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient,
-	mdisksList rest.MDisksList, PoolsInfoList []PoolInfo) bool {
+func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient, PoolsInfoList []PoolInfo) bool {
 
 	// timer := prometheus.NewTimer(f.scrapeDuration)
 	// defer timer.ObserveDuration()
@@ -197,10 +196,9 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.isInternalStorage = isAllInternalStorage(PoolsInfoList)
-	log.Infof("for system %s returned %d for internalStorage", systemInfo.Name, systemInfo.isInternalStorage)
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, fsRestClient, PoolsInfoList, mdisksList)
+	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, PoolsInfoList)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := fsRestClient.CheckFlashsystemClusterState()
@@ -250,7 +248,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 }
 
 func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem,
-	systemName SystemName, fsRestClient *rest.FSRestClient, PoolsInfoList []PoolInfo, mdisksList rest.MDisksList) {
+	systemName SystemName, PoolsInfoList []PoolInfo) {
 	// [lssystem]: physical_capacity
 	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacityKey].(string), 64)
 	if err != nil {
@@ -263,7 +261,7 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 		log.Errorf("get system physical usable capacity failed: %s", err)
 		return
 	}
-	physicalReclaimableCapacity, err := calcSystemReclaimableCapacity(fsRestClient, mdisksList, PoolsInfoList)
+	physicalReclaimableCapacity, err := calcSystemReclaimableCapacity(PoolsInfoList)
 	//physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get system physical reclaimable capacity failed: %s", err)
@@ -289,10 +287,10 @@ func isAllInternalStorage(PoolsInfoList []PoolInfo) int {
 	return 1
 }
 
-func calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, PoolsInfoList []PoolInfo) (float64, error) {
+func calcSystemReclaimableCapacity(PoolsInfoList []PoolInfo) (float64, error) {
 	var totalSystemReclaimable float64
 	for _, currentPool := range PoolsInfoList {
-		poolReclaimable, err := GetPoolReclaimablePhysicalCapacity(currentPool, fsRestClient, mDisksList)
+		poolReclaimable, err := GetPoolReclaimablePhysicalCapacity(currentPool)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
 			return InvalidVal, err

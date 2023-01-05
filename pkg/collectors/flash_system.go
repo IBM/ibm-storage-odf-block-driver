@@ -112,21 +112,25 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 		}
 		for _, pool := range pools {
 			poolinfo := PoolInfo{}
-			poolinfo.InternalStorage = IsPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList)
-			poolinfo.ArrayMode = isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
-			poolinfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
 			poolinfo.PoolName = pool[MdiskNameKey].(string)
+			poolinfo.PoolMDiskList, err = getMDisksForPool(fsRestClient, poolinfo.PoolName, mDisksList)
+			if err != nil {
+				log.Errorf("get mdisks for pool failed: %v", err)
+			}
+			poolinfo.InternalStorage = IsPoolFromInternalStorage(poolinfo)
+			poolinfo.ArrayMode = IsPoolArrayMode(poolinfo)
+			poolinfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
 			poolinfo.PoolMDiskgrpInfo = pool
 			PoolsInfoList = append(PoolsInfoList, poolinfo)
 		}
 
 		log.Info("Collect metrics for ", systemName)
-		f.collectSystemMetrics(ch, fsRestClient, mDisksList, PoolsInfoList)
+		f.collectSystemMetrics(ch, fsRestClient, PoolsInfoList)
 
 		valid, _ := fsRestClient.CheckVersion()
 		if valid && len(fsRestClient.DriverManager.GetPoolNames()) > 0 {
 			// Skip unsupported version when generate pool metrics
-			f.collectPoolMetrics(ch, fsRestClient, mDisksList, PoolsInfoList)
+			f.collectPoolMetrics(ch, fsRestClient, PoolsInfoList)
 		}
 
 	}
@@ -150,4 +154,20 @@ func getPoolAndMdisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDis
 		return pools, mDisksList, err
 	}
 	return pools, mDisksList, nil
+}
+
+func getMDisksForPool(fsRestClient *rest.FSRestClient, poolName string, disksList rest.MDisksList) ([]rest.SingleMDiskInfo, error) {
+	var disksInPool []rest.SingleMDiskInfo
+	for _, disk := range disksList {
+		if poolName == disk[MdiskGroupNameKey].(string) {
+			diskId, _ := strconv.Atoi(disk[MdiskIdKey].(string))
+			MDisksInfo, err := fsRestClient.LsSingleMDisk(diskId)
+			if err != nil {
+				log.Errorf("get single mdisk info error: %v", err)
+				return disksInPool, err
+			}
+			disksInPool = append(disksInPool, MDisksInfo)
+		}
+	}
+	return disksInPool, nil
 }
