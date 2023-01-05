@@ -294,9 +294,11 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			pool.CapacityWarningThreshold,
 			pool.InternalStorage,
 		)
-		newPoolMetadataMetrics(ch, poolMetaMetricDesc, 0, &pool)
-		f.newPoolWarningThreshold(ch, &pool)
-		f.newPoolHealthMetrics(ch, &pool)
+
+		currentPoolInfo := pool
+		newPoolMetadataMetrics(ch, poolMetaMetricDesc, 0, &currentPoolInfo)
+		f.newPoolWarningThreshold(ch, &currentPoolInfo)
+		f.newPoolHealthMetrics(ch, &currentPoolInfo)
 
 		log.Infof("pool id: %d, physical_free_capacity: %v, reclaimable_capacity: %v, data_reduction: %v, "+
 			"physical_capacity: %v, virtual_capacity: %v, real_capacity: %v, logical_capacity: %v, logical_free_capacity: %v",
