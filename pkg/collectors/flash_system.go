@@ -98,7 +98,6 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
-	var PoolsInfoList []PoolInfo
 	updatedSystems, err := clientmanagers.GetManagers(f.namespace, f.systems)
 	if err != nil {
 		return
@@ -106,6 +105,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	f.systems = updatedSystems
 
 	for systemName, fsRestClient := range f.systems {
+		var PoolsInfoList []PoolInfo
 		pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
 		if err != nil {
 			log.Errorf("get pools or mdisks failed: %v", err)
