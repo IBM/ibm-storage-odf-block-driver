@@ -21,6 +21,7 @@ import (
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
+	"strconv"
 )
 
 type PerfCollector struct {
@@ -97,6 +98,7 @@ func (f *PerfCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
+	var PoolsInfoList []PoolInfo
 	updatedSystems, err := clientmanagers.GetManagers(f.namespace, f.systems)
 	if err != nil {
 		return
@@ -104,17 +106,48 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	f.systems = updatedSystems
 
 	for systemName, fsRestClient := range f.systems {
+		pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
+		if err != nil {
+			log.Errorf("get pools or mdisks failed: %v", err)
+		}
+		for _, pool := range pools {
+			poolinfo := PoolInfo{}
+			poolinfo.InternalStorage = IsPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList)
+			poolinfo.ArrayMode = isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
+			poolinfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
+			poolinfo.PoolName = pool[MdiskNameKey].(string)
+			poolinfo.PoolMDiskgrpInfo = pool
+			PoolsInfoList = append(PoolsInfoList, poolinfo)
+		}
+
 		log.Info("Collect metrics for ", systemName)
-		f.collectSystemMetrics(ch, fsRestClient)
+		f.collectSystemMetrics(ch, fsRestClient, mDisksList, PoolsInfoList)
 
 		valid, _ := fsRestClient.CheckVersion()
 		if valid && len(fsRestClient.DriverManager.GetPoolNames()) > 0 {
 			// Skip unsupported version when generate pool metrics
-			f.collectPoolMetrics(ch, fsRestClient)
+			f.collectPoolMetrics(ch, fsRestClient, mDisksList, PoolsInfoList)
 		}
 
 	}
 	// ch <- f.scrapeDuration
 	// ch <- f.totalScrapes
 	// ch <- f.failedScrapes
+}
+
+func getPoolAndMdisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDisksList, error) {
+	var pools rest.PoolList
+	var mDisksList rest.MDisksList
+	pools, err := fsRestClient.Lsmdiskgrp()
+	if err != nil {
+		log.Errorf("get pool list error: %v", err)
+		return pools, mDisksList, err
+	}
+
+	mDisksList, err = fsRestClient.LsAllMDisk()
+	if err != nil {
+		log.Errorf("get disk list error: %v", err)
+		return pools, mDisksList, err
+	}
+	return pools, mDisksList, nil
 }

@@ -126,7 +126,9 @@ type PoolInfo struct {
 	StorageClass             string
 	State                    string
 	CapacityWarningThreshold string
-	InternalStorage          int
+	InternalStorage          bool
+	ArrayMode                bool
+	PoolMDiskgrpInfo         Pool
 }
 
 func (f *PerfCollector) initPoolDescs() {
@@ -254,82 +256,58 @@ func calcCapacityForSingleDisk(fsRestClient *rest.FSRestClient, diskID int) (flo
 	return PC, EU, physicalFree, nil
 }
 
-func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient) bool {
+func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient,
+	mDisksList rest.MDisksList, PoolsInfoList []PoolInfo) bool {
 	// Get pool names
 	manager := fsRestClient.DriverManager
 	poolNames := manager.GetPoolNames()
 	// log.Infof("pool count: %d, pools: %v", len(poolNames), poolNames)
 
-	pools, err := fsRestClient.Lsmdiskgrp()
-	if err != nil {
-		log.Errorf("get pool list error: %v", err)
-		return false
-	}
-
-	mDisksList, err := fsRestClient.LsAllMDisk()
-	if err != nil {
-		log.Errorf("get disk list error: %v", err)
-		return false
-	}
-
 	// Pool metrics
-	for _, pool := range pools {
-		poolId, _ := strconv.Atoi(pool[MdiskIdKey].(string))
-		poolName := pool[MdiskNameKey].(string)
-		if _, bHas := poolNames[poolName]; bHas {
-			poolNames[poolName] = poolId
-		} else {
-			// Skip. Not used in StorageClass
-			continue
+	for _, pool := range PoolsInfoList {
+		pool.PoolId, _ = strconv.Atoi(pool.PoolMDiskgrpInfo[MdiskIdKey].(string))
+		pool.PoolName = pool.PoolMDiskgrpInfo[MdiskNameKey].(string)
+		if _, bHas := poolNames[pool.PoolName]; bHas {
+			poolNames[pool.PoolName] = pool.PoolId
 		}
 
-		scnames := manager.GetSCNameByPoolName(poolName)
+		scnames := manager.GetSCNameByPoolName(pool.PoolName)
 		sort.Strings(scnames) // For testing to get unique value
-		threshold := pool[CapacityWarningThreshold].(string)
+		threshold := pool.PoolMDiskgrpInfo[CapacityWarningThreshold].(string)
 		// The 0 means turn off the warning
 		if threshold == "0" {
 			threshold = "100"
 		}
+		pool.CapacityWarningThreshold = threshold
+		pool.SystemName = manager.GetSubsystemName()
+		pool.State = pool.PoolMDiskgrpInfo[PoolStatusKey].(string)
+		pool.StorageClass = strings.Join(scnames, ",")
 
-		var isInternalStorage int
-		if IsPoolFromInternalStorage(pool[MdiskNameKey].(string), mDisksList) {
-			isInternalStorage = 1
-		} else {
-			isInternalStorage = 0
-		}
-
-		poolInfo := PoolInfo{
-			SystemName:               manager.GetSubsystemName(),
-			PoolId:                   poolId,
-			PoolName:                 poolName,
-			State:                    pool[PoolStatusKey].(string),
-			CapacityWarningThreshold: threshold,
-			StorageClass:             strings.Join(scnames, ","),
-			InternalStorage:          isInternalStorage,
-		}
 		// metadata metrics
 		poolMetaMetricDesc := f.poolDescriptors[PoolMetadata]
-		log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s, interalStorage: %d",
-			poolInfo.SystemName,
-			poolInfo.PoolId,
-			poolInfo.PoolName,
-			poolInfo.State,
-			poolInfo.StorageClass,
-			poolInfo.CapacityWarningThreshold,
-			poolInfo.InternalStorage,
+		log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s, interalStorage: %t",
+			pool.SystemName,
+			pool.PoolId,
+			pool.PoolName,
+			pool.State,
+			pool.StorageClass,
+			pool.CapacityWarningThreshold,
+			pool.InternalStorage,
 		)
-		newPoolMetadataMetrics(ch, poolMetaMetricDesc, 0, &poolInfo)
-		f.newPoolWarningThreshold(ch, &poolInfo)
-		f.newPoolHealthMetrics(ch, &poolInfo)
+		newPoolMetadataMetrics(ch, poolMetaMetricDesc, 0, &pool)
+		f.newPoolWarningThreshold(ch, &pool)
+		f.newPoolHealthMetrics(ch, &pool)
 
 		log.Infof("pool id: %d, physical_free_capacity: %v, reclaimable_capacity: %v, data_reduction: %v, "+
 			"physical_capacity: %v, virtual_capacity: %v, real_capacity: %v, logical_capacity: %v, logical_free_capacity: %v",
-			poolInfo.PoolId, pool[PhysicalFreeKey], pool[ReclaimableKey], pool[DataReductionKey],
-			pool[PhysicalCapacityKey], pool[VirtualCapacityKey], pool[RealCapacityKey], pool[CapacityKey], pool[FreeCapacityKey])
+			pool.PoolId, pool.PoolMDiskgrpInfo[PhysicalFreeKey], pool.PoolMDiskgrpInfo[ReclaimableKey],
+			pool.PoolMDiskgrpInfo[DataReductionKey], pool.PoolMDiskgrpInfo[PhysicalCapacityKey],
+			pool.PoolMDiskgrpInfo[VirtualCapacityKey], pool.PoolMDiskgrpInfo[RealCapacityKey],
+			pool.PoolMDiskgrpInfo[CapacityKey], pool.PoolMDiskgrpInfo[FreeCapacityKey])
 
-		createPhysicalCapacityPoolMetrics(ch, f, pool, poolInfo, fsRestClient, mDisksList, isInternalStorage)
-		createLogicalCapacityPoolMetrics(ch, f, pool, poolInfo)
-		createTotalSavingPoolMetrics(ch, f, pool, poolInfo)
+		createPhysicalCapacityPoolMetrics(ch, f, pool, fsRestClient, mDisksList)
+		createLogicalCapacityPoolMetrics(ch, f, pool)
+		createTotalSavingPoolMetrics(ch, f, pool)
 
 		// pool_efficiency_savings_thin
 		// drpSavings = Math.max(0, [lsmdiskgrp]:used_capacity_before_reduction – [lsmdiskgrp]:used_capacity_after_reduction + [lsmdiskgrp]:reclaimable_capacity – [lsmdiskgrp]:deduplication_capacity_saving)
@@ -412,10 +390,10 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 				State:                    "NotFound",
 				CapacityWarningThreshold: "100",
 				StorageClass:             strings.Join(scnames, ","),
-				InternalStorage:          1,
+				InternalStorage:          true,
 			}
 
-			log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s, internalStorage: %d",
+			log.Infof("subsystem: %s, pool id: %d, name: %s, state: %s, sc: %s, warning: %s, internalStorage: %t",
 				poolInfo.SystemName,
 				poolInfo.PoolId,
 				poolInfo.PoolName,
@@ -436,19 +414,19 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
-func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
-	totalLogicalCapacity, err := strconv.ParseFloat(pool[CapacityKey].(string), 64)
+func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
+	totalLogicalCapacity, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[CapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical capacity failed: %s", err)
 		return
 	}
-	logicalFreeCapacity, err := strconv.ParseFloat(pool[FreeCapacityKey].(string), 64)
+	logicalFreeCapacity, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[FreeCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get logical free capacity failed: %s", err)
 		return
 	}
 
-	reclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+	reclaimable, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get reclaimable failed: %s", err)
 		return
@@ -462,26 +440,27 @@ func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollec
 	newPoolCapacityMetrics(ch, f.poolDescriptors[PoolLogicalCapacity], totalLogicalCapacity, &poolInfo)
 }
 
-func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, isInternalStorage int) {
-	if isParentPool(pool) {
+func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo,
+	fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) {
+	if isParentPool(poolInfo.PoolMDiskgrpInfo) {
 		var reclaimableCalculatedCapacity float64
-		physicalFree, err := strconv.ParseFloat(pool[PhysicalFreeKey].(string), 64)
+		physicalFree, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[PhysicalFreeKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical free failed: %s", err)
 			return
 		}
-		physical, err := strconv.ParseFloat(pool[PhysicalCapacityKey].(string), 64)
+		physical, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[PhysicalCapacityKey].(string), 64)
 		if err != nil {
 			log.Errorf("get physical capacity failed: %s", err)
 			return
 		}
-		poolOrigReclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		poolOrigReclaimable, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
 			return
 		}
 		if poolOrigReclaimable != 0 {
-			reclaimableCalculatedCapacity, err = GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList, isInternalStorage)
+			reclaimableCalculatedCapacity, err = GetPoolReclaimablePhysicalCapacity(poolInfo, fsRestClient, mDisksList)
 			if err != nil {
 				log.Errorf("get reduced reclaimable capacity failed: %s", err)
 				return
@@ -503,26 +482,23 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 	}
 }
 
-func GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, isInternalStorage int) (float64, error) {
+func GetPoolReclaimablePhysicalCapacity(pool PoolInfo, fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList) (float64, error) {
 	var reclaimable float64
-	dataReduction := pool[DataReductionKey].(string) == "yes"
-	compressionEnabled, err := isCompressionEnabled(pool[MdiskNameKey].(string), mDisksList, fsRestClient)
+	dataReduction := pool.PoolMDiskgrpInfo[DataReductionKey].(string) == "yes"
+	compressionEnabled, err := isCompressionEnabled(pool.PoolMDiskgrpInfo[MdiskNameKey].(string), mDisksList, fsRestClient)
 	if err != nil {
 		log.Errorf("Failed to determine internal or external pool: %s", err)
 		return InvalidVal, err
 	}
 
-	internalStorage := isInternalStorage == 1
-	arrayMode := isPoolArrayMode(pool[MdiskNameKey].(string), mDisksList)
-
-	if compressionEnabled && dataReduction && internalStorage && arrayMode {
-		reclaimable, err = calcReducedReclaimableCapacityForPool(pool, fsRestClient, mDisksList)
+	if compressionEnabled && dataReduction && pool.InternalStorage && pool.ArrayMode {
+		reclaimable, err = calcReducedReclaimableCapacityForPool(pool.PoolMDiskgrpInfo, fsRestClient, mDisksList)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
 			return InvalidVal, err
 		}
 	} else {
-		poolOrigReclaimable, err := strconv.ParseFloat(pool[ReclaimableKey].(string), 64)
+		poolOrigReclaimable, err := strconv.ParseFloat(pool.PoolMDiskgrpInfo[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
 			return InvalidVal, err
@@ -532,10 +508,10 @@ func GetPoolReclaimablePhysicalCapacity(pool Pool, fsRestClient *rest.FSRestClie
 	return reclaimable, nil
 }
 
-func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, pool Pool, poolInfo PoolInfo) {
+func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
 	// TODO:ticket #42 - expose total saving per system
 
-	drpool := pool[DataReductionKey].(string) == "yes"
+	drpool := poolInfo.PoolMDiskgrpInfo[DataReductionKey].(string) == "yes"
 
 	physicalFree := float64(0)
 	physical := float64(0)
@@ -549,12 +525,12 @@ func createTotalSavingPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector,
 	var totalSaving float64
 	var realCapacity float64
 
-	virtual, err := strconv.ParseFloat(pool[VirtualCapacityKey].(string), 64)
+	virtual, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[VirtualCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get virtual capacity failed: %s", err)
 	}
 
-	realCap, err := strconv.ParseFloat(pool[RealCapacityKey].(string), 64)
+	realCap, err := strconv.ParseFloat(poolInfo.PoolMDiskgrpInfo[RealCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get real capacity failed: %s", err)
 	}
@@ -580,6 +556,13 @@ func newPoolCapacityMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 }
 
 func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value float64, info *PoolInfo) {
+	var internalStorage int
+	if info.InternalStorage {
+		internalStorage = 1
+	} else {
+		internalStorage = 0
+	}
+
 	ch <- prometheus.MustNewConstMetric(
 		desc,
 		prometheus.GaugeValue,
@@ -588,7 +571,7 @@ func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 		fmt.Sprintf("%d", info.PoolId),
 		info.PoolName,
 		info.StorageClass,
-		fmt.Sprintf("%d", info.InternalStorage),
+		fmt.Sprintf("%d", internalStorage),
 	)
 }
 
