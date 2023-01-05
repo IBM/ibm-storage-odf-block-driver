@@ -146,6 +146,7 @@ func IsPoolFromInternalStorage(poolName string, disksList rest.MDisksList) bool 
 	for _, disk := range disksList {
 		if poolName == disk[MdiskGroupNameKey].(string) {
 			if disk[ControllerNameKey].(string) != "" {
+				log.Infof("pool %s has controller %s", poolName, disk[ControllerNameKey].(string))
 				return false
 			}
 		}
@@ -269,6 +270,8 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 		pool.PoolName = pool.PoolMDiskgrpInfo[MdiskNameKey].(string)
 		if _, bHas := poolNames[pool.PoolName]; bHas {
 			poolNames[pool.PoolName] = pool.PoolId
+		} else {
+			continue // Skip. Not used in StorageClass
 		}
 
 		scnames := manager.GetSCNameByPoolName(pool.PoolName)

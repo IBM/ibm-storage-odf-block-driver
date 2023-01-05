@@ -197,6 +197,7 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
 	systemInfo.isInternalStorage = isAllInternalStorage(PoolsInfoList)
+	log.Infof("for system %s returned %d for internalStorage", systemInfo.Name, systemInfo.isInternalStorage)
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
 	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, fsRestClient, PoolsInfoList, mdisksList)
@@ -280,17 +281,12 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 }
 
 func isAllInternalStorage(PoolsInfoList []PoolInfo) int {
-	var isInternalStorage = true
-
 	for _, pool := range PoolsInfoList {
-		isInternalStorage = isInternalStorage && pool.InternalStorage
+		if !pool.InternalStorage {
+			return 0
+		}
 	}
-
-	if isInternalStorage {
-		return 1
-	} else {
-		return 0
-	}
+	return 1
 }
 
 func calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient, mDisksList rest.MDisksList, PoolsInfoList []PoolInfo) (float64, error) {

@@ -540,11 +540,11 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 			`[
 				{
 					"id": "9",
-					"name": "mdisk9",
+					"name": "mdisk5",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool5",
 					"capacity": "1099511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
@@ -554,11 +554,11 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 				},
 				{
 					"id": "10",
-					"name": "mdisk1",
+					"name": "mdisk6",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool6",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
@@ -568,31 +568,31 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 				},
 				{
 					"id": "11",
-					"name": "mdisk1",
+					"name": "mdisk7",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "9",
-					"mdisk_grp_name": "Pool9",
+					"mdisk_grp_name": "Pool7",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
 					"effective_used_capacity": "1099511627776",
-					"controller_name": "controller0"
+					"controller_name": ""
 				},
 				{
 					"id": "12",
-					"name": "mdisk1",
+					"name": "mdisk8",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "2",
-					"mdisk_grp_name": "Pool2",
+					"mdisk_grp_name": "Pool8",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
 					"effective_used_capacity": "",
-					"controller_name": "controller0"
+					"controller_name": ""
 				}
 			]`
 	case "/lsmdisk/9":
