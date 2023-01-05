@@ -105,35 +105,35 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	f.systems = updatedSystems
 
 	for systemName, fsRestClient := range f.systems {
-		var PoolsInfoList []PoolInfo
-		pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
+		var poolsInfoList []PoolInfo
+		pools, mDisksList, err := getSystemPoolsAndMDisks(fsRestClient)
 		if err != nil {
 			log.Errorf("get pools or mdisks failed: %v", err)
 			return
 		}
 		for _, pool := range pools {
-			poolinfo := PoolInfo{}
-			poolinfo.PoolName = pool[MdiskNameKey].(string)
-			poolinfo.PoolMDiskList, err = getMDisksForPool(fsRestClient, poolinfo.PoolName, mDisksList)
+			poolInfo := PoolInfo{}
+			poolInfo.PoolName = pool[MdiskNameKey].(string)
+			poolInfo.PoolMDisksList, err = getPoolMDisks(fsRestClient, poolInfo.PoolName, mDisksList)
 			if err != nil {
 				log.Errorf("get mdisks for pool failed: %v", err)
 				return
 			}
-			poolinfo.InternalStorage = IsPoolFromInternalStorage(poolinfo)
-			poolinfo.CompressionEnabled = IsCompressionEnabled(poolinfo)
-			poolinfo.ArrayMode = IsPoolArrayMode(poolinfo)
-			poolinfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
-			poolinfo.PoolMDiskgrpInfo = pool
-			PoolsInfoList = append(PoolsInfoList, poolinfo)
+			poolInfo.IsInternalStorage = IsPoolFromInternalStorage(poolInfo)
+			poolInfo.IsCompressionEnabled = IsCompressionEnabled(poolInfo)
+			poolInfo.IsArrayMode = IsPoolArrayMode(poolInfo)
+			poolInfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
+			poolInfo.PoolMDiskGrpInfo = pool
+			poolsInfoList = append(poolsInfoList, poolInfo)
 		}
 
 		log.Info("Collect metrics for ", systemName)
-		f.collectSystemMetrics(ch, fsRestClient, PoolsInfoList)
+		f.collectSystemMetrics(ch, fsRestClient, poolsInfoList)
 
 		valid, _ := fsRestClient.CheckVersion()
 		if valid && len(fsRestClient.DriverManager.GetPoolNames()) > 0 {
 			// Skip unsupported version when generate pool metrics
-			f.collectPoolMetrics(ch, fsRestClient, PoolsInfoList)
+			f.collectPoolMetrics(ch, fsRestClient, poolsInfoList)
 		}
 
 	}
@@ -142,7 +142,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	// ch <- f.failedScrapes
 }
 
-func getPoolAndMdisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDisksList, error) {
+func getSystemPoolsAndMDisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDisksList, error) {
 	var pools rest.PoolList
 	var mDisksList rest.MDisksList
 	pools, err := fsRestClient.Lsmdiskgrp()
@@ -159,18 +159,18 @@ func getPoolAndMdisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDis
 	return pools, mDisksList, nil
 }
 
-func getMDisksForPool(fsRestClient *rest.FSRestClient, poolName string, disksList rest.MDisksList) ([]rest.SingleMDiskInfo, error) {
-	var disksInPool []rest.SingleMDiskInfo
-	for _, disk := range disksList {
-		if poolName == disk[MdiskGroupNameKey].(string) {
-			diskId, _ := strconv.Atoi(disk[MdiskIdKey].(string))
-			MDisksInfo, err := fsRestClient.LsSingleMDisk(diskId)
+func getPoolMDisks(fsRestClient *rest.FSRestClient, poolName string, mDisksList rest.MDisksList) ([]rest.SingleMDiskInfo, error) {
+	var mDisksInPool []rest.SingleMDiskInfo
+	for _, mDisk := range mDisksList {
+		if poolName == mDisk[MdiskGroupNameKey].(string) {
+			mDiskId, _ := strconv.Atoi(mDisk[MdiskIdKey].(string))
+			mDiskInfo, err := fsRestClient.LsSingleMDisk(mDiskId)
 			if err != nil {
 				log.Errorf("get single mdisk info error: %v", err)
-				return disksInPool, err
+				return mDisksInPool, err
 			}
-			disksInPool = append(disksInPool, MDisksInfo)
+			mDisksInPool = append(mDisksInPool, mDiskInfo)
 		}
 	}
-	return disksInPool, nil
+	return mDisksInPool, nil
 }
