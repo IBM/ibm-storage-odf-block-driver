@@ -151,6 +151,7 @@ func IsPoolFromInternalStorage(poolName string, disksList rest.MDisksList) bool 
 			}
 		}
 	}
+	log.Infof("pool %s has no controller", poolName)
 	return true
 }
 
