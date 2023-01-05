@@ -120,6 +120,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 				return
 			}
 			poolinfo.InternalStorage = IsPoolFromInternalStorage(poolinfo)
+			poolinfo.CompressionEnabled = IsCompressionEnabled(poolinfo)
 			poolinfo.ArrayMode = IsPoolArrayMode(poolinfo)
 			poolinfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
 			poolinfo.PoolMDiskgrpInfo = pool

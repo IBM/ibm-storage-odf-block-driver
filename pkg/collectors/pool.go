@@ -129,6 +129,7 @@ type PoolInfo struct {
 	InternalStorage          bool
 	ArrayMode                bool
 	PoolMDiskgrpInfo         Pool
+	CompressionEnabled       bool
 	PoolMDiskList            []rest.SingleMDiskInfo
 }
 
@@ -152,7 +153,7 @@ func IsPoolFromInternalStorage(info PoolInfo) bool {
 	return true
 }
 
-func isCompressionEnabled(info PoolInfo) bool {
+func IsCompressionEnabled(info PoolInfo) bool {
 	for _, MDiskInfo := range info.PoolMDiskList {
 		if MDiskInfo[MdiskEffectiveUsedCapacity].(string) == "" {
 			return false
@@ -460,9 +461,8 @@ func GetPoolReclaimablePhysicalCapacity(pool PoolInfo) (float64, error) {
 	var reclaimable float64
 	var err error
 	dataReduction := pool.PoolMDiskgrpInfo[DataReductionKey].(string) == "yes"
-	compressionEnabled := isCompressionEnabled(pool)
 
-	if compressionEnabled && dataReduction && pool.InternalStorage && pool.ArrayMode {
+	if pool.CompressionEnabled && dataReduction && pool.InternalStorage && pool.ArrayMode {
 		reclaimable, err = calcReducedReclaimableCapacityForPool(pool)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
