@@ -109,6 +109,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 		pools, mDisksList, err := getPoolAndMdisks(fsRestClient)
 		if err != nil {
 			log.Errorf("get pools or mdisks failed: %v", err)
+			return
 		}
 		for _, pool := range pools {
 			poolinfo := PoolInfo{}
@@ -116,6 +117,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 			poolinfo.PoolMDiskList, err = getMDisksForPool(fsRestClient, poolinfo.PoolName, mDisksList)
 			if err != nil {
 				log.Errorf("get mdisks for pool failed: %v", err)
+				return
 			}
 			poolinfo.InternalStorage = IsPoolFromInternalStorage(poolinfo)
 			poolinfo.ArrayMode = IsPoolArrayMode(poolinfo)
