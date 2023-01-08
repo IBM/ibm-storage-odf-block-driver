@@ -21,6 +21,7 @@ import (
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	"github.com/prometheus/client_golang/prometheus"
 	log "k8s.io/klog"
+	"strconv"
 )
 
 type PerfCollector struct {
@@ -104,17 +105,72 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 	f.systems = updatedSystems
 
 	for systemName, fsRestClient := range f.systems {
+		var poolsInfoList []PoolInfo
+		pools, mDisksList, err := getSystemPoolsAndMDisks(fsRestClient)
+		if err != nil {
+			log.Errorf("get pools or mdisks failed: %v", err)
+			return
+		}
+		for _, pool := range pools {
+			poolInfo := PoolInfo{}
+			poolInfo.PoolName = pool[MdiskNameKey].(string)
+			poolInfo.PoolMDisksList, err = getPoolMDisks(fsRestClient, poolInfo.PoolName, mDisksList)
+			if err != nil {
+				log.Errorf("get mdisks for pool failed: %v", err)
+				return
+			}
+			poolInfo.IsInternalStorage = IsPoolFromInternalStorage(poolInfo)
+			poolInfo.IsCompressionEnabled = IsCompressionEnabled(poolInfo)
+			poolInfo.IsArrayMode = IsPoolArrayMode(poolInfo)
+			poolInfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
+			poolInfo.PoolMDiskGrpInfo = pool
+			poolsInfoList = append(poolsInfoList, poolInfo)
+		}
+
 		log.Info("Collect metrics for ", systemName)
-		f.collectSystemMetrics(ch, fsRestClient)
+		f.collectSystemMetrics(ch, fsRestClient, poolsInfoList)
 
 		valid, _ := fsRestClient.CheckVersion()
 		if valid && len(fsRestClient.DriverManager.GetPoolNames()) > 0 {
 			// Skip unsupported version when generate pool metrics
-			f.collectPoolMetrics(ch, fsRestClient)
+			f.collectPoolMetrics(ch, fsRestClient, poolsInfoList)
 		}
 
 	}
 	// ch <- f.scrapeDuration
 	// ch <- f.totalScrapes
 	// ch <- f.failedScrapes
+}
+
+func getSystemPoolsAndMDisks(fsRestClient *rest.FSRestClient) (rest.PoolList, rest.MDisksList, error) {
+	var pools rest.PoolList
+	var mDisksList rest.MDisksList
+	pools, err := fsRestClient.Lsmdiskgrp()
+	if err != nil {
+		log.Errorf("get pool list error: %v", err)
+		return pools, mDisksList, err
+	}
+
+	mDisksList, err = fsRestClient.LsAllMDisk()
+	if err != nil {
+		log.Errorf("get disk list error: %v", err)
+		return pools, mDisksList, err
+	}
+	return pools, mDisksList, nil
+}
+
+func getPoolMDisks(fsRestClient *rest.FSRestClient, poolName string, mDisksList rest.MDisksList) ([]rest.SingleMDiskInfo, error) {
+	var mDisksInPool []rest.SingleMDiskInfo
+	for _, mDisk := range mDisksList {
+		if poolName == mDisk[MdiskGroupNameKey].(string) {
+			mDiskId, _ := strconv.Atoi(mDisk[MdiskIdKey].(string))
+			mDiskInfo, err := fsRestClient.LsSingleMDisk(mDiskId)
+			if err != nil {
+				log.Errorf("get single mdisk info error: %v", err)
+				return mDisksInPool, err
+			}
+			mDisksInPool = append(mDisksInPool, mDiskInfo)
+		}
+	}
+	return mDisksInPool, nil
 }
