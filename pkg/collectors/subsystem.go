@@ -17,6 +17,7 @@
 package collectors
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -62,7 +63,7 @@ const (
 
 var (
 	// Metadata label
-	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version"}
+	subsystemMetadataLabel = []string{"subsystem_name", "vendor", "model", "version", "is_internal_storage"}
 
 	// Other label
 	subsystemCommonLabel = []string{"subsystem_name"}
@@ -114,10 +115,11 @@ var (
 )
 
 type SystemInfo struct {
-	Name    string
-	Vendor  string
-	Model   string
-	Version string
+	Name              string
+	Vendor            string
+	Model             string
+	Version           string
+	isInternalStorage int
 }
 
 type SystemName struct {
@@ -151,7 +153,7 @@ func (f *PerfCollector) initSubsystemDescs() {
 	}
 }
 
-func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient) bool {
+func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRestClient *rest.FSRestClient, poolsInfoList []PoolInfo) bool {
 
 	// timer := prometheus.NewTimer(f.scrapeDuration)
 	// defer timer.ObserveDuration()
@@ -193,9 +195,10 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	systemInfo.Vendor = names[0]
 	model := strings.TrimPrefix(productStr, names[0])
 	systemInfo.Model = strings.TrimSpace(model)
+	systemInfo.isInternalStorage = isAllInternalStorage(poolsInfoList)
 	newSystemMetrics(ch, f.sysInfoDescriptors[SystemMetadata], 0, &systemInfo)
 
-	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, fsRestClient)
+	f.createSystemPhysicalCapacityMetrics(ch, sysInfoResults, systemName, poolsInfoList)
 
 	// Determine the health 0 = OK, 1 = warning, 2 = error
 	bReady, err := fsRestClient.CheckFlashsystemClusterState()
@@ -244,7 +247,8 @@ func (f *PerfCollector) collectSystemMetrics(ch chan<- prometheus.Metric, fsRest
 	return true
 }
 
-func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem, systemName SystemName, fsRestClient *rest.FSRestClient) {
+func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus.Metric, sysInfoResults rest.StorageSystem,
+	systemName SystemName, poolsInfoList []PoolInfo) {
 	// [lssystem]: physical_capacity
 	physicalTotalCapacity, err := strconv.ParseFloat(sysInfoResults[PhysicalTotalCapacityKey].(string), 64)
 	if err != nil {
@@ -257,7 +261,7 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 		log.Errorf("get system physical usable capacity failed: %s", err)
 		return
 	}
-	physicalReclaimableCapacity, err := f.calcSystemReclaimableCapacity(fsRestClient)
+	physicalReclaimableCapacity, err := calcSystemReclaimableCapacity(poolsInfoList)
 	//physicalReclaimableCapacity, err := strconv.ParseFloat(sysInfoResults[ReclaimableCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get system physical reclaimable capacity failed: %s", err)
@@ -274,22 +278,19 @@ func (f *PerfCollector) createSystemPhysicalCapacityMetrics(ch chan<- prometheus
 	newSystemCapacityMetrics(ch, f.sysCapacityDescriptors[SystemPhysicalFreeCapacity], physicalFreeCapacity, &systemName)
 }
 
-func (f *PerfCollector) calcSystemReclaimableCapacity(fsRestClient *rest.FSRestClient) (float64, error) {
+func isAllInternalStorage(poolsInfoList []PoolInfo) int {
+	for _, pool := range poolsInfoList {
+		if !pool.IsInternalStorage {
+			return 0
+		}
+	}
+	return 1
+}
+
+func calcSystemReclaimableCapacity(poolsInfoList []PoolInfo) (float64, error) {
 	var totalSystemReclaimable float64
-	pools, err := fsRestClient.Lsmdiskgrp()
-	if err != nil {
-		log.Errorf("get pool list error: %v", err)
-		return InvalidVal, err
-	}
-
-	mDisksList, err := fsRestClient.LsAllMDisk()
-	if err != nil {
-		log.Errorf("get disk list error: %v", err)
-		return InvalidVal, err
-	}
-
-	for _, pool := range pools {
-		poolReclaimable, err := f.GetPoolReclaimablePhysicalCapacity(pool, fsRestClient, mDisksList)
+	for _, currentPool := range poolsInfoList {
+		poolReclaimable, err := GetPoolReclaimablePhysicalCapacity(currentPool)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
 			return InvalidVal, err
@@ -308,6 +309,7 @@ func newSystemMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, value 
 		info.Vendor,
 		info.Model,
 		info.Version,
+		fmt.Sprintf("%d", info.isInternalStorage),
 	)
 }
 

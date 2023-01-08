@@ -252,8 +252,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 		body =
 			`[
 				{
-					"id": "9",
-					"name": "mdisk9",
+					"id": "0",
+					"name": "mdisk0",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
@@ -266,26 +266,12 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"controller_name": "controller0"
 				},
 				{
-					"id": "10",
+					"id": "1",
 					"name": "mdisk1",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
-					"capacity": "1090009511627776",
-					"physical_capacity": "1099511627776",
-					"physical_free_capacity": "777389080576",
-					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776",
-					"controller_name": "controller0"
-				},
-				{
-					"id": "11",
-					"name": "mdisk1",
-					"status": "online",
-					"mode": "managed",
-					"mdisk_grp_id": "9",
-					"mdisk_grp_name": "Pool9",
+					"mdisk_grp_name": "Pool1",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
@@ -294,8 +280,22 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"controller_name": ""
 				},
 				{
-					"id": "12",
-					"name": "mdisk1",
+					"id": "2",
+					"name": "mdisk2",
+					"status": "online",
+					"mode": "managed",
+					"mdisk_grp_id": "9",
+					"mdisk_grp_name": "Pool2",
+					"capacity": "1090009511627776",
+					"physical_capacity": "1099511627776",
+					"physical_free_capacity": "777389080576",
+					"allocated_capacity": "322122547200",
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
+				},
+				{
+					"id": "3",
+					"name": "mdisk3",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "2",
@@ -308,10 +308,10 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"controller_name": ""
 				}
 			]`
-	case "/lsmdisk/9":
+	case "/lsmdisk/0":
 		body = `{
-					"id": "9",
-					"name": "mdisk9",
+					"id": "0",
+					"name": "mdisk0",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
@@ -320,42 +320,45 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": "controller0"
 				}`
-	case "/lsmdisk/10":
+	case "/lsmdisk/1":
 		body = `{
-					"id": "10",
+					"id": "1",
 					"name": "mdisk1",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool1",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				}`
-	case "/lsmdisk/11":
+	case "/lsmdisk/2":
 		body =
 			`{
-					"id": "11",
-					"name": "mdisk1",
+					"id": "2",
+					"name": "mdisk2",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "9",
-					"mdisk_grp_name": "Pool9",
+					"mdisk_grp_name": "Pool2",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				}`
-	case "/lsmdisk/12":
+	case "/lsmdisk/3":
 		body =
 			`{
-					"id": "12",
-					"name": "mdisk1",
+					"id": "3",
+					"name": "mdisk3",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "2",
@@ -364,7 +367,8 @@ func poster(req *http.Request, c *rest.FSRestClient) ([]byte, int, error) {
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": ""
+					"effective_used_capacity": "",
+					"controller_name": ""
 				}`
 	}
 	return []byte(body), 200, nil
@@ -540,11 +544,11 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 			`[
 				{
 					"id": "9",
-					"name": "mdisk9",
+					"name": "mdisk5",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool5",
 					"capacity": "1099511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
@@ -554,11 +558,11 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 				},
 				{
 					"id": "10",
-					"name": "mdisk1",
+					"name": "mdisk6",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool6",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
@@ -568,31 +572,31 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 				},
 				{
 					"id": "11",
-					"name": "mdisk1",
+					"name": "mdisk7",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "9",
-					"mdisk_grp_name": "Pool9",
+					"mdisk_grp_name": "Pool7",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
 					"effective_used_capacity": "1099511627776",
-					"controller_name": "controller0"
+					"controller_name": ""
 				},
 				{
 					"id": "12",
-					"name": "mdisk1",
+					"name": "mdisk8",
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "2",
-					"mdisk_grp_name": "Pool2",
+					"mdisk_grp_name": "Pool8",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
 					"effective_used_capacity": "",
-					"controller_name": "controller0"
+					"controller_name": ""
 				}
 			]`
 	case "/lsmdisk/9":
@@ -602,12 +606,13 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool5",
 					"capacity": "1099511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				}`
 	case "/lsmdisk/10":
 		body = `{
@@ -616,12 +621,13 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"status": "online",
 					"mode": "managed",
 					"mdisk_grp_id": "3",
-					"mdisk_grp_name": "Pool0",
+					"mdisk_grp_name": "Pool6",
 					"capacity": "1090009511627776",
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				}`
 	case "/lsmdisk/11":
 		body =
@@ -636,7 +642,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": "1099511627776"
+					"effective_used_capacity": "1099511627776",
+					"controller_name": ""
 				}`
 	case "/lsmdisk/12":
 		body =
@@ -651,7 +658,8 @@ func posterSecondSystem(req *http.Request, c *rest.FSRestClient) ([]byte, int, e
 					"physical_capacity": "1099511627776",
 					"physical_free_capacity": "777389080576",
 					"allocated_capacity": "322122547200",
-					"effective_used_capacity": ""
+					"effective_used_capacity": "",
+					"controller_name": ""
 				}`
 	}
 	return []byte(body), 200, nil
@@ -784,16 +792,16 @@ func TestMetrics(t *testing.T) {
 
 	# HELP flashsystem_pool_metadata Pool metadata
 	# TYPE flashsystem_pool_metadata gauge
-	flashsystem_pool_metadata{pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
-	flashsystem_pool_metadata{pool_id="5",pool_name="Pool5",storageclass="fs-second-sc-1",subsystem_name="FS-system-name-second"} 0
-	flashsystem_pool_metadata{pool_id="6",pool_name="Pool6",storageclass="fs-second-sc-2",subsystem_name="FS-system-name-second"} 0
+	flashsystem_pool_metadata{is_internal_storage="0",pool_id="0",pool_name="Pool0",storageclass="fs-sc-1,fs-sc-default",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="1",pool_name="Pool1",storageclass="fs-sc-2,fs-sc-3",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="2",pool_name="Pool2",storageclass="fs-sc-4",subsystem_name="FS-system-name"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="5",pool_name="Pool5",storageclass="fs-second-sc-1",subsystem_name="FS-system-name-second"} 0
+	flashsystem_pool_metadata{is_internal_storage="1",pool_id="6",pool_name="Pool6",storageclass="fs-second-sc-2",subsystem_name="FS-system-name-second"} 0
 
 	# HELP flashsystem_subsystem_metadata System information
 	# TYPE flashsystem_subsystem_metadata gauge
-	flashsystem_subsystem_metadata{model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
-	flashsystem_subsystem_metadata{model="FlashSystem 9200",subsystem_name="FS-system-name-second",vendor="IBM",version="8.5.2.0"} 0
+	flashsystem_subsystem_metadata{is_internal_storage="0",model="SAN Volume Controller",subsystem_name="FS-system-name",vendor="IBM",version="8.4.0.2"} 0
+	flashsystem_subsystem_metadata{is_internal_storage="1",model="FlashSystem 9200",subsystem_name="FS-system-name-second",vendor="IBM",version="8.5.2.0"} 0
 
 	# HELP flashsystem_subsystem_health System health
 	# TYPE flashsystem_subsystem_health gauge
@@ -802,8 +810,8 @@ func TestMetrics(t *testing.T) {
 	
 	# HELP flashsystem_subsystem_response System response
     # TYPE flashsystem_subsystem_response gauge
-	flashsystem_subsystem_response{model="",subsystem_name="FS-system-name",vendor="",version=""} 1
-    flashsystem_subsystem_response{model="",subsystem_name="FS-system-name-second",vendor="",version=""} 1
+	flashsystem_subsystem_response{is_internal_storage="0",model="",subsystem_name="FS-system-name",vendor="",version="",} 1
+    flashsystem_subsystem_response{is_internal_storage="0", model="",subsystem_name="FS-system-name-second",vendor="",version=""} 1
 
 	# HELP flashsystem_subsystem_latency_seconds overall performance - average latency seconds
 	# TYPE flashsystem_subsystem_latency_seconds gauge
