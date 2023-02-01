@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"reflect"
@@ -42,15 +41,15 @@ type Config struct {
 }
 
 const (
-	FailedEventTheshold = time.Minute * 2 // 2 minutes
+	FailedEventThreshold = time.Minute * 2 // 2 minutes
 )
 
 type FSRestClient struct {
-	Client     *http.Client
-	RestConfig Config
-	BaseURL    string
-	token      *string // use nil as invalid token
-
+	Client        *http.Client
+	RestConfig    Config
+	BaseURL       string
+	token         *string // use nil as invalid token
+	DriverManager *drivermanager.DriverManager
 	PostRequester *Requester
 
 	failedTime time.Time
@@ -68,7 +67,7 @@ func NewRequester(p Poster) *Requester {
 	return &Requester{poster: p}
 }
 
-func NewFSRestClient(config *Config) (*FSRestClient, error) {
+func (c *FSRestClient) NewFSRestClient(config Config, driverManager *drivermanager.DriverManager) (*FSRestClient, error) {
 	tr := &http.Transport{
 		// #nosec
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -84,26 +83,27 @@ func NewFSRestClient(config *Config) (*FSRestClient, error) {
 		Transport: tr,
 	}
 
-	c := &FSRestClient{
+	cl := &FSRestClient{
 		Client:        client,
 		BaseURL:       fmt.Sprintf("https://%s:7443/rest", config.Host),
-		RestConfig:    *config,
+		RestConfig:    config,
 		token:         nil,
+		DriverManager: driverManager,
 		PostRequester: NewRequester(doRequest),
 	}
 
-	if err := c.authenticate(); err != nil {
+	if err := cl.authenticate(); err != nil {
 		return nil, err
 	}
 
-	return c, nil
+	return cl, nil
 }
 
 type authenResult map[string]interface{}
 
 func (c *FSRestClient) authenticate() error {
-	if !c.bNotified && !c.failedTime.Equal(time.Time{}) && time.Since(c.failedTime) > FailedEventTheshold {
-		mgr, _ := drivermanager.GetManager()
+	if !c.bNotified && !c.failedTime.Equal(time.Time{}) && time.Since(c.failedTime) > FailedEventThreshold {
+		mgr := c.DriverManager
 		if mgr != nil {
 			if err := mgr.SendK8sEvent(corev1.EventTypeWarning, drivermanager.AuthFailure, drivermanager.AuthFailureMessage); err == nil {
 				c.bNotified = true
@@ -143,7 +143,7 @@ func (c *FSRestClient) authenticate() error {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		if c.failedTime.Equal(time.Time{}) {
 			c.failedTime = time.Now()
@@ -179,7 +179,7 @@ func (c *FSRestClient) authenticate() error {
 	c.token = &tokenStr
 
 	if c.bNotified {
-		mgr, _ := drivermanager.GetManager()
+		mgr := c.DriverManager
 		if mgr != nil {
 			if err = mgr.SendK8sEvent(corev1.EventTypeNormal, drivermanager.AuthSuccess, drivermanager.AuthSuccessMessage); err == nil {
 				c.bNotified = false
@@ -249,14 +249,15 @@ func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	return body, resp.StatusCode, err
 }
 
 type StorageSystem map[string]interface{}
 
 func (c *FSRestClient) Lssystem() (StorageSystem, error) {
-	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), "")
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lssystem"), jsonStr)
 	if err != nil {
 		return nil, err
 	}
@@ -333,9 +334,57 @@ func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {
 
 	var stats PoolList
 	if err = json.Unmarshal(body, &stats); err != nil {
-		log.Errorf("lsmdiskgrp err %v, body %s", err, body)
+		log.Errorf("Lsmdiskgrp err %v, body %s", err, body)
 		return nil, err
 	}
 
 	return stats, nil
+}
+
+type MDisksList []map[string]interface{}
+
+func (c *FSRestClient) LsAllMDisk() (MDisksList, error) {
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s", c.BaseURL, "lsmdisk"), jsonStr)
+	if err != nil {
+		return nil, err
+	}
+
+	var stats MDisksList
+	if err = json.Unmarshal(body, &stats); err != nil {
+		log.Errorf("Lsmdisk for list err %v, body %s", err, body)
+		return nil, err
+	}
+
+	return stats, nil
+}
+
+type SingleMDiskInfo map[string]interface{}
+
+func (c *FSRestClient) LsSingleMDisk(diskID int) (SingleMDiskInfo, error) {
+	jsonStr := `{"gui":true,"bytes":true}`
+	body, err := c.retryDo(fmt.Sprintf("%s/%s/%d", c.BaseURL, "lsmdisk", diskID), jsonStr)
+	if err != nil {
+		return nil, err
+	}
+
+	var stats SingleMDiskInfo
+	if err = json.Unmarshal(body, &stats); err != nil {
+		log.Errorf("Lsmdisk for single disk err %v, body %s", err, body)
+		return nil, err
+	}
+
+	return stats, nil
+}
+
+func (c *FSRestClient) UpdateCredentials(newConfig Config) error {
+	if !reflect.DeepEqual(newConfig, c.RestConfig) {
+		c.RestConfig = newConfig
+		if err := c.authenticate(); err != nil {
+			log.Errorf("Failed to authenticate rest server, err:%v", err)
+			return err
+		}
+	}
+	return nil
+
 }

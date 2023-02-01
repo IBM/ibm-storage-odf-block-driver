@@ -18,155 +18,67 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"k8s.io/klog"
-
-	"k8s.io/apimachinery/pkg/runtime"
-	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
-
-	drivermanager "github.com/IBM/ibm-storage-odf-block-driver/pkg/driver"
+	clientmanagers "github.com/IBM/ibm-storage-odf-block-driver/pkg/managers"
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/prome"
 	"github.com/IBM/ibm-storage-odf-block-driver/pkg/rest"
 	operatorapi "github.com/IBM/ibm-storage-odf-operator/api/v1alpha1"
-	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	log "k8s.io/klog"
+	"os"
+	"os/signal"
+	"syscall"
 )
-
-var scheme = runtime.NewScheme()
-
-func init() {
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(operatorapi.AddToScheme(scheme))
-}
 
 const (
-	EnvUserName = "USERNAME"
-	EnvPassword = "PASSWORD"
-	EnvRestAddr = "REST_API_IP"
+	EnvNamespaceName = "WATCH_NAMESPACE"
 )
 
-func getRestConfigFromEnv() (*rest.Config, error) {
-	envVars := map[string]string{
-		EnvUserName: "",
-		EnvPassword: "",
-		EnvRestAddr: "",
-	}
-
-	for k := range envVars {
-		if value, ok := os.LookupEnv(k); ok {
-			envVars[k] = value
-		} else {
-			return nil, fmt.Errorf("Required env variable: '%s' isn't found", k)
-		}
-	}
-
-	restConfig := &rest.Config{
-		Host:     envVars[EnvRestAddr],
-		Username: envVars[EnvUserName],
-		Password: envVars[EnvPassword],
-	}
-
-	return restConfig, nil
+func init() {
+	utilruntime.Must(clientgoscheme.AddToScheme(clientmanagers.Scheme))
+	utilruntime.Must(operatorapi.AddToScheme(clientmanagers.Scheme))
 }
 
 func main() {
-	klog.InitFlags(nil)
+	log.InitFlags(nil)
 
-	scPoolMap, err := operutil.GetPoolConfigmapContent()
+	namespace, err := getOperatorNamespace()
 	if err != nil {
-		klog.Errorf("Read pool configmap failed, error: %s", err)
-		panic(err)
-	} else {
-		klog.Infof("Read pool configmap %v", scPoolMap)
+		os.Exit(1)
 	}
 
-	var valid bool
-	mgr, err := drivermanager.NewManager(scheme, scPoolMap.ScPool)
-	if err != nil {
-		klog.Errorf("Initialize mamager failed, error: %s", err)
-		panic(err)
-	}
-
-	restConfig, err := getRestConfigFromEnv()
-	if err != nil {
-		klog.Error(err)
-		panic(err)
-	}
-
-	restClient, err := rest.NewFSRestClient(restConfig)
-	if err != nil {
-		// Update condition
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.AuthFailure, drivermanager.AuthFailureMessage)
-		klog.Errorf("Fail to initialize rest client, error: %s", err)
-		goto error_out
-	}
-
-	valid, err = restClient.CheckVersion()
-	if err != nil {
-		klog.Errorf("Flash system version check hit error: %s", err)
-		// Update condition
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RestFailure, drivermanager.RestErrorMessage)
-		goto error_out
-	} else if !valid {
-		klog.Error("Flash system version invalid")
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.VersionCheckFailed, drivermanager.VersionCheckErrMessage)
-		goto error_out
-	}
-
-	// Print the user role in log.
-	valid, err = restClient.CheckUserRole()
-	if err != nil {
-		klog.Errorf("Flash system user role check hit errors: %s", err)
-		// Update condition
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RestFailure, drivermanager.RestErrorMessage)
-		goto error_out
-	} else if !valid {
-		klog.Error("Flash system user role invalid")
-		// Update condition
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RoleCheckFailed, drivermanager.RoleCheckErrMessage)
-		goto error_out
-	}
-
-	// ready, err = restClient.CheckFlashsystemClusterState()
-	// if err != nil {
-	// 	klog.Errorf("Flash system cluster state check hit errors: %s", err)
-	// 	// Update condition
-	// 	var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.RestFailure, drivermanager.RestErrorMessage)
-	// 	goto error_out
-	// } else if !ready {
-	// 	klog.Error("Flash system cluster is not online")
-	// 	// Update condition
-	// 	var _ = mgr.UpdateCondition(operatorapi.ExporterReady, false, drivermanager.ClusterNotOnline, drivermanager.ClusterErrMessage)
-	// 	goto error_out
-	// } else {
-	// 	klog.Info("Flash system cluster ready")
-	// }
-
-	// Update ready condition
-	{
-		var _ = mgr.UpdateCondition(operatorapi.ExporterReady, true, "", "")
-		var _ = mgr.UpdateCondition(operatorapi.StorageClusterReady, true, "", "")
-		klog.Info("Exporter check done, ready to serve")
+	systems, err := clientmanagers.GetManagers(namespace, make(map[string]*rest.FSRestClient))
+	if err != nil || len(systems) == 0 {
+		log.Error("Could not create managers")
+		os.Exit(1)
 	}
 
 	// TODO: handle pod terminating signal
-	go prome.RunExporter(restClient, mgr.GetSubsystemName(), mgr.GetNamespaceName())
+	go prome.RunExporter(systems, namespace)
+	waitForSignal()
 
-error_out:
+}
+
+func waitForSignal() {
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	klog.Info("Awaiting signal to exit")
+	log.Info("Awaiting signal to exit")
 	go func() {
 		sig := <-sigs
-		klog.Infof("Received signal: %+v, clean up...", sig)
+		log.Infof("Received signal: %+v, clean up...", sig)
 		done <- true
 	}()
 
 	// exiting
 	<-done
-	klog.Info("Exiting")
+	log.Info("Exiting")
+}
+
+func getOperatorNamespace() (string, error) {
+	if value, ok := os.LookupEnv(EnvNamespaceName); ok {
+		return value, nil
+	} else {
+		return "", fmt.Errorf("required env variable: '%s' isn't found", EnvNamespaceName)
+	}
 }

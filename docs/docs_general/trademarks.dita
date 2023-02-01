@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE reference PUBLIC "-//IBM//DTD DITA IBM Reference//EN"
+ "ibm-reference.dtd">
+<?Pub Sty _display FontColor="red"?>
+<?Pub Inc?>
+<reference id="mlt_trademarks_1b1d3g" xml:lang="en-us">
+<title>Trademarks</title>
+<?Pub Caret -2?>
+<refbody>
+<!--
+Title:     Do not change.
+Shortdesc: Not used here. Need to check with corporate about changing the template.
+Para 1:    Do not change.
+Para 2:    Add "Other IBM company attributions" and "Special non-IBM trademarks" as needed. URLs below. 
+File name: You can Rename to product-specific file name. Ex. sonas_trademarks.dita
+Storage:   Save your product-specific file in your team repository. Ex. CMVC or IDCMS
+Guidance:  https://w3-03.ibm.com/chq/legal/lis.nsf/lawdoc/5A84050DEC58FE31852576850074BB32?OpenDocument#Trademark%20Guidelines
+
+Notice the following informat regarding IC and PDF trademarks
+So in each deliverable (IC, PDF, KC), we should only list the special non-IBM trademarks that are actually used in that deliverable.  For IC and KC, since the content is identical (just the delivery vehicle is different), it should be ok to use the same trademark file for both. But typically it would not be ok to use the same trademark file for IC and all PDF. 
+
+
+-->
+<section>
+<!--Paragraph 1: Do not customize. IMPORTANT: Do NOT list the IBM trademarks in an attribution statement. -->
+<p><tm tmtype="reg" trademark="IBM">IBM</tm>, the <tm tmtype="reg" trademark="IBM">IBM</tm> logo,
+and <tm tmtype="reg" trademark="ibm.com">ibm.com</tm> are trademarks or registered trademarks of
+International Business Machines Corp., registered in many jurisdictions worldwide. Other product and
+service names might be trademarks of <tm tmtype="reg" trademark="IBM">IBM</tm> or other companies. A
+current list of <tm tmtype="reg" trademark="IBM">IBM</tm> trademarks is available on the web at
+Copyright and trademark information at <xref format="html"
+href="http://www.ibm.com/legal/copytrade.shtml" id="copytrade" scope="external"
+>www.ibm.com/legal/copytrade.shtml</xref>.</p>
+</section>
+<section>
+<!--Paragraph 2: Customize, as needed.
+1. List OTHER IBM COMPANY ATTRIBUTIONS. The statements are NOT listed here. 
+   Guidance: http://www.ibm.com/legal/us/en/copytrade.shtml#section_5
+2. List SPECIAL NON-IBM TRADEMARKS. All of the statements ARE listed here. 
+   a. Arrange the attribution statements in alphabetic order by COMPANY name. 
+   b. In each attribution statement, list ONLY the special non-IBM trademarks that the information actually uses. 
+   c. Delete the statements and the products your product does not list.-->
+<p><tm tmtype="tm" trademark="Adobe">Adobe</tm>, the <tm tmtype="tm" trademark="Adobe">Adobe</tm>
+logo, <tm tmtype="tm" trademark="PostScript">PostScript</tm>, and the <tm tmtype="tm"
+trademark="PostScript">PostScript</tm> logo are either registered trademarks or trademarks of <tm
+tmtype="tm" trademark="Adobe">Adobe</tm> Systems Incorporated in the United States, and/or other
+countries.</p>
+<!--<p><tm tmtype="tm" trademark="Intel">Intel</tm> and <tm tmtype="tm" trademark="Intel Xeon">Intel Xeon</tm> are trademarks or registered trademarks of <tm tmtype="tm" trademark="Intel">Intel</tm> Corporation or its subsidiaries in the United States and other countries.</p><p><tm tmtype="tm" trademark="Java">Java</tm> and all Java-based trademarks and logos are trademarks or registered trademarks of Oracle and/or its affiliates.</p><p><tm tmtype="tm" trademark="Linux">Linux</tm> and the <tm tmtype="tm" trademark="Linux">Linux</tm> logo is a registered trademark of Linus Torvalds in the United States, other countries, or both. </p><p><tm tmtype="tm" trademark="Microsoft">Microsoft</tm>, <tm tmtype="tm" trademark="Windows">Windows</tm>, and the <tm tmtype="tm" trademark="Windows">Windows</tm> logo are trademarks of <tm tmtype="tm" trademark="Microsoft">Microsoft</tm> Corporation in the United States, other countries, or both. </p><p><tm tmtype="tm" trademark="UNIX">UNIX</tm> is a registered trademark of The Open Group in the United States and other countries. </p>-->
+<p>Red Hat®, JBoss®, OpenShift®, Fedora®, Hibernate®, Ansible®, CloudForms®, RHCA®, RHCE®, RHCSA®,
+Ceph®, and Gluster® are trademarks or registered trademarks of Red Hat, Inc. or its subsidiaries in
+the United States and other countries. </p>
+<p>Other product and service names might be trademarks of <tm tmtype="reg" trademark="IBM">IBM</tm>
+or other companies.</p>
+</section>
+</refbody>
+<?tm 1383087296 23?>
+</reference>
+<?Pub *0000004409?>
