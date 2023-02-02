@@ -20,7 +20,7 @@ translate="no">ODF FlashSystem driver</ph>.</shortdesc>
 <entry colname="col1">31 January 2023</entry>
 <entry colname="col2">
 <p>The version information was added in IBM Documentation as part of the initial <ph translate="no"
->ODF FlashSystem driver</ph> 1.3.0 release.</p>
+>ODF FlashSystem driver</ph> 1.4.0 release.</p>
 <p><ph translate="no">ODF FlashSystem driver</ph> adds new support for the following:<ul>
 <li>Multiple FlashSystem storage systems, including health, capacity, and performance
 information.</li>
