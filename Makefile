@@ -2,7 +2,7 @@
 LINT_VERSION="1.40.0"
 
 REGISTRY=quay.io/ibmodffs
-IMAGE_TAG=1.3.0
+IMAGE_TAG=1.4.0
 PLATFORM=linux/amd64,linux/ppc64le,linux/s390x
 DRIVER_NAME=ibm-storage-odf-block-driver
 
@@ -39,7 +39,7 @@ build:
 .PHONY: test
 test:
 	go test -race -covermode=atomic -coverprofile=cover.out ./pkg/...
-
+	
 build-image: 
 	$(BUILD_COMMAND)
 
