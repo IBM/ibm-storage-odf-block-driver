@@ -1,10 +1,6 @@
 
 LINT_VERSION="1.40.0"
 
-#IMAGE_REPO="quay.io"
-#NAME_SPACE="ibmodffs"
-#DRIVER_IMAGE_VERSION=1.3.0
-
 REGISTRY=quay.io/ibmodffs
 IMAGE_TAG=1.3.0
 PLATFORM=linux/amd64,linux/ppc64le,linux/s390x
