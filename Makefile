@@ -1,19 +1,20 @@
 
 LINT_VERSION="1.40.0"
 
-IMAGE_REPO="quay.io"
-NAME_SPACE="ibmodffs"
-DRIVER_IMAGE_VERSION=1.4.0
-
+REGISTRY=quay.io/ibmodffs
+IMAGE_TAG=1.4.0
+PLATFORM=linux/amd64,linux/ppc64le,linux/s390x
 DRIVER_NAME=ibm-storage-odf-block-driver
 
-DRIVER_IMAGE=$(IMAGE_REPO)/${NAME_SPACE}/$(DRIVER_NAME)
+DRIVER_IMAGE=$(REGISTRY)/$(DRIVER_NAME):$(IMAGE_TAG)
+BUILD_COMMAND = docker buildx build -t $(DRIVER_IMAGE) --platform $(PLATFORM) -f ./Dockerfile .
 
-.PHONY: all $(DRIVER_IMAGE) 
 
-all: $(DRIVER_IMAGE) 
+.PHONY: all $(DRIVER_NAME)
 
-$(DRIVER_IMAGE):
+all: $(DRIVER_NAME)
+
+$(DRIVER_NAME):
 	if [ ! -d ./vendor ]; then dep ensure -v; fi
 	CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -ldflags '-extldflags "-static"' -o  ./build/_output/bin/${DRIVER_NAME} ./cmd/manager/main.go
 
@@ -28,7 +29,7 @@ lint: deps
 	golangci-lint run -E gosec --timeout=6m    # Run `make lint-fix` may help to fix lint issues.
 
 .PHONY: lint-fix
-lint-fix: deps	
+lint-fix: deps
 	golangci-lint run --fix
 
 .PHONY: build
@@ -38,12 +39,12 @@ build:
 .PHONY: test
 test:
 	go test -race -covermode=atomic -coverprofile=cover.out ./pkg/...
-	
-build-image: 
-	docker build -t $(DRIVER_IMAGE):$(DRIVER_IMAGE_VERSION) -f ./Dockerfile .	
 
-push-image: build-image
-	docker push $(DRIVER_IMAGE):$(DRIVER_IMAGE_VERSION)
+build-image:
+	$(BUILD_COMMAND)
+
+push-image:
+	$(BUILD_COMMAND) --push
 
 clean: bin-clean
 
