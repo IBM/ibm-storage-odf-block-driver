@@ -55,8 +55,11 @@ jobs:
     
     - name: get tag without v
       id: tag
+      shell: bash
       if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-      uses: battila7/get-version-action@v2
+      run: |
+        BUILD_VERSION=${{ github.event.release.tag_name }}
+        echo "BUILD_VERSION=${BUILD_VERSION:1}" >> $GITHUB_ENV
 
     # Build and (optionally) push the driver image
     - name: build the driver image
@@ -68,4 +71,4 @@ jobs:
         # Only push if we are publishing a release
         push: ${{ github.event_name == 'release' && github.event.action == 'published' }}
         # Use a 'dev' tag, that won't be pushed, for non-release builds
-        tags: quay.io/ibmodffs/ibm-storage-odf-block-driver:${{ steps.tag.outputs.version-without-v || 'dev' }}
+        tags: quay.io/ibmodffs/ibm-storage-odf-block-driver:${{ env.BUILD_VERSION || 'dev' }}
