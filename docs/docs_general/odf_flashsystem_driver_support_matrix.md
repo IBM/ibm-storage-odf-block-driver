@@ -17,7 +17,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
     <thead>
         <tr>
             <th colspan=1>Red Hat OpenShift Data Foundation (ODF) version</th>
-            <th colspan=4>ODF FlashSystem driver version</th>
+            <th colspan=5>ODF FlashSystem driver version</th>
         </tr>
     </thead>
     <thead>
@@ -28,6 +28,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
         <th>1.2.0</th>
         <th>1.3.0</th>
         <th>1.4.0</th>
+        </tr>
     </thead>    
     <tbody>
         <tr>
