@@ -7,4 +7,5 @@
 * [Installing the driver](installing/installing.md)
 * [Configuring](configuring/configuring.md)
     * [Limitations](configuring/limitations.md)
+    * [Known Issues](configuring/known_issues.md)
 * [Related information and publications](docs_general/relatedpubs.md)
