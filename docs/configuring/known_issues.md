@@ -24,6 +24,6 @@ $ oc get pods
 
 
 ##### Links:
-https://bugzilla.redhat.com/show_bug.cgi?id=2207619
+https://bugzilla.redhat.com/show_bug.cgi?id=2207619 <br>
 https://jira.xiv.ibm.com/browse/ODF-448  
 
