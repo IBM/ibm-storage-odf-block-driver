@@ -8,7 +8,7 @@ ODF 4.13 using ODF-FS 1.4.0
 ##### Problem Verification: 
 On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available"
 
-![Storage-system-in-progressing](https://ibm.box.com/s/41l4pu7letftqoqr6hqir3lzmpjxibfm "storage-system")
+![Storage-system-in-progressing](https://github.com/IBM/ibm-storage-odf-block-driver/blob/9e39da48732a08545ff44debc8db58d3366ddc48/docs/configuring/storage-system-in-progressing.png "storage-system")
 ##### Workaround:
 1. SSH into OCP cluster
 2. Switch to openshift-storage namespace by running:  <br>
