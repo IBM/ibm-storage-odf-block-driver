@@ -8,7 +8,7 @@ ODF 4.13 using ODF-FS 1.4.0
 ##### Problem Verification: 
 On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available"
 
-![Storage-system-in-progressing-github2](/docs/configuring/storage-system-in-progressing.png "storage-system")
+![Storage-system-in-progressing-github2](storage-system-in-progressing.png "storage-system")
 ##### Workaround:
 1. SSH into OCP cluster
 2. Switch to openshift-storage namespace by running:  <br>
