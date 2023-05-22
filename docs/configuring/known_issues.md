@@ -8,13 +8,13 @@ ODF 4.13 using ODF-FS 1.4.0
 ##### Problem Verification: 
 On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available"
 
-![Storage-system-in-progressing-github2](storage-system-in-progressing.png "storage-system")
+![Storage-system-in-progressing-github3](storage-system-in-progressing2.png "storage-system")
 ##### Workaround:
 1. SSH into OCP cluster
 2. Switch to openshift-storage namespace by running:  <br>
 $ oc project openshift-storage
 3. List all pods in namespace by running:  <br>
-$ oc get pods  
+$ oc get pods  <br>
 Look for a pod with prefix: odf-operator-controller-manager-*
 4. Delete the pod found in the previous step by running:  <br>
 $ oc delete pod {odf-operator-controller-manager-*}  
