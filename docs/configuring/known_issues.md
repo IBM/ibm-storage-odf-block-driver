@@ -13,9 +13,8 @@ On Openshift Console go to Storage -> Data Foundation -> storage systems. Some s
 1. SSH into OCP cluster
 2. Switch to openshift-storage namespace by running:  <br>
 $ oc project openshift-storage
-3. List all pods in namespace by running:  <br>
-$ oc get pods  <br>
-Look for a pod with prefix: odf-operator-controller-manager-*
+3. Find odf-controller-manager pod by running:  <br>
+$ oc get pods | grep odf-operator-controller-manager
 4. Delete the pod found in the previous step by running:  <br>
 $ oc delete pod {odf-operator-controller-manager-*}  
 5. The pod will be recreated automatically, verify pod creation by running:  <br>
