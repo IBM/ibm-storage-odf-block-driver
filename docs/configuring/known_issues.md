@@ -6,7 +6,7 @@ in some circumstances, after adding FlashSystem as external storage, some Flash 
 ##### Detected in version: 
 ODF 4.13 using ODF-FS 1.4.0 
 ##### Problem Verification: 
-On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available"
+On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available".
 
 ![Storage-system-in-progressing-github3](storage-system-in-progressing2.png "storage-system")
 ##### Workaround:
@@ -19,7 +19,7 @@ $ oc get pods | grep odf-operator-controller-manager
 $ oc delete pod {odf-operator-controller-manager-*}  
 5. The pod will be recreated automatically, verify pod creation by running:  <br>
 $ oc get pods | grep odf-operator-controller-manager  
-6. Storage system status should change to 'Available' after a few minutes.
+6. Storage system status should change to 'Available' after a few minutes
 
 
 ##### Links:
