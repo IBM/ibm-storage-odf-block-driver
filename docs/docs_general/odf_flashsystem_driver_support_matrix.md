@@ -61,7 +61,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.4.x</li>
                 <li>8.5.0.x</li>
                 <li>8.5.2.x</li>
-                <li>8.5.3</li></ul></td>
+                <li>8.5.3.x</li></ul></td>
             <td>Not supported</td>
             <td>Not supported</td>
         </tr>
@@ -75,7 +75,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.4.x</li>
                 <li>8.5.0.x</li>
                 <li>8.5.2.x</li>
-                <li>8.5.3</li></ul></td>
+                <li>8.5.3.x</li></ul></td>
             <td>Not supported</td>
         </tr>
         <tr>
@@ -89,7 +89,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.4.x</li>
                 <li>8.5.0.x</li>
                 <li>8.5.2.x</li>
-                <li>8.5.3</li></ul></td>
+                <li>8.5.3.x</li></ul></td>
         </tr>
     </tbody>
 </table>
