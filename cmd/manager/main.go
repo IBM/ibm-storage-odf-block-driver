@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	EnvNamespaceName = "WATCH_NAMESPACE"
+	EnvNamespaceName = "RESOURCES_NAMESPACE"
 )
 
 func init() {
