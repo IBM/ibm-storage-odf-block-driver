@@ -35,6 +35,7 @@ type Pool map[string]interface{}
 const (
 	// Metric name defines
 	PoolMetadata              = "flashsystem_pool_metadata"
+	PoolOwnershipGroup        = "flashsystem_pool_ownership_group"
 	PoolHealth                = "flashsystem_pool_health"
 	PoolWarningThreshold      = "flashsystem_capacity_warning_threshold"
 	PoolCapacityUsable        = "flashsystem_pool_capacity_usable_bytes"
@@ -86,6 +87,8 @@ const (
 	UncompressedKey            = "compression_uncompressed_capacity"
 	CompressedKey              = "compression_compressed_capacity"
 	CapacityWarningThreshold   = "warning"
+	OwnershipIDKey             = "owner_id"
+	OwnershipNameKey           = "owner_name"
 )
 
 var (
@@ -104,9 +107,17 @@ var (
 		"pool_name",
 	}
 
+	poolOwnershipGroupLabel = []string{
+		"subsystem_name",
+		"pool_name",
+		"ownership_group_name",
+		"ownership_group_id",
+	}
+
 	// Metric define mapping
 	poolMetricsMap = map[string]MetricLabel{
 		PoolMetadata:              {"Pool metadata", poolMetadataLabel},
+		PoolOwnershipGroup:        {"Pool ownership group", poolOwnershipGroupLabel},
 		PoolHealth:                {"Pool health status", poolLabelCommon},
 		PoolWarningThreshold:      {"Pool capacity warning threshold", poolLabelCommon},
 		PoolCapacityUsable:        {"Pool usable capacity (byte)", poolLabelCommon},
@@ -284,6 +295,8 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			pool.PoolMDiskGrpInfo[VirtualCapacityKey], pool.PoolMDiskGrpInfo[RealCapacityKey],
 			pool.PoolMDiskGrpInfo[CapacityKey], pool.PoolMDiskGrpInfo[FreeCapacityKey])
 
+		createOwnershipGroupPoolMetrics(ch, f, pool)
+
 		createPhysicalCapacityPoolMetrics(ch, f, pool)
 		createLogicalCapacityPoolMetrics(ch, f, pool)
 		createTotalSavingPoolMetrics(ch, f, pool)
@@ -391,6 +404,19 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 
 func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
+}
+
+func createOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
+	if !isParentPool(poolInfo.PoolMDiskGrpInfo) {
+		ogName := poolInfo.PoolMDiskGrpInfo[OwnershipNameKey].(string)
+		if ogName != "" {
+			ogID := poolInfo.PoolMDiskGrpInfo[OwnershipIDKey].(string)
+			newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], ogName, ogID, &poolInfo)
+			return
+		}
+	}
+	// TODO - TBD which metrics to show when there is no ownership group for a pool
+	newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], "", "", &poolInfo)
 }
 
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
@@ -544,6 +570,19 @@ func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 		info.PoolName,
 		info.StorageClass,
 		fmt.Sprintf("%d", internalStorage),
+	)
+}
+
+func newOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, ogName string,
+	ogID string, info *PoolInfo) {
+	ch <- prometheus.MustNewConstMetric(
+		desc,
+		prometheus.GaugeValue,
+		1,
+		info.SystemName,
+		info.PoolName,
+		ogName,
+		ogID,
 	)
 }
 
