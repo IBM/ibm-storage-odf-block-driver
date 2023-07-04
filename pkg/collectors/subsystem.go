@@ -293,7 +293,7 @@ func calcSystemReclaimableCapacity(poolsInfoList []PoolInfo) (float64, error) {
 		poolReclaimable, err := GetPoolReclaimablePhysicalCapacity(currentPool)
 		if err != nil {
 			log.Errorf("get pool reclaimable physical capacity failed: %v", err)
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 		totalSystemReclaimable += poolReclaimable
 	}
