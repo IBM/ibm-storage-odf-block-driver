@@ -57,7 +57,8 @@ const (
 	// MDisk modes
 	ArrayMode = "array"
 
-	InvalidVal = float64(-1)
+	InvalidFloatVal  = float64(-1)
+	InvalidStringVal = "None"
 )
 
 // Interested keys
@@ -191,14 +192,14 @@ func calcPoolReducedReclaimableCapacity(pool PoolInfo) (float64, error) {
 	reclaimable, err := strconv.ParseFloat(pool.PoolMDiskGrpInfo[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get pool reclaimable capacity failed: %s", err)
-		return InvalidVal, err
+		return InvalidFloatVal, err
 	}
 
 	for _, mDisk := range pool.PoolMDisksList {
 		PC, EU, physicalFree, err := calcSingleMDiskCapacity(mDisk)
 		if err != nil {
 			log.Errorf("get single disk capacity failed: %s", err)
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 		PU := math.Max(0, PC-physicalFree)
 		diskRatio := PC * PU / EU
@@ -222,12 +223,12 @@ func calcSingleMDiskCapacity(mDiskInfo rest.SingleMDiskInfo) (float64, float64, 
 	PC, err := strconv.ParseFloat(mDiskInfo[PhysicalCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get disk physical capacity failed: %s", err)
-		return InvalidVal, InvalidVal, InvalidVal, err
+		return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 	}
 	physicalFree, err := strconv.ParseFloat(mDiskInfo[PhysicalFreeKey].(string), 64)
 	if err != nil {
 		log.Errorf("get disk physical free capacity failed: %s", err)
-		return InvalidVal, InvalidVal, InvalidVal, err
+		return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 	}
 
 	EU, err := strconv.ParseFloat(mDiskInfo[MdiskEffectiveUsedCapacity].(string), 64)
@@ -236,7 +237,7 @@ func calcSingleMDiskCapacity(mDiskInfo rest.SingleMDiskInfo) (float64, float64, 
 			EU = PC - physicalFree
 		} else {
 			log.Errorf("get disk physical effective used capacity failed: %s", err)
-			return InvalidVal, InvalidVal, InvalidVal, err
+			return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 		}
 	}
 
@@ -407,16 +408,13 @@ func isParentPool(pool Pool) bool {
 }
 
 func createOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
-	if !isParentPool(poolInfo.PoolMDiskGrpInfo) {
-		ogName := poolInfo.PoolMDiskGrpInfo[OwnershipNameKey].(string)
-		if ogName != "" {
-			ogID := poolInfo.PoolMDiskGrpInfo[OwnershipIDKey].(string)
-			newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], ogName, ogID, &poolInfo)
-			return
-		}
+	ogName := poolInfo.PoolMDiskGrpInfo[OwnershipNameKey].(string)
+	if ogName != "" {
+		ogID := poolInfo.PoolMDiskGrpInfo[OwnershipIDKey].(string)
+		newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], ogName, ogID, &poolInfo)
+		return
 	}
-	// TODO - TBD which metrics to show when there is no ownership group for a pool
-	newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], "", "", &poolInfo)
+	newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], InvalidStringVal, InvalidStringVal, &poolInfo)
 }
 
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
@@ -480,9 +478,9 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], physical, &poolInfo)
 	} else {
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], InvalidVal, &poolInfo)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], InvalidVal, &poolInfo)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], InvalidVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], InvalidFloatVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], InvalidFloatVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], InvalidFloatVal, &poolInfo)
 	}
 }
 
@@ -495,13 +493,13 @@ func GetPoolReclaimablePhysicalCapacity(pool PoolInfo) (float64, error) {
 		reclaimable, err = calcPoolReducedReclaimableCapacity(pool)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 	} else {
 		poolOrigReclaimable, err := strconv.ParseFloat(pool.PoolMDiskGrpInfo[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 		reclaimable = poolOrigReclaimable
 	}
