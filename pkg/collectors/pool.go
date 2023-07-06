@@ -35,6 +35,7 @@ type Pool map[string]interface{}
 const (
 	// Metric name defines
 	PoolMetadata              = "flashsystem_pool_metadata"
+	PoolOwnershipGroup        = "flashsystem_pool_ownership_group"
 	PoolHealth                = "flashsystem_pool_health"
 	PoolWarningThreshold      = "flashsystem_capacity_warning_threshold"
 	PoolCapacityUsable        = "flashsystem_pool_capacity_usable_bytes"
@@ -56,7 +57,8 @@ const (
 	// MDisk modes
 	ArrayMode = "array"
 
-	InvalidVal = float64(-1)
+	InvalidFloatVal  = float64(-1)
+	InvalidStringVal = "None"
 )
 
 // Interested keys
@@ -86,6 +88,8 @@ const (
 	UncompressedKey            = "compression_uncompressed_capacity"
 	CompressedKey              = "compression_compressed_capacity"
 	CapacityWarningThreshold   = "warning"
+	OwnershipIDKey             = "owner_id"
+	OwnershipNameKey           = "owner_name"
 )
 
 var (
@@ -104,9 +108,17 @@ var (
 		"pool_name",
 	}
 
+	poolOwnershipGroupLabel = []string{
+		"subsystem_name",
+		"pool_name",
+		"ownership_group_name",
+		"ownership_group_id",
+	}
+
 	// Metric define mapping
 	poolMetricsMap = map[string]MetricLabel{
 		PoolMetadata:              {"Pool metadata", poolMetadataLabel},
+		PoolOwnershipGroup:        {"Pool ownership group", poolOwnershipGroupLabel},
 		PoolHealth:                {"Pool health status", poolLabelCommon},
 		PoolWarningThreshold:      {"Pool capacity warning threshold", poolLabelCommon},
 		PoolCapacityUsable:        {"Pool usable capacity (byte)", poolLabelCommon},
@@ -180,14 +192,14 @@ func calcPoolReducedReclaimableCapacity(pool PoolInfo) (float64, error) {
 	reclaimable, err := strconv.ParseFloat(pool.PoolMDiskGrpInfo[ReclaimableKey].(string), 64)
 	if err != nil {
 		log.Errorf("get pool reclaimable capacity failed: %s", err)
-		return InvalidVal, err
+		return InvalidFloatVal, err
 	}
 
 	for _, mDisk := range pool.PoolMDisksList {
 		PC, EU, physicalFree, err := calcSingleMDiskCapacity(mDisk)
 		if err != nil {
 			log.Errorf("get single disk capacity failed: %s", err)
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 		PU := math.Max(0, PC-physicalFree)
 		diskRatio := PC * PU / EU
@@ -211,12 +223,12 @@ func calcSingleMDiskCapacity(mDiskInfo rest.SingleMDiskInfo) (float64, float64, 
 	PC, err := strconv.ParseFloat(mDiskInfo[PhysicalCapacityKey].(string), 64)
 	if err != nil {
 		log.Errorf("get disk physical capacity failed: %s", err)
-		return InvalidVal, InvalidVal, InvalidVal, err
+		return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 	}
 	physicalFree, err := strconv.ParseFloat(mDiskInfo[PhysicalFreeKey].(string), 64)
 	if err != nil {
 		log.Errorf("get disk physical free capacity failed: %s", err)
-		return InvalidVal, InvalidVal, InvalidVal, err
+		return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 	}
 
 	EU, err := strconv.ParseFloat(mDiskInfo[MdiskEffectiveUsedCapacity].(string), 64)
@@ -225,7 +237,7 @@ func calcSingleMDiskCapacity(mDiskInfo rest.SingleMDiskInfo) (float64, float64, 
 			EU = PC - physicalFree
 		} else {
 			log.Errorf("get disk physical effective used capacity failed: %s", err)
-			return InvalidVal, InvalidVal, InvalidVal, err
+			return InvalidFloatVal, InvalidFloatVal, InvalidFloatVal, err
 		}
 	}
 
@@ -283,6 +295,8 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			pool.PoolMDiskGrpInfo[DataReductionKey], pool.PoolMDiskGrpInfo[PhysicalCapacityKey],
 			pool.PoolMDiskGrpInfo[VirtualCapacityKey], pool.PoolMDiskGrpInfo[RealCapacityKey],
 			pool.PoolMDiskGrpInfo[CapacityKey], pool.PoolMDiskGrpInfo[FreeCapacityKey])
+
+		createOwnershipGroupPoolMetrics(ch, f, pool)
 
 		createPhysicalCapacityPoolMetrics(ch, f, pool)
 		createLogicalCapacityPoolMetrics(ch, f, pool)
@@ -393,6 +407,16 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
+func createOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
+	ogName := poolInfo.PoolMDiskGrpInfo[OwnershipNameKey].(string)
+	if ogName != "" {
+		ogID := poolInfo.PoolMDiskGrpInfo[OwnershipIDKey].(string)
+		newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], ogName, ogID, &poolInfo)
+		return
+	}
+	newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], InvalidStringVal, InvalidStringVal, &poolInfo)
+}
+
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
 	totalLogicalCapacity, err := strconv.ParseFloat(poolInfo.PoolMDiskGrpInfo[CapacityKey].(string), 64)
 	if err != nil {
@@ -454,9 +478,9 @@ func createPhysicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfColle
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], used, &poolInfo)
 		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], physical, &poolInfo)
 	} else {
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], InvalidVal, &poolInfo)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], InvalidVal, &poolInfo)
-		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], InvalidVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsable], InvalidFloatVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolCapacityUsed], InvalidFloatVal, &poolInfo)
+		newPoolCapacityMetrics(ch, f.poolDescriptors[PoolPhysicalCapacity], InvalidFloatVal, &poolInfo)
 	}
 }
 
@@ -469,13 +493,13 @@ func GetPoolReclaimablePhysicalCapacity(pool PoolInfo) (float64, error) {
 		reclaimable, err = calcPoolReducedReclaimableCapacity(pool)
 		if err != nil {
 			log.Errorf("get reduced reclaimable capacity for pool failed")
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 	} else {
 		poolOrigReclaimable, err := strconv.ParseFloat(pool.PoolMDiskGrpInfo[ReclaimableKey].(string), 64)
 		if err != nil {
 			log.Errorf("get reclaimable failed: %s", err)
-			return InvalidVal, err
+			return InvalidFloatVal, err
 		}
 		reclaimable = poolOrigReclaimable
 	}
@@ -544,6 +568,19 @@ func newPoolMetadataMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, 
 		info.PoolName,
 		info.StorageClass,
 		fmt.Sprintf("%d", internalStorage),
+	)
+}
+
+func newOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, desc *prometheus.Desc, ogName string,
+	ogID string, info *PoolInfo) {
+	ch <- prometheus.MustNewConstMetric(
+		desc,
+		prometheus.GaugeValue,
+		1,
+		info.SystemName,
+		info.PoolName,
+		ogName,
+		ogID,
 	)
 }
 
