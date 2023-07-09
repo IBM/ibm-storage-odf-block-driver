@@ -68,7 +68,7 @@ type DriverManager struct {
 	secretName string
 }
 
-func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FlashSystemClusterMapContent) (DriverManager, error) {
+func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FscConfigMapFscContent) (DriverManager, error) {
 	var manager DriverManager
 
 	k8sClient, err := getK8sClient(scheme)
