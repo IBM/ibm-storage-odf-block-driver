@@ -698,7 +698,7 @@ func TestMetrics(t *testing.T) {
 		return nil
 	}
 
-	clientmanagers.GetFscMap = func() (map[string]operutil.FscConfigMapFscContent, error) {
+	clientmanagers.GetFscConfigMapContent = func() (map[string]operutil.FscConfigMapFscContent, error) {
 		fscScSecretMap := operutil.FscConfigMapFscContent{ScPoolMap: map[string]string{}, Secret: "FC-secret"}
 		fscScSecretMap.ScPoolMap["fs-sc-default"] = "Pool0"
 		fscScSecretMap.ScPoolMap["fs-sc-1"] = "Pool0"
@@ -711,6 +711,10 @@ func TestMetrics(t *testing.T) {
 		fscScSecretMapSecond.ScPoolMap["fs-second-sc-2"] = "Pool6"
 
 		return map[string]operutil.FscConfigMapFscContent{"FS-system-name": fscScSecretMap, "FS-system-name-second": fscScSecretMapSecond}, nil
+	}
+
+	clientmanagers.GetPoolsConfigMapContent = func() (map[string]operutil.PoolsConfigMapFscContent, error) {
+		return nil, nil
 	}
 
 	testCollector.systems["FS-system-name"].DriverManager.Ready()

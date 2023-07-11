@@ -66,9 +66,11 @@ type DriverManager struct {
 	ready      bool
 	scPoolMap  map[string]string
 	secretName string
+	poolsMap   map[string]operutil.PoolsConfigMapPoolContent
 }
 
-func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FscConfigMapFscContent) (DriverManager, error) {
+func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FscConfigMapFscContent,
+	poolsMap map[string]operutil.PoolsConfigMapPoolContent) (DriverManager, error) {
 	var manager DriverManager
 
 	k8sClient, err := getK8sClient(scheme)
@@ -82,6 +84,7 @@ func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScS
 	manager.namespace = namespace
 	manager.scPoolMap = fscScSecretMap.ScPoolMap
 	manager.secretName = fscScSecretMap.Secret
+	manager.poolsMap = poolsMap
 	manager.Ready()
 
 	return manager, nil
@@ -122,9 +125,15 @@ func (d *DriverManager) GetSCNameByPoolName(poolName string) []string {
 	return scNames
 }
 
-func (d *DriverManager) UpdatePoolMap(scPool map[string]string) {
+func (d *DriverManager) UpdateFscCmPools(scPool map[string]string) {
 	if !reflect.DeepEqual(scPool, d.scPoolMap) {
 		d.scPoolMap = scPool
+	}
+}
+
+func (d *DriverManager) UpdatePoolsCmPools(pools map[string]operutil.PoolsConfigMapPoolContent) {
+	if !reflect.DeepEqual(pools, d.poolsMap) {
+		d.poolsMap = pools
 	}
 }
 
