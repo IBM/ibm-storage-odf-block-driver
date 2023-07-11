@@ -120,7 +120,7 @@ var GetStorageCredentials = func(d *drivermanager.DriverManager) (rest.Config, e
 	return restConfig, nil
 }
 
-var GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error) {
+var GetFscMap = func() (map[string]operutil.FscConfigMapFscContent, error) {
 	return operutil.ReadPoolConfigMapFile()
 }
 

@@ -698,19 +698,19 @@ func TestMetrics(t *testing.T) {
 		return nil
 	}
 
-	clientmanagers.GetFscMap = func() (map[string]operutil.FlashSystemClusterMapContent, error) {
-		fscScSecretMap := operutil.FlashSystemClusterMapContent{ScPoolMap: map[string]string{}, Secret: "FC-secret"}
+	clientmanagers.GetFscMap = func() (map[string]operutil.FscConfigMapFscContent, error) {
+		fscScSecretMap := operutil.FscConfigMapFscContent{ScPoolMap: map[string]string{}, Secret: "FC-secret"}
 		fscScSecretMap.ScPoolMap["fs-sc-default"] = "Pool0"
 		fscScSecretMap.ScPoolMap["fs-sc-1"] = "Pool0"
 		fscScSecretMap.ScPoolMap["fs-sc-2"] = "Pool1"
 		fscScSecretMap.ScPoolMap["fs-sc-3"] = "Pool1"
 		fscScSecretMap.ScPoolMap["fs-sc-4"] = "Pool2"
 
-		fscScSecretMapSecond := operutil.FlashSystemClusterMapContent{ScPoolMap: map[string]string{}, Secret: "FC-secret-second"}
+		fscScSecretMapSecond := operutil.FscConfigMapFscContent{ScPoolMap: map[string]string{}, Secret: "FC-secret-second"}
 		fscScSecretMapSecond.ScPoolMap["fs-second-sc-1"] = "Pool5"
 		fscScSecretMapSecond.ScPoolMap["fs-second-sc-2"] = "Pool6"
 
-		return map[string]operutil.FlashSystemClusterMapContent{"FS-system-name": fscScSecretMap, "FS-system-name-second": fscScSecretMapSecond}, nil
+		return map[string]operutil.FscConfigMapFscContent{"FS-system-name": fscScSecretMap, "FS-system-name-second": fscScSecretMapSecond}, nil
 	}
 
 	testCollector.systems["FS-system-name"].DriverManager.Ready()
