@@ -263,7 +263,6 @@ func (d *DriverManager) SendK8sPoolOGChangeEvent(poolName, ogName string) error 
 		}
 	}
 
-	log.Infof("event already exist for pool %v", poolName)
 	return nil
 }
 
