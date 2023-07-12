@@ -73,6 +73,10 @@ github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230710090312-590986c60ea3 h1:
 github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230710090312-590986c60ea3/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
 github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230710160504-fe1d0dd591f0 h1:/cHdTZNsU9+ZfR786jz5/ZSsb76mIk8jO2XU/r+8V84=
 github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230710160504-fe1d0dd591f0/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230711091032-b2114719fd9a h1:y4/pnK7ZoGWImWR3lBw3Awnfe0MgQoHKdtluqxvTwpg=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230711091032-b2114719fd9a/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230711112359-7b7d17fa2302 h1:VJ0RyTUNwVt2DyIp3Q99XdjKI5jTyFQWWWVjSXy9XnM=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230711112359-7b7d17fa2302/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/NYTimes/gziphandler v1.1.1/go.mod h1:n/CVRwUEOgIxrgPvAQhUUr9oeUtvrhMomdKFjzJNB0c=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=

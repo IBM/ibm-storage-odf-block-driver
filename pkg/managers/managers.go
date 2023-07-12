@@ -40,15 +40,24 @@ var Scheme = runtime.NewScheme()
 func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient) (map[string]*rest.FSRestClient, error) {
 	var newSystems = make(map[string]*rest.FSRestClient)
 
-	fscMap, err := GetFscMap()
+	fscMap, err := GetFscConfigMapContent()
 	if err != nil {
-		log.Errorf("Read pool configmap failed, error: %v", err)
+		log.Errorf("Read fsc configmap failed, error: %v", err)
 		return nil, err
 	} else {
-		log.Infof("Read pool configmap %v", fscMap)
+		log.Infof("Read fsc configmap %v", fscMap)
+	}
+
+	fscPoolMap, err := GetPoolsConfigMapContent()
+	if err != nil {
+		log.Errorf("Read pools configmap failed, error: %v", err)
+		return nil, err
+	} else {
+		log.Infof("Read pools configmap %v", fscPoolMap)
 	}
 
 	for fscName, fscScSecretMap := range fscMap {
+		poolsMap := getPoolsMap(fscPoolMap, fscName)
 		if _, exist := currentSystems[fscName]; exist {
 			log.Infof("Using existing manager for %s", fscName)
 
@@ -66,11 +75,12 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 				continue
 			}
 
-			currentSystems[fscName].DriverManager.UpdatePoolMap(fscScSecretMap.ScPoolMap)
+			currentSystems[fscName].DriverManager.UpdateFscCmPools(fscScSecretMap.ScPoolMap)
+			currentSystems[fscName].DriverManager.UpdatePoolsCmPools(poolsMap)
 			newSystems[fscName] = currentSystems[fscName]
 		} else {
 			log.Infof("Create new manager for %s", fscName)
-			mgr, mgrErr := drivermanager.NewManager(Scheme, namespace, fscName, fscScSecretMap)
+			mgr, mgrErr := drivermanager.NewManager(Scheme, namespace, fscName, fscScSecretMap, poolsMap)
 			if mgrErr != nil {
 				log.Errorf("Initialize manager failed, error: %v", mgrErr)
 				continue
@@ -100,6 +110,14 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 	return newSystems, nil
 }
 
+func getPoolsMap(fscPoolMap map[string]operutil.PoolsConfigMapFscContent, fscName string) map[string]operutil.PoolsConfigMapPoolContent {
+	_, exist := fscPoolMap[fscName]
+	if exist {
+		return fscPoolMap[fscName].PoolsMap
+	}
+	return nil
+}
+
 var GetStorageCredentials = func(d *drivermanager.DriverManager) (rest.Config, error) {
 	secret := &corev1.Secret{}
 	err := d.Client.Get(context.TODO(),
@@ -120,8 +138,12 @@ var GetStorageCredentials = func(d *drivermanager.DriverManager) (rest.Config, e
 	return restConfig, nil
 }
 
-var GetFscMap = func() (map[string]operutil.FscConfigMapFscContent, error) {
-	return operutil.ReadPoolConfigMapFile()
+var GetFscConfigMapContent = func() (map[string]operutil.FscConfigMapFscContent, error) {
+	return operutil.ReadFscConfigMapFile()
+}
+
+var GetPoolsConfigMapContent = func() (map[string]operutil.PoolsConfigMapFscContent, error) {
+	return operutil.ReadPoolsConfigMapFile()
 }
 
 var CheckRestClientState = func(restClient *rest.FSRestClient, mgr drivermanager.DriverManager, err error) error {
