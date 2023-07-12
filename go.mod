@@ -3,7 +3,7 @@ module github.com/IBM/ibm-storage-odf-block-driver
 go 1.19
 
 require (
-	github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230711112359-7b7d17fa2302
+	github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230712105530-8c41239ad782
 	github.com/prometheus/client_golang v1.16.0
 	k8s.io/api v0.25.0
 	k8s.io/apimachinery v0.27.1
