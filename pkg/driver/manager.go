@@ -19,6 +19,7 @@ package driver
 import (
 	"context"
 	"fmt"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"reflect"
 	"time"
 
@@ -112,6 +113,10 @@ func (d *DriverManager) GetNamespaceName() string {
 func (d *DriverManager) GetSecretName() string {
 	// CR Name is the subsystem name
 	return d.secretName
+}
+
+func (d *DriverManager) GetPoolsMap() map[string]operutil.PoolsConfigMapPoolContent {
+	return d.poolsMap
 }
 
 func (d *DriverManager) GetSCNameByPoolName(poolName string) []string {
@@ -229,6 +234,37 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 		log.Errorf("failed to SendK8sEvent reason: %s, message: %s, error: \n %v\n", reason, message, err)
 	}
 	return err
+}
+
+func (d *DriverManager) SendK8sPoolOGChangeEvent(poolName, ogName string) error {
+	fsc, err := d.GetFlashSystemClusterCR()
+	if err != nil {
+		return err
+	}
+
+	eventToCreate := operutil.InitK8sPoolOGChangeEvent(fsc, poolName, ogName)
+
+	existingEvent := corev1.Event{}
+	err = d.Client.Get(
+		context.TODO(),
+		client.ObjectKey{
+			Namespace: eventToCreate.Namespace,
+			Name:      eventToCreate.Name,
+		},
+		&existingEvent,
+	)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			err = d.Client.Create(context.TODO(), eventToCreate)
+			if err != nil {
+				log.Errorf("failed to SendK8sPoolOGChangeEvent error: \n %v\n", err)
+			}
+		}
+	}
+
+	log.Infof("event already exist for pool %v", poolName)
+	return nil
 }
 
 func (d *DriverManager) GetFlashSystemClusterCR() (*operatorapi.FlashSystemCluster, error) {
