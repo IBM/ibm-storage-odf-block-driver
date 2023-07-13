@@ -296,7 +296,7 @@ func (f *PerfCollector) collectPoolMetrics(ch chan<- prometheus.Metric, fsRestCl
 			pool.PoolMDiskGrpInfo[VirtualCapacityKey], pool.PoolMDiskGrpInfo[RealCapacityKey],
 			pool.PoolMDiskGrpInfo[CapacityKey], pool.PoolMDiskGrpInfo[FreeCapacityKey])
 
-		createOwnershipGroupPoolMetrics(ch, f, pool)
+		createOwnershipGroupPoolMetrics(ch, manager, f, pool)
 
 		createPhysicalCapacityPoolMetrics(ch, f, pool)
 		createLogicalCapacityPoolMetrics(ch, f, pool)
@@ -407,14 +407,34 @@ func isParentPool(pool Pool) bool {
 	return pool[MdiskIdKey] == pool[ParentMdiskIdKey]
 }
 
-func createOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
+func createOwnershipGroupPoolMetrics(ch chan<- prometheus.Metric, manager *driver.DriverManager, f *PerfCollector, poolInfo PoolInfo) {
 	ogName := poolInfo.PoolMDiskGrpInfo[OwnershipNameKey].(string)
 	if ogName != "" {
 		ogID := poolInfo.PoolMDiskGrpInfo[OwnershipIDKey].(string)
 		newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], ogName, ogID, &poolInfo)
+		handlePoolOGChangeEvent(manager, poolInfo, ogName)
+
+	} else {
+		newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], InvalidStringVal, InvalidStringVal, &poolInfo)
+	}
+}
+
+func handlePoolOGChangeEvent(manager *driver.DriverManager, poolInfo PoolInfo, ogName string) {
+	poolsMap := manager.GetPoolsMap()
+	if poolsMap == nil {
+		log.Errorf("get pool data from pools ConfigMap failed")
 		return
 	}
-	newOwnershipGroupPoolMetrics(ch, f.poolDescriptors[PoolOwnershipGroup], InvalidStringVal, InvalidStringVal, &poolInfo)
+	
+	poolData, exist := poolsMap[poolInfo.PoolName]
+	if !exist {
+		log.Errorf("get pool data from pools ConfigMap failed")
+		return
+	}
+
+	if poolData.OG != ogName {
+		_ = manager.SendK8sPoolOGChangeEvent(poolInfo.PoolName, ogName)
+	}
 }
 
 func createLogicalCapacityPoolMetrics(ch chan<- prometheus.Metric, f *PerfCollector, poolInfo PoolInfo) {
