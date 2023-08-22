@@ -75,7 +75,7 @@ const (
 	CompressionEnabledKey      = "compression_active"
 	CapacityKey                = "capacity"
 	FreeCapacityKey            = "free_capacity"
-	ChildPoolCapacityKey       = "child_mdisk_grp_capacity"
+	ChildPoolCapacityKey       = "child_mdisk_grp_capacity" //nolint:gosec
 	ControllerNameKey          = "controller_name"
 	DiskModekey                = "mode"
 	RealCapacityKey            = "real_capacity"
