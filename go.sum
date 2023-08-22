@@ -1,7 +1,7 @@
 cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230821022608-89c7031812eb h1:LgIP7zP8JVIxHmep+UuvmKvcs78Im2RU04cYMMC5oyY=
-github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230821022608-89c7031812eb/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230821024520-75831a2d9407 h1:PuI3ecg5HVogliLX8x7NP9vRiKWhXLFgIST3BkYw0Iw=
+github.com/IBM/ibm-storage-odf-operator v1.3.1-0.20230821024520-75831a2d9407/go.mod h1:GqyQU4hThEZ5CLSk5B0JjcOYvVa8RhqIRyOjzV/zwLw=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
