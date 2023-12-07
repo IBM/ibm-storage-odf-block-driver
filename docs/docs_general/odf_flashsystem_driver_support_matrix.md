@@ -17,7 +17,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
     <thead>
         <tr>
             <th colspan=1>Red Hat OpenShift Data Foundation (ODF) version</th>
-            <th colspan=5>ODF FlashSystem driver version</th>
+            <th colspan=6>ODF FlashSystem driver version</th>
         </tr>
     </thead>
     <thead>
@@ -28,6 +28,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
         <th>1.2.0</th>
         <th>1.3.0</th>
         <th>1.4.0</th>
+        <th>1.4.1</th>
         </tr>
     </thead>    
     <tbody>
@@ -40,6 +41,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
             <td>Not supported</td>
             <td>Not supported</td>
             <td>Not supported</td>
+            <td>Not supported</td>
         </tr>
         <tr>
             <td>4.10</td>
@@ -48,6 +50,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.3.1.6 or later</li>
                 <li>8.4.x</li>
                 <li>8.5.0.x</li></ul></td>
+            <td>Not supported</td>
             <td>Not supported</td>
             <td>Not supported</td>
             <td>Not supported</td>
@@ -64,6 +67,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.5.3.x</li></ul></td>
             <td>Not supported</td>
             <td>Not supported</td>
+            <td>Not supported</td>
         </tr>
         <tr>
             <td>4.12</td>
@@ -77,6 +81,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.5.2.x</li>
                 <li>8.5.3.x</li></ul></td>
             <td>Not supported</td>
+            <td>Not supported</td>
         </tr>
         <tr>
             <td>4.13</td>
@@ -84,6 +89,12 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
             <td>Not supported</td>
             <td>Not supported</td>
             <td>Not supported</td>
+            <td><ul>
+                <li>8.3.1.6 or later</li>
+                <li>8.4.x</li>
+                <li>8.5.0.x</li>
+                <li>8.5.2.x</li>
+                <li>8.5.3.x</li></ul></td>
             <td><ul>
                 <li>8.3.1.6 or later</li>
                 <li>8.4.x</li>
