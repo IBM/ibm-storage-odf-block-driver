@@ -4,7 +4,7 @@
 ##### Problem: 
 In some specific circumstances, after adding FlashSystem as external storage, some Flash storage systems might get stuck on 'Progressing' state due to a status sync delay on RedHat ODF operator.
 ##### Detected in version: 
-ODF 4.13 using ODF-FS 1.4.0 
+ODF 4.13 using ODF-FS 1.4.x
 ##### Problem verification: 
 On Openshift Console go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available".
 
