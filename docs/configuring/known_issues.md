@@ -46,14 +46,16 @@ $ oc project openshift-storage
 3. Download and edit the ODF-FS operator subscription by running:  <br>
 $ oc edit subscription -n openshift-storage ibm-storage-odf-operator
 4. Add the following lines in the <b>spec</b> section. Please note the indention, and that all should be <b>lower case</b>  <br>
-config: <br>
-  resources: <br>
-    limits: <br>
-      cpu:     50m <br>
-      memory:  1000Mi <br>
-    requests: <br>
-      cpu:     50m <br>
-      memory:  1000Mi <br>
+<pre>
+config:
+  resources:
+    limits:
+      cpu:     50m
+      memory:  1000Mi
+    requests:
+      cpu:     50m
+      memory:  1000Mi
+</pre>
 5. Save and close the file. The subscription will be automatically applied to the cluster, and the ODF-FS pods will be redeployed
 6. Confirm all the ODF-FS pods are functioning by running: <br>
 $ oc get pods
