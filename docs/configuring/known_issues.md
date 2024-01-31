@@ -37,7 +37,7 @@ All ODF versions running ODF-FS
 ##### Problem verification:
 1. The ODF-FS Console pod failure reason can be extracted with the 'oc describe' command on the ODF-FS operator pod. Failure reason will be OOMKilled (error 137).
 2. Any attempt to delete the ODF-FS Console pod fails in the same way.
-3. The ODF-FS Console pod's log itself does not show any meaningfull information as the pod cannot start.
+3. The ODF-FS Console pod's log itself does not show any meaningful information as the pod cannot start.
 
 ##### Workaround:
 1. SSH into OCP cluster
@@ -45,7 +45,7 @@ All ODF versions running ODF-FS
 $ oc project openshift-storage
 3. Download and edit the ODF-FS operator subscription by running:  <br>
 $ oc edit subscription -n openshift-storage ibm-storage-odf-operator
-4. Add the following lines in the <b>spec</b> section. Please note the indention, and that all should be <b>lower case</b>  <br>
+4. Add the following lines in the <b>spec</b> section. Please note the indentation, and that all should be <b>lower case</b>  <br>
         
         config:
             resources:
