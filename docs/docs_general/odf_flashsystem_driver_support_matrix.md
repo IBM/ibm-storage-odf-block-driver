@@ -6,7 +6,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
 
 **Note:**
 
--   SAN Volume Controller (SVC) is fully supported from ODF-FS version 1.4.1.
+-   SAN Volume Controller (SVC) is fully supported from ODF FlashSystem driver version 1.4.1.
 -   FlashSystem 5015, FlashSystem 5035, and FlashSystem 5200 began in version 8.4.0.1.
 -   FlashSystem 9200 began in version 8.4.0.3.
 -   Microcode version 8.4.x includes version 8.4.0.x and higher for both LTS and Non-LTS releases. For more information, see [IBM Spectrum Virtualize FAQ for Continuous Development (CD) Release Model for software releases](https://www.ibm.com/support/pages/node/6409554).
