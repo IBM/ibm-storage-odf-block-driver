@@ -22,74 +22,55 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
     </thead>
     <thead>
         <tr>
-        <th></th>
-        <th>1.0.0</th>
-        <th>1.1.0</th>
-        <th>1.2.0</th>
-        <th>1.3.0</th>
-        <th>1.4.0</th>
+            <th></th>
+            <th>1.3.0</th>
+            <th>1.4.0/1.4.1</th>
+            <th>1.5.0</th>
         </tr>
     </thead>    
     <tbody>
         <tr>
-            <td>4.9</td>
-            <td><ul>
-                <li>8.3.1.6 or later</li>
-                <li>8.4.x</li></ul></td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-        </tr>
-        <tr>
-            <td>4.10</td>
-            <td>Not supported</td>
-            <td><ul>
-                <li>8.3.1.6 or later</li>
-                <li>8.4.x</li>
-                <li>8.5.0.x</li></ul></td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-        </tr>
-        <tr>
-            <td>4.11</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td><ul>
-                <li>8.3.1.6 or later</li>
-                <li>8.4.x</li>
-                <li>8.5.0.x</li>
-                <li>8.5.2.x</li>
-                <li>8.5.3.x</li></ul></td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-        </tr>
-        <tr>
             <td>4.12</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
             <td><ul>
                 <li>8.3.1.6 or later</li>
                 <li>8.4.x</li>
                 <li>8.5.0.x</li>
                 <li>8.5.2.x</li>
                 <li>8.5.3.x</li></ul></td>
+            <td>Not supported</td>
             <td>Not supported</td>
         </tr>
         <tr>
             <td>4.13</td>
             <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td><ul>
+            <td>
+              <ul>
                 <li>8.3.1.6 or later</li>
                 <li>8.4.x</li>
-                <li>8.5.0.x</li>
-                <li>8.5.2.x</li>
-                <li>8.5.3.x</li></ul></td>
+                <li>8.5.x</li>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <li>8.4.x</li>
+                <li>8.5.x</li>
+                <li>8.6.x</li>
+                <li>8.7.x</li>
+              </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>4.14</td>
+            <td>Not supported</td>
+            <td>Not supported</td>
+            <td>
+              <ul>
+                <li>8.4.x</li>
+                <li>8.5.x</li>
+                <li>8.6.x</li>
+                <li>8.7.x</li>
+              </ul>
+            </td>
         </tr>
     </tbody>
 </table>
