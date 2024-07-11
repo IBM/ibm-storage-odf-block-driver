@@ -54,7 +54,7 @@ func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
 
 	log.Info("Beginning to serve on port :9100")
 	// #nosec
-	if err = http.ListenAndServe(":9100", nil); err != nil { // #nosec G114 -- suppressing, but TODO in a future release, fix G114: Use of net/http serve function that has no support for setting timeouts (gosec)
+	if err = http.ListenAndServe(":9100", nil); err != nil { //#nosec G114
 		log.Error(err, "failed to start http server")
 		panic(err)
 	}
