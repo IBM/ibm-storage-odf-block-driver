@@ -44,9 +44,9 @@ func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var _, _ = w.Write([]byte(`<html>
-            <head><title>Promethues Exporter</title></head>
+            <head><title>Prometheus Exporter</title></head>
             <body>
-            <h1>FlashSystem Overall Perf Promethues Exporter </h1>
+            <h1>FlashSystem Overall Perf Prometheus Exporter </h1>
             <p><a href="/metrics">Metrics</a></p>
             </body>
             </html>`))
