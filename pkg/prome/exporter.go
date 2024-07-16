@@ -44,9 +44,9 @@ func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		var _, _ = w.Write([]byte(`<html>
-            <head><title>Promethues Exporter</title></head>
+            <head><title>Prometheus Exporter</title></head>
             <body>
-            <h1>FlashSystem Overall Perf Promethues Exporter </h1>
+            <h1>FlashSystem Overall Perf Prometheus Exporter </h1>
             <p><a href="/metrics">Metrics</a></p>
             </body>
             </html>`))
@@ -54,7 +54,7 @@ func RunExporter(restClients map[string]*rest.FSRestClient, namespace string) {
 
 	log.Info("Beginning to serve on port :9100")
 	// #nosec
-	if err = http.ListenAndServe(":9100", nil); err != nil {
+	if err = http.ListenAndServe(":9100", nil); err != nil { //#nosec G114
 		log.Error(err, "failed to start http server")
 		panic(err)
 	}

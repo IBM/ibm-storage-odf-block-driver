@@ -1,0 +1,5 @@
+linters-settings:
+  staticcheck:
+    checks:
+      - all
+      - '-G114' # disable the rule G114

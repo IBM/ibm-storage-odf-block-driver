@@ -26,3 +26,43 @@ $ oc get pods | grep odf-operator-controller-manager
 https://bugzilla.redhat.com/show_bug.cgi?id=2207619 <br>
 https://jira.xiv.ibm.com/browse/ODF-448  
 
+
+### ODF-FS Console pod failing due to OOMKilled failure
+##### Problem:
+The ODF-FS Console pod fails continuously in a CrashLoopBackOff. The ODF-FS operator reports the failure reason is due to OOMKilled (error 137).
+
+##### Detected in version:
+All ODF versions running ODF-FS
+
+##### Problem verification:
+1. The ODF-FS Console pod failure reason can be extracted with the 'oc describe' command on the ODF-FS operator pod. Failure reason will be OOMKilled (error 137).
+2. Any attempt to delete the ODF-FS Console pod fails in the same way.
+3. The ODF-FS Console pod's log itself does not show any meaningful information as the pod cannot start.
+
+##### Workaround:
+1. SSH into OCP cluster
+2. Switch to openshift-storage namespace by running:  <br>
+$ oc project openshift-storage
+3. Download and edit the ODF-FS operator subscription by running:  <br>
+$ oc edit subscription -n openshift-storage ibm-storage-odf-operator
+4. Add the following lines in the <b>spec</b> section. Please note the indentation, and that all should be <b>lower case</b>  <br>
+        
+        config:
+            resources:
+                limits:
+                    cpu:     50m
+                    memory:  1000Mi
+                requests:
+                    cpu:     50m
+                    memory:  1000Mi
+5. Save and close the file. The subscription will be automatically applied to the cluster, and the ODF-FS pods will be redeployed
+6. Confirm all the ODF-FS pods are functioning by running: <br>
+$ oc get pods
+
+
+##### Notes:
+Changing the ODF-FS operator subscription will update the memory limit for all deployments in the subscription (ODF console, operator and sidecars). <br>
+However, changing the ODF-FS operator subscription will be preserved through upgrades, so it won't need to be changed again when upgrading to a future version.
+
+##### Links:
+https://jira.xiv.ibm.com/browse/ODF-579
