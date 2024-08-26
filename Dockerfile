@@ -1,5 +1,5 @@
 # Build the manager binary
-FROM --platform=$BUILDPLATFORM golang:1.20 as builder
+FROM --platform=$BUILDPLATFORM golang:1.22 AS builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -15,7 +15,6 @@ RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -a -o ibm-storage-odf-block
 
 FROM registry.access.redhat.com/ubi9-minimal:9.4-1134
 
-MAINTAINER IBM Storage
 LABEL vendor="IBM" \
   name="ibm-storage-odf-block-driver" \
   org.label-schema.vendor="IBM" \
