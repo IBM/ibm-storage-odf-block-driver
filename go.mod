@@ -1,6 +1,6 @@
 module github.com/IBM/ibm-storage-odf-block-driver
 
-go 1.19
+go 1.22
 
 require (
 	github.com/IBM/ibm-storage-odf-operator v1.6.0
