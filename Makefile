@@ -8,7 +8,7 @@ DRIVER_NAME=ibm-storage-odf-block-driver
 
 DRIVER_IMAGE=$(REGISTRY)/$(DRIVER_NAME):$(IMAGE_TAG)
 BUILD_COMMAND = docker buildx build -t $(DRIVER_IMAGE) --platform $(PLATFORM) -f ./Dockerfile .
-
+PUSH_COMMAND = docker push $(DRIVER_IMAGE)
 
 .PHONY: all $(DRIVER_NAME)
 
@@ -44,7 +44,7 @@ build-image:
 	$(BUILD_COMMAND)
 
 push-image:
-	$(BUILD_COMMAND) --push
+	$(BUILD_COMMAND) && $(PUSH_COMMAND)
 
 clean: bin-clean
 
