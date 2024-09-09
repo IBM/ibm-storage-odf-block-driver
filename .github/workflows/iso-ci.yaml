@@ -19,6 +19,7 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
+        cache: false
 
     - uses: actions/checkout@v4
       with:
