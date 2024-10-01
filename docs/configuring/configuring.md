@@ -2,7 +2,7 @@
 
 Red Hat® OpenShift® Data Foundation (ODF) uses the ODF FlashSystem driver to integrate with your IBM FlashSystem® storage system. When using the OpenShift Data Foundation with your storage system ensure that all configuration needs are met by following the Red Hat ODF documentation set.
 
-The ODF FlashSystem driver enables IBM Spectrum Virtualize family products to be used with Red Hat OpenShift Data Foundation. ODF FlashSystem driver utilizes the IBM Block Storage CSI driver for all configuration changes on IBM Spectrum Virtualize family products.
+The ODF FlashSystem driver enables IBM Spectrum Virtualize family products to be used with Red Hat OpenShift Data Foundation. ODF FlashSystem driver utilizes the IBM Block Storage CSI driver for all Red Hat OpenShift cluster configuration changes, such as StorageClass and PersistentVolumeClaims creation, in use of IBM Spectrum Virtualize family products.
 
 For more information and documentation, see the following:
 
