@@ -25,7 +25,7 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
             <th></th>
             <th>1.3.0</th>
             <th>1.4.0/1.4.1</th>
-            <th>1.5.0</th>
+            <th>1.5.0/1.5.1</th>
         </tr>
     </thead>    
     <tbody>

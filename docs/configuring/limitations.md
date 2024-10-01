@@ -11,4 +11,4 @@ The ODF FlashSystem driver contains the following limitations:
     - Volume performance
     - Volume storage class capacity
 - Reports are not generated for FlashSystem information and events.
-
+- ODF FlashSystem driver will not operate correctly if prior to installation an instance of IBM Block Storage CSI driver is installed on the cluster.
