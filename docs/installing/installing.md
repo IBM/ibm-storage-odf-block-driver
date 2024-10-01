@@ -3,8 +3,7 @@
 Download and install the ODF FlashSystem driver to manage your FlashSystem storage systems through Red Hat OpenShift Data Foundation.
 
 **Important:** ODF FlashSystem driver is not a standalone product and **must** be used together with Red Hat OpenShift Data Foundation and with Red Hat OpenShift Data Foundation already installed.
-
-Ensure that IBM block storage CSI is not installed (It will be automatically installed during StorageSystem creation procedure).
+**Important:** ODF FlashSystem driver utilizes the IBM Block Storage CSI driver and installs it automatically in the cluster. If an instance of IBM Block Storage CSI driver is already installed on the cluster, it mush be removed prior to installing the ODF FlashSystem driver.
 
 Install the ODF FlashSystem driver through the [Red Hat OpenShift certified operator catalog](https://catalog.redhat.com/software/search?type=Operator).
 
