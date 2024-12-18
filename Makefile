@@ -1,5 +1,5 @@
 
-LINT_VERSION="1.40.0"
+LINT_VERSION="1.62.2"
 
 REGISTRY=quay.io/ibmodffs
 IMAGE_TAG=1.7.0
