@@ -2,7 +2,7 @@
 
 This topic lists the dates and nature of updates to the published information of the ODF FlashSystem driver.
 
-| Date         | Nature of updates to the published information                                                                                                                                                                                                                                                                                                |
-|--------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| October 2024 | ODF FlashSystem driver v1.6.0 adds new support for the following:<br>- Red Hat® OpenShift® 4.15, 4.16 and 4.17<br>- Security updates |
+| Date          | Nature of updates to the published information                                                                                                                                                                                                                                                                                                |
+|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| February 2025 | ODF FlashSystem driver v1.7.0 adds new support for the following:<br>- Red Hat® OpenShift® 4.18, 4.19<br>- Security updates |
 
