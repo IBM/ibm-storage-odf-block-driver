@@ -3,7 +3,7 @@ module github.com/IBM/ibm-storage-odf-block-driver
 go 1.22.0
 
 require (
-	github.com/IBM/ibm-storage-odf-operator v1.7.0
+	github.com/IBM/ibm-storage-odf-operator v1.6.0
 	github.com/prometheus/client_golang v1.19.1
 	k8s.io/api v0.31.0
 	k8s.io/apimachinery v0.31.0
@@ -45,9 +45,9 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
