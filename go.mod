@@ -9,7 +9,7 @@ require (
 	github.com/prometheus/client_golang v1.20.5
 	k8s.io/api v0.32.1
 	k8s.io/apimachinery v0.32.1
-	k8s.io/client-go v0.32.0
+	k8s.io/client-go v0.32.1
 	k8s.io/klog v1.0.0
 	sigs.k8s.io/controller-runtime v0.20.0
 )
