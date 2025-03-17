@@ -17,31 +17,18 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
     <thead>
         <tr>
             <th colspan=1>Red Hat OpenShift Data Foundation (ODF) version</th>
-            <th colspan=6>ODF FlashSystem driver version</th>
+            <th colspan=3>ODF FlashSystem driver version</th>
         </tr>
     </thead>
     <thead>
         <tr>
             <th></th>
-            <th>1.5.0/1.5.1</th>
+            <th>1.5.1</th>
             <th>1.6.0</th>
             <th>1.7.0</th>
         </tr>
     </thead>    
     <tbody>
-        <tr>
-            <td>4.19</td>
-            <td>Not supported</td>
-            <td>Not supported</td>
-            <td>
-              <ul>
-                <li>8.4.x</li>
-                <li>8.5.x</li>
-                <li>8.6.x</li>
-                <li>8.7.x</li>
-              </ul>
-            </td>
-        </tr>
         <tr>
             <td>4.18</td>
             <td>Not supported</td>
@@ -53,6 +40,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.12.2
             </td>
         </tr>
         <tr>
@@ -65,6 +54,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.11.4
             </td>
             <td>
               <ul>
@@ -73,6 +64,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.12.2
             </td>
         </tr>
         <tr>
@@ -85,6 +78,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.11.4
             </td>
             <td>Not supported</td>
         </tr>
@@ -98,6 +93,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.11.4
             </td>
             <td>Not supported</td>
         </tr>
@@ -110,6 +107,8 @@ The FlashSystem family storage systems supported for ODF FlashSystem driver incl
                 <li>8.6.x</li>
                 <li>8.7.x</li>
               </ul>
+              </br>
+              Using IBM Block Storage CSI driver v1.11.4
             </td>
             <td>Not supported</td>
             <td>Not supported</td>
