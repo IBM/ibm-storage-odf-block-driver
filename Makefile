@@ -1,9 +1,9 @@
 
 LINT_VERSION="1.62.2"
 
-REGISTRY=quay.io/uriziv1
+REGISTRY=quay.io/ibmodffs
 IMAGE_TAG=1.7.0
-PLATFORM=linux/amd64
+PLATFORM=linux/amd64,linux/ppc64le,linux/s390x
 DRIVER_NAME=ibm-storage-odf-block-driver
 
 DRIVER_IMAGE=$(REGISTRY)/$(DRIVER_NAME):$(IMAGE_TAG)
