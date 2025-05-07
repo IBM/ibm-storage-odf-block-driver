@@ -8,10 +8,10 @@ The IBM® ODF FlashSystem driver utilizes the IBM® Block Storage CSI driver for
 
 For more information and documentation, see the following:
 
--   Support summary for enabled IBM Storage Virtualize® family storage system products and Red Hat OpenShift Data Foundation®: [IBM® ODF FlashSystem driver support summary](../landing/odf_flashsystem_driver_support_matrix.html).
--   User information and release notes documentation for the Red Hat OpenShift Data Foundation®: [OpenShift Data Foundation documentation](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation).
--   General information about Red Hat OpenShift Data Foundation®, a software-defined storage for containers: [OpenShift Data Foundation](https://www.redhat.com/en/technologies/cloud-computing/openshift-data-foundation).
--   IBM® Block Storage CSI driver configuration: [IBM Block Storage CSI driver](https://www.ibm.com/docs/en/stg-block-csi-driver)
+-   Support summary for enabled IBM Storage Virtualize® family storage system products and Red Hat OpenShift Data Foundation®: [IBM® ODF FlashSystem driver support summary](../docs_general/odf_flashsystem_driver_support_matrix.html).
+-   User information and release notes documentation for the Red Hat OpenShift Data Foundation®: [Red Hat OpenShift Data Foundation® documentation](https://access.redhat.com/documentation/en-us/red_hat_openshift_data_foundation).
+-   General information about Red Hat OpenShift Data Foundation®, a software-defined storage for containers: [Red Hat OpenShift Data Foundation®](https://www.redhat.com/en/technologies/cloud-computing/openshift-data-foundation).
+-   IBM® Block Storage CSI driver configuration: [IBM® Block Storage CSI driver](https://www.ibm.com/docs/en/stg-block-csi-driver)
 
 ## Configuration considerations
 
