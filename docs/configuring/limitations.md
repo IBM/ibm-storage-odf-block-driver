@@ -5,7 +5,7 @@ Refer to these limitations before working with the IBM® ODF FlashSystem driver.
 The IBM® ODF FlashSystem driver contains the following limitations:
 
 - Only x86 architecture is supported.
-- When creating a storage class from within the Red Hat OpenShift Data Foundation® user-interface, installation of Red Hat Ceph® over IBM Storage Virtualize® family storage systems is allowed. That said, when using IBM Storage Virtualize® family storage systems, it is best to use a direct I/O path to the storage system. For more information, see [Configuration considerations](configuring.md#odf_config).
+- When creating a storage class from within the Red Hat OpenShift Data Foundation® user-interface, installation of Red Hat Ceph Storage® over IBM Storage Virtualize® family storage systems is allowed. That said, when using IBM Storage Virtualize® family storage systems, it is best to use a direct I/O path to the storage system. For more information, see [Configuration considerations](configuring.md#odf_config).
 - The following individual reports are not currently generated:
     - Pool performance
     - Volume performance
