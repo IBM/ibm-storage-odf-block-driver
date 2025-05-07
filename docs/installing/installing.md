@@ -1,6 +1,6 @@
 # Installing the driver
 
-Download and install the IBM® ODF FlashSystem driver to manage your IBM Storage Virtualize family storage systems through Red Hat OpenShift Data Foundation®.
+Download and install the IBM® ODF FlashSystem driver to manage your IBM Storage Virtualize® family storage systems through Red Hat OpenShift Data Foundation®.
 
 **Important:** IBM® ODF FlashSystem driver is not a standalone product and **must** be used together with Red Hat OpenShift Data Foundation® and with Red Hat OpenShift Data Foundation® already installed.<br>
 **Important:** IBM® ODF FlashSystem driver utilizes the IBM® Block Storage CSI driver and installs it automatically in the cluster. If an instance of IBM® Block Storage CSI driver is already installed on the cluster, it must be removed prior to installing the IBM® ODF FlashSystem driver.

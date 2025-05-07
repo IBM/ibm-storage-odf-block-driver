@@ -13,13 +13,12 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
     <thead>
         <tr>
             <th colspan=1>Red Hat OpenShift Data Foundation® (ODF) version</th>
-            <th colspan=3>IBM® ODF FlashSystem driver version</th>
+            <th colspan=2>IBM® ODF FlashSystem driver version</th>
         </tr>
     </thead>
     <thead>
         <tr>
             <th></th>
-            <th>1.5.1</th>
             <th>1.6.0</th>
             <th>1.7.0</th>
         </tr>
@@ -27,7 +26,6 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
     <tbody>
         <tr>
             <td>4.18</td>
-            <td>Not supported</td>
             <td>Not supported</td>
             <td>
               <ul>
@@ -42,7 +40,6 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
         </tr>
         <tr>
             <td>4.17</td>
-            <td>Not supported</td>
             <td>
               <ul>
                 <li>8.4.x</li>
@@ -66,7 +63,6 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
         </tr>
         <tr>
             <td>4.16</td>
-            <td>Not supported</td>
             <td>
               <ul>
                 <li>8.4.x</li>
@@ -81,7 +77,6 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
         </tr>
         <tr>
             <td>4.15</td>
-            <td>Not supported</td>
             <td>
               <ul>
                 <li>8.4.x</li>
@@ -92,21 +87,6 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
               </br>
               Using IBM® Block Storage CSI driver v1.11.4
             </td>
-            <td>Not supported</td>
-        </tr>
-        <tr>
-            <td>4.14</td>
-            <td>
-              <ul>
-                <li>8.4.x</li>
-                <li>8.5.x</li>
-                <li>8.6.x</li>
-                <li>8.7.x</li>
-              </ul>
-              </br>
-              Using IBM® Block Storage CSI driver v1.11.4
-            </td>
-            <td>Not supported</td>
             <td>Not supported</td>
         </tr>
     </tbody>
