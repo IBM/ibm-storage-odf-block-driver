@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/IBM/ibm-storage-odf-operator v1.7.0
+	github.com/IBM/ibm-storage-odf-operator v1.7.1
 	github.com/prometheus/client_golang v1.20.5
 	k8s.io/api v0.33.0
 	k8s.io/apimachinery v0.33.0
@@ -38,6 +38,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/openshift/api v0.0.0-20240926211938-f89ab92f1597 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
