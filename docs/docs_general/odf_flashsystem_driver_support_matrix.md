@@ -20,7 +20,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
         <tr>
             <th></th>
             <th>1.6.0</th>
-            <th>1.7.0</th>
+            <th>1.7.1</th>
         </tr>
     </thead>    
     <tbody>
