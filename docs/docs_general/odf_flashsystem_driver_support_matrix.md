@@ -23,8 +23,23 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
             <th>1.7.1</th>
             <th>1.8.0</th>
         </tr>
-    </thead>    
+    </thead>
     <tbody>
+    <tr>
+            <td>4.19</td>
+            <td>Not supported</td>
+            <td>Not supported</td>
+            <td>
+              <ul>
+                <li>8.4.x</li>
+                <li>8.5.x</li>
+                <li>8.6.x</li>
+                <li>8.7.x</li>
+              </ul>
+              </br>
+              Using IBM® Block Storage CSI driver v1.12.4
+            </td>
+        </tr>
         <tr>
             <td>4.18</td>
             <td>Not supported</td>
@@ -46,7 +61,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>8.7.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.12.3
+              Using IBM® Block Storage CSI driver v1.12.4
             </td>
         </tr>
         <tr>
@@ -79,7 +94,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>8.7.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.12.3
+              Using IBM® Block Storage CSI driver v1.12.4
             </td>
         </tr>
         <tr>
@@ -112,7 +127,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>8.7.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.12.3
+              Using IBM® Block Storage CSI driver v1.12.4
             </td>
         </tr>
         <tr>
@@ -145,7 +160,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>8.7.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.12.3
+              Using IBM® Block Storage CSI driver v1.12.4
             </td>
         </tr>
     </tbody>

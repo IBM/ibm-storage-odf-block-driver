@@ -5,7 +5,7 @@ go 1.24.0
 toolchain go1.24.1
 
 require (
-	github.com/IBM/ibm-storage-odf-operator v1.7.1
+	github.com/IBM/ibm-storage-odf-operator v1.8.0
 	github.com/prometheus/client_golang v1.22.0
 	k8s.io/api v0.33.1
 	k8s.io/apimachinery v0.33.1
