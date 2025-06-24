@@ -13,7 +13,7 @@ COPY pkg/ pkg/
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GO111MODULE=on go build -a -o ibm-storage-odf-block-driver ./cmd/manager/main.go
 
-FROM registry.access.redhat.com/ubi9-minimal:9.5-1742914212
+FROM registry.access.redhat.com/ubi9-minimal:9.6-1749489516
 
 LABEL vendor="IBM" \
   name="ibm-storage-odf-block-driver" \
