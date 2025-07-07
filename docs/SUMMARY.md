@@ -6,5 +6,7 @@
 * [Configuring](configuring/configuring.md)
     * [Limitations](configuring/limitations.md)
     * [Known Issues](configuring/known_issues.md)
+* [Troubleshooting](troubleshooting/troubleshooting.md)
+    * [Log and status collection](troubleshooting/log_status_collect.md)
 * [Trademarks](docs_general/trademarks.md)
 * [Related information and publications](docs_general/relatedpubs.md)
