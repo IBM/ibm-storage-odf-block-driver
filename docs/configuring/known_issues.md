@@ -1,11 +1,11 @@
 # Known issues
 
 ###  Storage system status stuck on 'Progressing'
-##### Problem: 
+##### Problem:
 In some specific circumstances, after adding an IBM Storage Virtualize® family storage system as an external storage, some storage systems might get stuck on 'Progressing' state due to a status sync delay on Red Hat® ODF operator.
-##### Detected in version: 
+##### Detected in version:
 Red Hat® ODF 4.13 using IBM® ODF FlashSystem driver 1.4.x
-##### Problem verification: 
+##### Problem verification:
 In the Red Hat Openshift® console, go to Storage -> Data Foundation -> storage systems. Some storage systems might be stuck forever with a status of: "Progressing" and never changes to "Available".
 
 ![Storage-system-in-progressing-github3](storage-system-in-progressing2.png "storage-system")
@@ -21,18 +21,18 @@ $ oc get pods | grep odf-operator-controller-manager
 ```
 4. Delete the pod found in the previous step by running:
 ```
-$ oc delete pod {odf-operator-controller-manager-*}  
+$ oc delete pod {odf-operator-controller-manager-*}
 ```
 5. The pod will be recreated automatically, verify pod creation by running:
 ```
-$ oc get pods | grep odf-operator-controller-manager  
+$ oc get pods | grep odf-operator-controller-manager
 ```
 6. THe storage system status should change to 'Available' after a few minutes
 
 
 ##### Links:
 https://bugzilla.redhat.com/show_bug.cgi?id=2207619 <br>
-https://jira.xiv.ibm.com/browse/ODF-448  
+https://jira.xiv.ibm.com/browse/ODF-448
 
 
 ### IBM ODF FlashSystem driver console pod failing due to OOMKilled failure
@@ -77,6 +77,40 @@ $ oc get pods
 ##### Notes:
 Changing the IBM® ODF FlashSystem operator subscription will update the memory limit for all deployments in the subscription (ODF console, operator and sidecars). <br>
 However, changing the IBM® ODF FlashSystem operator subscription will be preserved through upgrades, so it won't need to be changed again when upgrading to a future version.
+
+##### Links:
+https://jira.xiv.ibm.com/browse/ODF-579
+
+
+### IBM ODF FlashSystem pods failing with CrashLoopBackOff state due to PVC without storageClassName value
+##### Problem:
+When PVCs without storageClassName value exist, the IBM® ODF FlashSystem driver pods fail continuously in a CrashLoopBackOff.
+
+##### Detected in version:
+All Red Hat® ODF versions running the IBM® ODF FlashSystem driver
+
+##### Problem verification:
+In the logs of the IBM® ODF FlashSystem driver operator pod, there will appear the following log lines:
+```
+2023-12-26T11:20:51.599028184+04:00 2023-12-26T07:20:51.599Z	INFO	controllers.PersistentVolumeWatcher	looking for StorageClass	{"PersistentVolume": "/pvc-eb8f0652-260c-412f-906a-399712b9d1d0"}
+2023-12-26T11:20:51.603265837+04:00 panic: runtime error: invalid memory address or nil pointer dereference
+2023-12-26T11:20:51.603265837+04:00 [signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x12f128f]
+```
+
+Check all PVCs for value of storageClassName.
+```
+$ oc get pvc pvc1 -o yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+...
+spec:
+...
+  storageClassName: my-sc-name
+  ```
+storageClassName must exist
+
+##### Resolution:
+All PVCs must have the storageClassName value defined
 
 ##### Links:
 https://jira.xiv.ibm.com/browse/ODF-579
