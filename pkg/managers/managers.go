@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package managers
 package managers
 
 import (
@@ -102,7 +103,7 @@ func GetManagers(namespace string, currentSystems map[string]*rest.FSRestClient)
 
 var GetStorageCredentials = func(d *drivermanager.DriverManager) (rest.Config, error) {
 	secret := &corev1.Secret{}
-	err := d.Client.Get(context.TODO(),
+	err := d.Get(context.TODO(),
 		types.NamespacedName{
 			Namespace: d.GetNamespaceName(),
 			Name:      d.GetSecretName()},
