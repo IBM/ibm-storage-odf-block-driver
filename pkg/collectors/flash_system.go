@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package collectors
 package collectors
 
 import (
@@ -122,7 +123,7 @@ func (f *PerfCollector) Collect(ch chan<- prometheus.Metric) {
 			poolInfo.IsInternalStorage = IsPoolFromInternalStorage(poolInfo)
 			poolInfo.IsCompressionEnabled = IsCompressionEnabled(poolInfo)
 			poolInfo.IsArrayMode = IsPoolArrayMode(poolInfo)
-			poolInfo.PoolId, _ = strconv.Atoi(pool[MdiskIdKey].(string))
+			poolInfo.PoolID, _ = strconv.Atoi(pool[MdiskIDKey].(string))
 			poolInfo.PoolMDiskGrpInfo = pool
 			poolsInfoList = append(poolsInfoList, poolInfo)
 		}
@@ -163,8 +164,8 @@ func getPoolMDisks(fsRestClient *rest.FSRestClient, poolName string, mDisksList 
 	var mDisksInPool []rest.SingleMDiskInfo
 	for _, mDisk := range mDisksList {
 		if poolName == mDisk[MdiskGroupNameKey].(string) {
-			mDiskId, _ := strconv.Atoi(mDisk[MdiskIdKey].(string))
-			mDiskInfo, err := fsRestClient.LsSingleMDisk(mDiskId)
+			mDiskID, _ := strconv.Atoi(mDisk[MdiskIDKey].(string))
+			mDiskInfo, err := fsRestClient.LsSingleMDisk(mDiskID)
 			if err != nil {
 				log.Errorf("get single mdisk info error: %v", err)
 				return mDisksInPool, err
