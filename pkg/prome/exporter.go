@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package prome
 package prome
 
 import (
