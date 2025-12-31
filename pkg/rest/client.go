@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package rest
 package rest
 
 import (
@@ -56,7 +57,7 @@ type FSRestClient struct {
 	bNotified  bool
 }
 
-// For easy mock the request response
+// Poster For easy mock the request response
 type Poster func(req *http.Request, c *FSRestClient) ([]byte, int, error)
 
 type Requester struct {
@@ -141,7 +142,11 @@ func (c *FSRestClient) authenticate() error {
 		return errors.New(errMsg)
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+			err = cerr
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -247,7 +252,11 @@ func doRequest(req *http.Request, c *FSRestClient) ([]byte, int, error) {
 		return nil, http.StatusUnauthorized, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if cerr := resp.Body.Close(); cerr != nil && err == nil {
+		err = cerr
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	return body, resp.StatusCode, err
@@ -322,7 +331,7 @@ func (c *FSRestClient) Lscurrentuser() (Users, error) {
 	return users, nil
 }
 
-// Pool list, result of lsmdiskgrp
+// PoolList is the result of lsmdiskgrp
 type PoolList []map[string]interface{}
 
 func (c *FSRestClient) Lsmdiskgrp() (PoolList, error) {

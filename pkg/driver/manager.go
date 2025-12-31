@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+// Package driver
 package driver
 
 import (
@@ -31,7 +32,6 @@ import (
 
 	operatorapi "github.com/IBM/ibm-storage-odf-operator/api/v1alpha1"
 	conditionutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
-	operutil "github.com/IBM/ibm-storage-odf-operator/controllers/util"
 )
 
 // Reason
@@ -55,7 +55,7 @@ const (
 	ExporterReadyMessage   = "Flash system exporter is ready"
 )
 
-const INIT_POOL_ID = -1
+const InitPoolID = -1
 
 var K8SClient client.Client = nil
 
@@ -68,7 +68,7 @@ type DriverManager struct {
 	secretName string
 }
 
-func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap operutil.FlashSystemClusterMapContent) (DriverManager, error) {
+func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScSecretMap conditionutil.FlashSystemClusterMapContent) (DriverManager, error) {
 	var manager DriverManager
 
 	k8sClient, err := getK8sClient(scheme)
@@ -87,7 +87,7 @@ func NewManager(scheme *runtime.Scheme, namespace string, fscName string, fscScS
 	return manager, nil
 }
 
-// Add helper function to expose the state for mockup
+// Ready function: helper to expose the state for mockup
 func (d *DriverManager) Ready() {
 	d.ready = true
 }
@@ -131,7 +131,7 @@ func (d *DriverManager) UpdatePoolMap(scPool map[string]string) {
 func (d *DriverManager) GetPoolNames() map[string]int {
 	poolNames := map[string]int{}
 	for _, pool := range d.scPoolMap {
-		poolNames[pool] = INIT_POOL_ID
+		poolNames[pool] = InitPoolID
 	}
 
 	return poolNames
@@ -215,7 +215,7 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 		Type:           eventtype,
 	}
 
-	err = d.Client.Create(context.TODO(), evt)
+	err = d.Create(context.TODO(), evt)
 	if err != nil {
 		log.Errorf("failed to SendK8sEvent reason: %s, message: %s, error: \n %v\n", reason, message, err)
 	}
@@ -224,7 +224,7 @@ func (d *DriverManager) SendK8sEvent(eventtype, reason, message string) error {
 
 func (d *DriverManager) GetFlashSystemClusterCR() (*operatorapi.FlashSystemCluster, error) {
 	fscluster := operatorapi.FlashSystemCluster{}
-	err := d.Client.Get(
+	err := d.Get(
 		context.TODO(),
 		client.ObjectKey{
 			Namespace: d.namespace,
