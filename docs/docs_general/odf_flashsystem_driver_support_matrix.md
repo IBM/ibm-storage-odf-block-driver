@@ -26,6 +26,21 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
     </thead>
     <tbody>
         <tr>
+            <td>4.22</td>
+            <td>Not supported</td>
+            <td>Not supported</td>
+            <td>
+              <ul>
+                <li>8.5.x</li>
+                <li>8.6.x</li>
+                <li>8.7.x</li>
+                <li>9.1.x</li>
+              </ul>
+              </br>
+              Using IBM® Block Storage CSI driver v1.14.0
+            </td>
+        </tr>
+        <tr>
             <td>4.21</td>
             <td>Not supported</td>
             <td>Not supported</td>
@@ -37,7 +52,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>9.1.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.13.2
+              Using IBM® Block Storage CSI driver v1.14.0
             </td>
         </tr>
         <tr>
@@ -61,7 +76,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>9.1.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.13.2
+              Using IBM® Block Storage CSI driver v1.14.0
             </td>
         </tr>
         <tr>
@@ -94,7 +109,7 @@ The IBM Storage Virtualize® family storage systems supported by the IBM® ODF F
                 <li>9.1.x</li>
               </ul>
               </br>
-              Using IBM® Block Storage CSI driver v1.13.2
+              Using IBM® Block Storage CSI driver v1.14.0
             </td>
         </tr>
         <tr>
