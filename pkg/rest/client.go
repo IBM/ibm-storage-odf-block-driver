@@ -72,9 +72,9 @@ func (c *FSRestClient) NewFSRestClient(config Config, driverManager *drivermanag
 	tr := &http.Transport{
 		// #nosec
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		Dial: (&net.Dialer{
+		DialContext: (&net.Dialer{
 			Timeout: 5 * time.Second,
-		}).Dial,
+		}).DialContext,
 		TLSHandshakeTimeout: 5 * time.Second,
 		MaxIdleConnsPerHost: 1024,
 	}
